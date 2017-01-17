@@ -20,10 +20,9 @@ echo '...COMPLETE'
 cd ..
 
 echo 'Installing Apache'
-curl http://mirrors.koehn.com/apache//httpd/httpd-2.4.25.tar.gz -o httpd-2.4.25.tar.gz
-tar -xvfz httpd-2.4.25.tar.gz
-rm httpd-2.4.25.tar httpd-2.4.25.tar.gz
-cd $1/httpd-2.4.25
+curl http://download.nextag.com/apache//httpd/httpd-2.4.25.tar.bz2 > httpd-2.4.25.tar.bz2
+tar -xjf httpd-2.4.25.tar.bz2 
+cd httpd-2.4.25
 ./configure --prefix=$1
 make
 make install
