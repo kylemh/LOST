@@ -1,13 +1,13 @@
 <h1>The Data and the Database</h1>
 
-<p>Note: create_tables.sql used as data model reference. Script and 
-
-<b>USAGE</b>
+<h4>CONTENTS</h4>
 <ul>
-<li>$ createdb lost</li>
-<li>$ psql create_tables.sql</li>
-<li>$ ./import_data.sh</li>
-<li>Query at your leisure!</li>
+<li><b>create_tables.sql</b> - SQL script which creates empty tables for LOST postgreSQL database</li>
+<li><b>csv2psql.py</b> - Python script that converts legacy data (.csv) into entries within the LOST database</li>
+<li><b>import_data.sh</b> - Bash script that starts postgreSQL, creates empty tables, downloads legacy data, unzips it, runs csv2psql.py, and cleans up after itself</li>
 </ul>
 
-<i>TODO: Add bash scripts and documentation to allow for deployment on ANY linux-apache server</i>i
+<h4>USAGE</h4>
+<p>$ ./import_data.sh</p>
+
+<i>TODO: Add bash scripts and documentation to allow for deployment on ANY linux-apache server</i>
