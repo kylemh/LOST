@@ -1,12 +1,9 @@
 #! /bin/bash
-db_name = $1
-port = $2
-
-echo 'Creating database...'
-createdb lost
+db_name=$1
+port=$2
 
 echo 'Creating empty tables for database model...'
-psql create_tables.sql
+psql lost < create_tables.sql
 
 echo 'Curling in OSNAP legacy data...'
 curl -O https://classes.cs.uoregon.edu//17W/cis322/files/osnap_legacy.tar.gz
