@@ -3,6 +3,7 @@ import csv
 import sys
 import glob
 
+# TODO: Implement more extensible format
 
 def main():
 	# Connect to database
@@ -22,7 +23,7 @@ def main():
 	# Translate legacy data into useful information for facilities and inventory for each facility
 	facilities()
 
-	#
+	# TODO: Populate Products, Levels, Compartments, and Security Tags
 
 	# Commit changes to database
 	db.commit()
@@ -65,6 +66,12 @@ def inventory(fn, facility_fk):
 		cur.execute("SELECT asset_pk FROM assets WHERE asset_tag = '" + row[0] + "';")
 		asset_fk = cur.fetchone()[0]
 		insert("asset_at", ["asset_fk", "facility_fk"], [asset_fk, facility_fk])
+
+
+# TODO: Define get_pk(table, columns, values)
+def get_pk(table, columns, values):
+	# UNIMPLEMENTED
+	return
 
 
 def insert(table, columns, values):
