@@ -4,7 +4,7 @@
 <ul>
 <li><b>create_tables.sql</b> - SQL script which creates empty tables for LOST postgreSQL database</li>
 <li><b>csv2psql.py</b> - Python script that converts legacy data (.csv) into entries within the LOST database</li>
-<li><b>import_data.sh</b> - Bash script that starts postgreSQL, creates empty tables, downloads legacy data, unzips it, runs csv2psql.py, and cleans up after itself</li>
+<li><b>import_data.sh</b> - Bash script that you should run after <code>$ createdb lost</code> creates empty tables, downloads legacy data, unzips it, runs csv2psql.py, and cleans up after itself</li>
 </ul>
 
 <h4>USAGE</h4>
