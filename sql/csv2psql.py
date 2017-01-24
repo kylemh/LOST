@@ -12,6 +12,7 @@ def main():
 	print("CONNECTION COMPLETE")
 
 	# Create database cursor
+	global cur
 	cur = db.cursor()
 
 	# Increase work memory
@@ -84,7 +85,6 @@ def insert(table, columns, values):
 if __name__ == '__main__':
 	global db_name
 	global port
-	global cur
 
 	try:
 		db_name = sys.argv[1]
