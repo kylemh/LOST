@@ -22,6 +22,8 @@ def main():
 	# Translate legacy data into useful information for facilities and inventory for each facility
 	facilities()
 
+	#
+
 	# Commit changes to database
 	db.commit()
 
