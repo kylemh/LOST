@@ -12,7 +12,7 @@ CREATE TABLE products (
 
 CREATE TABLE assets (
 	asset_pk serial primary key,
-	product_fk integer REFERENCES products(product_pk) NOT NULL,
+	product_fk integer REFERENCES products(product_pk),
 	asset_tag varchar(255),
 	description varchar(255),
 	alt_description varchar(255)
