@@ -1,3 +1,7 @@
+-- noinspection SqlNoDataSourceInspectionForFile
+
+-- noinspection SqlDialectInspectionForFile
+
 /* ASSET TABLES */
 CREATE TABLE products (
 	product_pk serial primary key,

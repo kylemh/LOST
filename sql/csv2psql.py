@@ -98,7 +98,7 @@ if __name__ == '__main__':
 	try:
 		db_name = sys.argv[1]
 		port = int(sys.argv[2])
-	except UserWarning:
+	except:
 		print("Error with command line arguments!\nConnecting to lost:5432 anyways...")
 	else:
 		db_name = 'lost'
