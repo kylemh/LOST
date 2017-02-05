@@ -1,6 +1,9 @@
 # Put settings in here for database connectivity and heavily used variables.
 
-# Like so...
+import os
+import pathlib
+import json
+
 
 # DBuser = ''
 # DBpassword          = ''
