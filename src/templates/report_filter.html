@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block title %}Report Filters{% endblock %}
+
+{% block head %}
+	{{ super() }}
+{% endblock %}
+
+{% block content %}
+	{% if !session.login_ok %}
+		<h1 class="alert-warning">AUTHORIZATION FAILURE</h1>
+	{% endif %}
+
+	{% if session.login_ok %}
+		<h1>Report Filters</h1>
+		<!--<form></form>-->
+	{% endif %}
+{% endblock %}
+
+<!-- THIS VIEW APPEARS AFTER login -->
+<!-- THIS VIEW TRANSITIONS TO moving_inventory OR facility_inventory -->

@@ -1,1 +1,17 @@
-/* Add CSS (or SCSS) here, later */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    text-align: center;
+    border-bottom: 2px black solid;
+}
+
+h1 {
+    text-transform: uppercase;
+}
+
+p {
+    text-align: center;
+}

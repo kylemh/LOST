@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block title %}Inventory In Transit{% endblock %}
+
+{% block head %}
+	{{ super() }}
+{% endblock %}
+
+{% block content %}
+	{% if !session.login_ok %}
+		<h1 class="alert-warning">AUTHORIZATION FAILURE</h1>
+	{% endif %}
+
+	{% if session.login_ok %}
+		<h1>Inventory In Transit</h1>
+		<!--<form></form>-->
+	{% endif %}
+{% endblock %}
+
+<!-- THIS VIEW APPEARS AFTER report_filter -->
+<!-- THIS VIEW TRANSITIONS TO report_filter or logout -->

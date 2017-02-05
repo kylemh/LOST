@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block head %}
+	{{ super() }}
+{% endblock %}
+
+{% block content %}
+	<h1>LOST LOGIN</h1>
+	<p>Please login with proper credentials in order to use LOST.</p>
+	<form action="{{ url_for('login') }}" method="POST">
+		<dl>
+			<dt>Username:</dt>
+			<dd><input type="text" name="username"></dd>
+			<dt>Password:</dt>
+			<dd><input type="password" name="password"></dd>
+			<dd><input type="submit" value="login"></dd>
+		</dl>
+	</form>
+{% endblock %}
+
+<!-- THIS VIEW APPEARS AFTER logout & application start -->
+<!-- THIS VIEW TRANSITIONS TO report_filter -->

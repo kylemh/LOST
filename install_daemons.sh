@@ -3,23 +3,23 @@ export PATH=$1/bin:$PATH
 
 # install_daemons.sh
 
-echo 'Installing Daemon for OSNAP'
-echo '---------------------------'
+printf 'Installing Daemon for OSNAP\n'
+printf '---------------------------\n'
 
-echo 'Downloading PostgreSQL'
+printf 'Downloading PostgreSQL\n'
 git clone -b REL9_5_STABLE https://github.com/postgres/postgres.git postgres
-echo '...COMPLETE'
+printf '...COMPLETE\n\n'
 
-echo 'Installing PostgreSQL'
+printf 'Installing PostgreSQL\n'
 cd postgres
 ./configure --prefix=$1
 make
 make install
-echo '...COMPLETE'
+printf '...COMPLETE\n\n'
 
 cd ..
 
-echo 'Installing Apache'
+printf 'Installing Apache\n'
 curl http://download.nextag.com/apache//httpd/httpd-2.4.25.tar.bz2 > httpd-2.4.25.tar.bz2
 tar -xjf httpd-2.4.25.tar.bz2 
 cd httpd-2.4.25
@@ -27,7 +27,6 @@ cd httpd-2.4.25
 make
 make install
 sed -i '/Listen 80/c\Listen 8080' $1/conf/httpd.conf
-echo '...COMPLETE AND LIVE'
+printf '...COMPLETE AND LIVE\n\n'
 
 cd ..
-

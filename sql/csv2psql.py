@@ -7,7 +7,7 @@ import glob
 
 def main():
 	# Connect to database
-	conn = "host='localhost' port='" + port + "' dbname='" + db_name + "' user='osnapdev' password='secret'"
+	conn = "host='localhost' port='" + PORT + "' dbname='" + DB_NAME + "' user='osnapdev' password='secret'"
 	print("Connecting to database\n ->%s" % conn)
 	db = psycopg2.connect(conn)
 	print("CONNECTION COMPLETE")
@@ -92,19 +92,20 @@ def insert(table, columns, values):
 
 
 if __name__ == '__main__':
-	global db_name
-	global port
+	global DB_NAME
+	global PORT
 
 	try:
-		db_name = sys.argv[1]
-		port = int(sys.argv[2])
+		DB_NAME = sys.argv[1]
+		PORT = int(sys.argv[2])
+		print("\nDATABASE AND PORT ARE CORRECT! Connecting to lost:5432...\n")
 	except:
 		print("\nError with command line arguments!\nConnecting to lost:5432 anyways...\n")
-		db_name = 'lost'
-		port = '5432'
+		DB_NAME = 'lost'
+		PORT = '5432'
 	else:
 		print("\nYou entered incorrect arguments...\n")
-		db_name = 'lost'
-		port = '5432'
+		DB_NAME = 'lost'
+		PORT = '5432'
 
 	main()

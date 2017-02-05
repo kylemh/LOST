@@ -2,21 +2,23 @@
 db_name=$1
 port=$2
 
-echo 'Creating empty tables for database model...'
+# TODO: Ask how to deal with conflicting arguments between bash scripts
+
+printf 'Creating empty tables for database model...\n'
 psql lost < create_tables.sql
 
-echo 'Curling in OSNAP legacy data...'
+printf 'Curling in OSNAP legacy data...\n'
 curl -O https://classes.cs.uoregon.edu//17W/cis322/files/osnap_legacy.tar.gz
 
-echo 'Unzipping compressed data...'
+printf 'Unzipping compressed data...\n'
 tar -xvf osnap_legacy.tar.gz
 rm ./osnap_legacy/.*.csv
 
-echo 'Attempting to populate database from legacy data...'
+printf 'Attempting to populate database from legacy data...\n'
 python3 csv2psql.py $db_name $port
 
-echo 'Garbage collection taking place...'
+printf 'Garbage collection taking place...\n'
 rm -rf osnap_legacy
 rm osnap_legacy.tar.gz
 
-echo '~~~COMPLETE~~~'
+printf '~~~COMPLETE~~~\n\n'
