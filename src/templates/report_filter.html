@@ -16,7 +16,15 @@
 		<br>
 		<h4>Filter Options</h4>
 		<div class="row">
-			<form action="{{ url_for('report_filter') }}" method="post" id="facility" class="four columns offset-by-two u-pull-right" style="display:none;">
+			<form action="{{ url_for('report_filter') }}" method="post" id="date" placeholder="MM/DD/YYYY" class="four columns offset-by-two u-pull-left">
+				<dl>
+					<dt>Choose Date:</dt>
+					<dt><input type="date" name="in_transit"></dt>
+					<dt><input type="submit" value="Filter"></dt>
+				</dl>
+			</form>
+
+			<form action="{{ url_for('report_filter') }}" method="post" id="facility" class="four columns offset-by-two u-pull-right">
 				<dl>
 					<dt>Choose Facility:</dt>
 					<small>See inventory in selected facility.</small><br>
@@ -25,14 +33,6 @@
 						<option value="{{ fac }}" SELECTED>{{ fac }}</option>
 					{% endfor %}
 					</select>
-					<dt><input type="submit" value="Filter"></dt>
-				</dl>
-			</form>
-
-			<form action="{{ url_for('report_filter') }}" method="post" id="date" placeholder="MM/DD/YYYY" class="four columns offset-by-two u-pull-left">
-				<dl>
-					<dt>Choose Date:</dt>
-					<dt><input type="date" name="in_transit"></dt>
 					<dt><input type="submit" value="Filter"></dt>
 				</dl>
 			</form>
@@ -47,9 +47,9 @@
 
 $(document).ready(function() {
 	$("input[id$='by_facilities']").click(function() {
-		$("div.facility").show();
+		$("form#facility").show();
 	});
 	$("input[id$='by_moving']").click(function() {
-		$("div.facility").hide();
+		$("form#facility").hide();
 	});
 });
