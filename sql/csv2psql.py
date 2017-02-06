@@ -106,14 +106,19 @@ def process_products(outf):
 					r[k] = "'%s'" % r[k]  # if single quotes are in the data this will fail
 
 			# Add the product entry
-			outf.write("INSERT INTO products (vendor,product_name,product_model,description,price) VALUES (%s,%s,%s,%s,%s);\n" % (
-			r['vendor'], r['name'], r['model'], r['description'], r['unit price']))
+			outf.write("INSERT INTO products (vendor,product_name,product_model,description,price) "
+					   "VALUES (%s,%s,%s,%s,%s);\n" % (r['vendor'], r['name'], r['model'], r['description'], r['unit price']))
 
 			# Add the security tag if there is one
-			if not r['compartments'] == 'NULL':
+			if r['compartments'] != 'NULL':
 				(tc, tl) = r['compartments'].split(':')
+			else:
+				tc = ''
+				tl = ''
 
-			outf.write("INSERT INTO security_tags (level_fk, compartment_fk, product_fk) SELECT level_pk, compartment_pk, max(product_pk) FROM sec_levels l,sec_compartments c,products p WHERE l.abbrv='%s and c.abbrv=%s' GROUP BY level_pk,compartment_pk,product_pk;\n"%(tl, tc))
+			outf.write("INSERT INTO security_tags (level_fk, compartment_fk, product_fk) "
+					   "SELECT level_pk, compartment_pk, max(product_pk) FROM sec_levels l,sec_compartments c,products p "
+					   "WHERE l.abbrv='%s and c.abbrv=%s' GROUP BY level_pk,compartment_pk,product_pk;\n" % (tl, tc))
 
 
 def insert(table, columns, values):
