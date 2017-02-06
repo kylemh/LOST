@@ -8,30 +8,34 @@ from config import *
 app = Flask(__name__)
 app.secret_key = APP_SECRET_KEY
 
-# Database Query Function
-def lostdb_query(sql_string, for_selection):
-    conn = psycopg2.connect(DB_LOCATION)
-    cur = conn.cursor()
-    print("The query being executed is", sql_string, "\n")
-    cur.execute(sql_string)
-    
-    # If this query is to populate a selection, force it into a list
-    if for_selection is True:
-        try:
-            data = cur.fetchall()
-        except:
-            data = '' # Nothing gets returned from the query
-    else:
-        try:
-            data = cur.fetchall()
-        except:
-            data = '' # Nothing gets returned from the query
 
-    print("The result is", data, "\n")
-    conn.commit()
-    cur.close()
-    conn.close()
-    return data
+# Database Query Function
+def db_query(sql_string, for_selection):
+	conn = psycopg2.connect(DB_LOCATION)
+	cur = conn.cursor()
+	print("The query being executed is", sql_string, "\n")
+	cur.execute(sql_string)
+
+	# If this query is to populate a selection, force it into a list
+	if for_selection is True:
+		try:
+			data = []
+			for item in list(cur.execute):
+				data.append(item)
+		except:
+			data = ''  # Nothing gets returned from the query
+	else:
+		try:
+			data = cur.fetchall()
+		except:
+			data = ''  # Nothing gets returned from the query
+
+	print("The result is", data, "\n")
+	conn.commit()
+	cur.close()
+	conn.close()
+	return data
+
 
 # Templates
 @app.route('/')
@@ -67,8 +71,8 @@ def logout():
 @app.route('/report_filter', methods=['GET', 'POST'])
 def report_filter():
 	# Get facilities list for drop-down menu
-        facilities_list = lostdb_query('SELECT common_name FROM facilities;')
-        return render_template('report_filter.html', facilities_list=facilities_list)
+	facilities_list = db_query('SELECT common_name FROM facilities;', True)
+	return render_template('report_filter.html', facilities_list=facilities_list)
 
 
 @app.route('/facility_inventory', methods=['GET', 'POST'])
