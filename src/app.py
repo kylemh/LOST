@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-import psycopg2, sys, os
+import psycopg2, sys, os, datetime
 
 from config import *
 
@@ -41,6 +41,13 @@ def db_query(sql_string, for_selection):
 	return data
 
 
+# Date Validation Function
+def validate_date(date_string, page):
+	try:
+		datetime.datetime.strptime(date_string, '%m/%d/%Y')
+	except ValueError:
+		raise ValueError("Incorrect data format, should be MM/DD/YYYY")
+
 # Templates
 @app.route('/')
 @app.route('/index')
@@ -76,6 +83,24 @@ def logout():
 def report_filter():
 	# Get facilities list for drop-down menu
 	facilities_list = db_query('SELECT common_name FROM facilities;', True)
+
+	# If a form has been submitted
+	if request.method == 'POST':
+		# Getting Date
+		try:
+			validate_date(request.form['filter_date'])
+		except ValueError:
+			print(ValueError)
+			flash(ValueError)
+
+		# Not filtering by facility...
+		if request.form['filter_facility'] == 'none':
+			return redirect(url_for('moving_inventory'))
+
+		# Filtering by facility...
+		else:
+			return redirect(url_for('facility_inventory'))
+
 	return render_template('report_filter.html', facilities_list=facilities_list)
 
 

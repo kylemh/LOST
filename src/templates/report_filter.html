@@ -27,15 +27,15 @@
 		<br>
 		<h4>Filter Options</h4>
 
-		<form action="{{ url_for('report_filter') }}" method="post">
+		<form action="{{ url_for('report_filter') }}" method="POST">
 			<div class="row">
 				<div class="six columns" id="date-form-div">
 					<label for="date">Write Date:</label>
-					<input class="u-full-width" placeholder="MM/DD/YYYY" id="date" type="text">
+					<input class="u-full-width" placeholder="MM/DD/YYYY" id="date" type="text" name="filter_date">
 				</div>
 				<div class="six columns" id="facility-form-div">
 					<label for="facility">Choose Facility:</label>
-					<select class="u-full-width" id="facility">
+					<select class="u-full-width" id="facility" name="filter_facility">
 						<option value="none" SELECTED>-- SELECT --</option>
 					{% for fac in facilities_list %}
 						<option value="{{ fac }}">{{ fac }}</option>
