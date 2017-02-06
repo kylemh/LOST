@@ -21,24 +21,22 @@
 				<br>
 				<small>See inventory in selected facility.</small>
 				<dd>
-				<div>
-					<select name="fac">
-					{% for fac in facility_list %}
-						<option value='{{ fac }}' SELECTED>{{ fac }}</option>
-					</select>
-				</div>
-				<dd><input type="submit" value="sort_by_facility">
+				<select name="facility">
+				{% for fac in facilities_list %}
+					<option value="{{ fac }}" SELECTED>{{ fac }}</option>
 				{% endfor %}
+				</select>
+				<dd><input type="submit" value="Filter">
 			</dl>
 		</form>
 
-		<form action="{{ url_for('report_filter') }}" method="post">
+		<form action="{{ url_for('report_filter') }}" method="post" id="moving_inventory">
 			<dl>
 				<dt>Choose Date:
 				<br>
 				<small>Check to see if inventory is in transit on this date.</small>
 				<dd><input type="date" name="in_transit">
-				<dd><input type="submit" value="Submit">
+				<dd><input type="submit" value="Filter">
 			</dl>
 		</form>
 	{% endif %}
