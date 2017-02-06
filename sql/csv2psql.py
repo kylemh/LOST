@@ -4,19 +4,6 @@ import sys
 import glob
 
 def main():
-	# Connect to database
-	conn = "host='localhost' port='" + PORT + "' dbname='" + DB_NAME + "' user='osnapdev' password='secret'"
-	print("Connecting to database\n ->%s" % conn)
-	db = psycopg2.connect(conn)
-	print("CONNECTION COMPLETE")
-
-	# Instantiate database cursor
-	CUR = db.cursor()
-
-	# Increase work memory
-	work_mem = 1024
-	CUR.execute('SET work_mem TO ' + str(work_mem))
-
 	# Translate legacy data into useful information
 	# Security Data
 	with open('sec_load.sql', 'w') as f:
@@ -164,11 +151,37 @@ if __name__ == '__main__':
 		DB_NAME = sys.argv[1]
 		PORT = int(sys.argv[2])
 		print("\nDATABASE AND PORT ARE CORRECT! Connecting to lost:5432...\n")
+
 	except:
 		print("\nError with command line arguments!\nConnecting to lost:5432 anyways...\n")
 		DB_NAME = 'lost'
 		PORT = '5432'
-	else:
 
+		# Connect to database
+		conn = "host='localhost' port='" + PORT + "' dbname='" + DB_NAME + "' user='osnapdev' password='secret'"
+		print("Connecting to database\n ->%s" % conn)
+		db = psycopg2.connect(conn)
+		print("CONNECTION COMPLETE")
+
+		# Instantiate database cursor
+		CUR = db.cursor()
+
+		# Increase work memory
+		work_mem = 1024
+		CUR.execute('SET work_mem TO ' + str(work_mem))
+
+	else:
+		# Connect to database
+		conn = "host='localhost' port='" + PORT + "' dbname='" + DB_NAME + "' user='osnapdev' password='secret'"
+		print("Connecting to database\n ->%s" % conn)
+		db = psycopg2.connect(conn)
+		print("CONNECTION COMPLETE")
+
+		# Instantiate database cursor
+		CUR = db.cursor()
+
+		# Increase work memory
+		work_mem = 1024
+		CUR.execute('SET work_mem TO ' + str(work_mem))
 
 	main()
