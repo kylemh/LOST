@@ -17,8 +17,6 @@ def main():
 	with open('prod_load.sql', 'w') as f:
 		process_products(f)
 
-	with open('prod_load.sql', 'w') as f:
-		process_products(f)
 
 
 	# Inventory Data

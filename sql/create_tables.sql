@@ -5,17 +5,18 @@
 /* ASSET TABLES */
 CREATE TABLE products (
 	product_pk serial primary key,
-	vendor varchar(255),
-	description varchar(255),
-	alt_description varchar(255)
+	vendor varchar(128) NOT NULL,
+	description text,
+	alt_description text,
+	price numeric
 );
 
 CREATE TABLE assets (
 	asset_pk serial primary key,
 	product_fk integer REFERENCES products(product_pk),
-	asset_tag varchar(255),
-	description varchar(255),
-	alt_description varchar(255)
+	asset_tag varchar(32),
+	description text,
+	alt_description text
 );
 
 CREATE TABLE vehicles (
@@ -25,9 +26,9 @@ CREATE TABLE vehicles (
 
 CREATE TABLE facilities (
 	facility_pk serial primary key,
-	fcode varchar(6),
-	common_name varchar(255),
-	location varchar(255)
+	fcode varchar(8),
+	common_name varchar(128),
+	location varchar(128)
 );
 
 CREATE TABLE asset_at (
@@ -39,11 +40,16 @@ CREATE TABLE asset_at (
 
 CREATE TABLE convoys (
 	convoy_pk serial primary key,
-	request varchar(255),
+	request varchar(16),
 	source_fk integer REFERENCES facilities(facility_pk) NOT NULL,
 	dest_fk integer REFERENCES facilities(facility_pk) NOT NULL,
 	depart_dt timestamp, 
 	arrive_dt timestamp 
+);
+
+CREATE TABLE waypoints (
+	convoy_fk integer REFERENCES convoys(convoy_pk) NOT NULL,
+	point_dt timestamp
 );
 
 CREATE TABLE used_by (
@@ -61,13 +67,13 @@ CREATE TABLE asset_on (
 /* USER TABLES */
 CREATE TABLE users (
 	user_pk serial primary key,
-	username varchar(255),
-	active boolean
+	username varchar(64) NOT NULL,
+	active boolean default FALSE
 );
 
 CREATE TABLE roles (
 	role_pk serial primary key,
-	title varchar(128)
+	title varchar(32)
 );
 
 CREATE TABLE user_is (
