@@ -33,7 +33,6 @@ def login():
 			session['logged_in'] = True
 			session['username'] = request.form['username']
 			session['password'] = request.form['password']
-			flash('Welcome ' + session['username'] + '!')
 			return redirect(url_for('report_filter'))
 
 	return render_template('login.html')

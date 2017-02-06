@@ -7,12 +7,12 @@
 {% endblock %}
 
 {% block content %}
-	{% if !session.login_ok %}
+	{% if not session.logged_in %}
 		<h1 class="alert-warning">AUTHORIZATION FAILURE</h1>
 	{% endif %}
 
-	{% if session.login_ok %}
+	{% if session.logged_in %}
 		<h1>Report Filters</h1>
-		<!--<form></form>-->
+		<p>Enter forms here</p>
 	{% endif %}
 {% endblock %}
