@@ -27,4 +27,4 @@ cd ..
 
 printf '\e[1;34mInstalling wsgi files...\e[0m'
 cp -R src/* $HOME/wsgi
-printf '\e[1;34m~~~COMPLETE~~~\n\n\e[0m'
+printf '\e[1;34m\n\n~~~COMPLETE~~~\nDATABASE IS COMPLETE AND ACTIVE!\n\n\e[0m'

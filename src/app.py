@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, url_for, redirect
 from datetime import datetime
 import sys, psycopg2
 
-from src.config import HOST, PORT, DEBUG, APP_SECRET_KEY, DB_LOCATION
+from config import HOST, PORT, DEBUG, APP_SECRET_KEY, DB_LOCATION
 
 app = Flask(__name__)
 app.secret_key = str(APP_SECRET_KEY)
