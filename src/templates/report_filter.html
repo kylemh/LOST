@@ -13,6 +13,21 @@
 
 	{% if session.logged_in %}
 		<h1>Report Filters</h1>
-		<p>Enter forms here</p>
+		<form action="{{ url_for('report_filter') }}" method="post" id="facility_inventory">
+			<dl>
+				<dt>Sort inventory by housed facility:
+				<dd>
+				<div>
+					<select name="fac">
+					{% for fac in facility_list %}
+						<option value='{{ fac }}' SELECTED>{{ fac }}</option>
+					</select>
+				</div>
+				<dd><input type="submit" value="fac_inv">
+				{% endfor %}
+			</dl>
+		</form>
+
+
 	{% endif %}
 {% endblock %}

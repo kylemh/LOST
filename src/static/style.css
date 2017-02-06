@@ -19,3 +19,7 @@ h1 {
 p {
     text-align: center;
 }
+
+#facility_inventory {
+    float: left;
+}

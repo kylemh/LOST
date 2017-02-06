@@ -44,17 +44,19 @@ def logout():
 	return render_template('logout.html')
 
 
-@app.route('/report_filter')
+@app.route('/report_filter', methods=['GET', 'POST'])
 def report_filter():
-	return render_template('report_filter.html')
+	# Get facilities list for drop-down menu
+	facilities_list = list(CUR.execute('SELECT common_name FROM facilities;'))
+	return render_template('report_filter.html', facilities_list=facilities_list)
 
 
-@app.route('/facility_inventory')
+@app.route('/facility_inventory', methods=['GET', 'POST'])
 def facility_inventory():
 	return render_template('facility_inventory.html', facility=request.args.get('facility'), date=request.args.get('report_date'))
 
 
-@app.route('/moving_inventory')
+@app.route('/moving_inventory', methods=['GET', 'POST'])
 def moving_inventory():
 	return render_template('moving_inventory.html', date=request.args.get('report_date'))
 
