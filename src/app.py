@@ -42,9 +42,10 @@ def db_query(sql_string, for_selection):
 
 
 # Date Validation Function
-def validate_date(date_string, page):
+def validate_date(date_string):
 	try:
-		datetime.datetime.strptime(date_string, '%m/%d/%Y')
+		date = datetime.datetime.strptime(date_string, '%m/%d/%Y')
+		return date
 	except ValueError:
 		raise ValueError("Incorrect data format, should be MM/DD/YYYY")
 
@@ -92,6 +93,8 @@ def report_filter():
 		except ValueError:
 			print(ValueError)
 			flash(ValueError)
+		except TypeError:
+			flash("You need to enter a date.")
 
 		# Not filtering by facility...
 		if request.form['filter_facility'] == 'none':
