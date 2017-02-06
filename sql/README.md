@@ -20,6 +20,7 @@
 <br>
 
 <h4>USAGE</h4>
+<small>NOTE:<br>Usage from within sql/ is deprecated. Please go to top-level directory for instructions on getting data and filling the database</small>
 <ol>
 <li><code>$ createdb lost</code></li>
 <li><code>$ ./import_data.sh</code></li>

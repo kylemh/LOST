@@ -1,14 +1,9 @@
 -- Load the facilities table
-INSERT INTO facilities (fcode,common_name) VALUES ('MB005','Moonbase');
-INSERT INTO facilities (fcode,common_name) VALUES ('DC','Washington, DC');
-INSERT INTO facilities (fcode,common_name) VALUES ('HQ','Headquarters');
-INSERT INTO facilities (fcode,common_name) VALUES ('NC','National City');
-INSERT INTO facilities (fcode,common_name) VALUES ('LANM','Los Alamos, NM');
-INSERT INTO facilities (fcode,common_name) VALUES ('SPNV','Sparks, NV');
-INSERT INTO facilities (fcode,common_name) VALUES ('S300','Site 300');
-INSERT INTO facilities (fcode,common_name) VALUES ('GRLK','Groom Lake');
-
-
-
-
-
+INSERT INTO facilities (fcode,common_name,location) VALUES ('MB005','Moonbase', 'The Moon');
+INSERT INTO facilities (fcode,common_name,location) VALUES ('DC','The Capitol', 'Washington, DC');
+INSERT INTO facilities (fcode,common_name,location) VALUES ('HQ','Headquarters', 'Eugene, OR');
+INSERT INTO facilities (fcode,common_name,location) VALUES ('NC','National City, California', 'National City, CA');
+INSERT INTO facilities (fcode,common_name,location) VALUES ('LANM','Los Alamos, New Mexico', 'Los Alamos, NM');
+INSERT INTO facilities (fcode,common_name,location) VALUES ('SPNV','Sparks, Nevada', 'Sparks, NV');
+INSERT INTO facilities (fcode,common_name,location) VALUES ('S300','Site 300', 'UNDISCLOSED');
+INSERT INTO facilities (fcode,common_name,location) VALUES ('GRLK','Groom Lake, Nevada', 'Groom Lake, NV');
