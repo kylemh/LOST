@@ -101,8 +101,8 @@ CREATE TABLE sec_compartments (
 
 CREATE TABLE security_tags (
 	tag_pk serial primary key,
-	level_fk integer REFERENCES levels(level_pk) NOT NULL,
-	compartment_fk integer REFERENCES compartments(compartment_pk) NOT NULL,
+	level_fk integer REFERENCES sec_levels(level_pk) NOT NULL,
+	compartment_fk integer REFERENCES sec_compartments(compartment_pk) NOT NULL,
 	user_fk integer REFERENCES users(user_pk),
 	product_fk integer REFERENCES products(product_pk),
 	asset_fk integer REFERENCES assets(asset_pk)

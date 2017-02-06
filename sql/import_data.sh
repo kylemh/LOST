@@ -12,7 +12,7 @@ psql lost < create_tables.sql
 printf '\e[1;34m\nCurling in OSNAP legacy data...\n\e[0m'
 curl -O https://classes.cs.uoregon.edu//17W/cis322/files/osnap_legacy.tar.gz
 
-printf '\e[1;34mUnzipping compressed data...\n\e[0m'
+printf '\e[1;34m\nUnzipping compressed data...\n\e[0m'
 tar -xvf osnap_legacy.tar.gz
 rm ./osnap_legacy/.*.csv
 
@@ -20,7 +20,7 @@ rm ./osnap_legacy/.*.csv
 #############################
 # CONVERT CSV TO POSTGRESQL #
 #############################
-printf '\e[1;34m\nAttempting to populate database from legacy data...\e[0m'
+printf '\e[1;34m\nAttempting to populate database from legacy data...\n\e[0m'
 python3 csv2psql.py $db_name $port
 
 
