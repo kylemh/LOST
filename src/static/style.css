@@ -23,15 +23,3 @@ h1 {
 p {
     text-align: center;
 }
-
-#facility_inventory {
-    float: left;
-}
-
-#moving_inventory {
-    float: right;
-}
-
-#footer {
-    clear: both;
-}

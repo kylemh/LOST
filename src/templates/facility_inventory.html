@@ -7,12 +7,35 @@
 {% endblock %}
 
 {% block content %}
-	{% if !session.login_ok %}
+	{% if not session.logged_in %}
 		<h1 class="alert-warning">AUTHORIZATION FAILURE</h1>
 	{% endif %}
 
-	{% if session.login_ok %}
-		<h1>Inventory by Facilities</h1>
-		<!--<form></form>-->
+	{% if session.logged_in %}
+		<h1>Inventory In Facility}}</h1>
+		<table class="u-full-width">
+			<thead>
+				<tr>
+					<th>Facility Code</th>
+					<th>Facility Location</th>
+					<th>Asset Tag</th>
+					<th>Asset Description</th>
+					<th>Arrival Date</th>
+					<th>Departure Date</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for entry in session.query %}
+				<tr>
+					<td>{{ entry.fcode }}</td>
+					<td>{{ entry.location }}</td>
+					<td>{{ entry.asset_tag }}</td>
+					<td>{{ entry.description }}</td>
+					<td>{{ entry.arrive_dt }}</td>
+					<td>{{ entry.depart_dt }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
 	{% endif %}
 {% endblock %}

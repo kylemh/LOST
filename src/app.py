@@ -31,8 +31,7 @@ def db_query(sql_string, for_selection):
 			entries = cur.fetchall()
 			for row in entries:
 				for column in row:
-					# TODO: Handle extensibly
-					data["key"] = "value"
+					data[column] = row
 		except:
 			data = ''
 
@@ -102,3 +101,15 @@ def page_not_found(e):
 # Application Deployment
 if __name__ == "__main__":
 	app.run(host='0.0.0.0', port=8080, debug=True)
+
+
+# MARK: SQL Queries Complete
+"""
+SELECT facilities.fcode, facilities.location, assets.asset_tag, assets.description, asset_at.arrive_dt, asset_at.depart_dt
+FROM facilities
+JOIN asset_at ON facilities.facility_pk = asset_at.facility_fk
+JOIN assets ON asset_at.asset_fk = assets.asset_pk
+WHERE facilities.common_name = ''' + facility + "' AND asset_at.arrive_dt >= \'" + date + "\' AND asset_at.depart_dt <= \'" + date + "\';"
+
+SELECT
+"""
