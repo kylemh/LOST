@@ -5,7 +5,6 @@ import pathlib
 
 # Create Secret Key
 key = os.urandom(32)
-print("The secret key is:", key)
 
 # Global Variables
 cpath = pathlib.Path(os.path.realpath(__file__)).parent.joinpath('config.base.json')
@@ -18,4 +17,5 @@ with cpath.open() as conf:
 
 APP_SECRET_KEY = str(key)
 DB_LOCATION = ('host=' + str(HOST) + ' port=' + str(PORT) + ' dbname=' + str(DB_NAME) + ' user="osnapdev" password="secret"')
-print(DB_LOCATION)
+USERNAME = 'user'
+PASSWORD = '123'

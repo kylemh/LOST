@@ -19,6 +19,11 @@
 </head>
 
 <body>
+	<div id="flash-box">
+		{% for message in get_flashed_messages() %}
+    		<div class="flash">{{ message }}</div>
+		{% endfor %}
+	</div>
 	<div id="content">
 		{% block content %}{% endblock %}
 	</div>

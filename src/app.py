@@ -1,5 +1,5 @@
-import psycopg2
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+import psycopg2, sys, os
 
 from config import *
 
@@ -16,16 +16,18 @@ CUR = CONN.cursor()
 # Templates
 @app.route('/')
 @app.route('/index')
+@app.route('/index.html')
 def index():
 	return redirect(url_for('login'))
 
-@app.route('/login')
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
 	error = None
 	if request.method == 'POST':
-		if False and request.form['username'] != 'USERNAME':  # != app.config['USERNAME']:
+		if False and request.form['username'] != USERNAME:
 			error = 'Invalid username'
-		elif False and request.form['password'] != 'PASSWORD':  # app.config['PASSWORD']:
+		elif False and request.form['password'] != PASSWORD:
 			error = 'Invalid password'
 		else:
 			session['logged_in'] = True
@@ -37,7 +39,7 @@ def login():
 	return render_template('login.html')
 
 
-@app.route('/logout')
+@app.route('/logout', methods=['GET', 'POST'])
 def logout():
 	session['logged_in'] = False
 	return render_template('logout.html')
