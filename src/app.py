@@ -5,9 +5,9 @@ import sys, psycopg2
 from config import HOST, PORT, DEBUG, APP_SECRET_KEY, DB_LOCATION
 
 app = Flask(__name__)
-app.secret_key = str(APP_SECRET_KEY)
+# app.secret_key = str(APP_SECRET_KEY)
 
-CONN = psycopg2.connect(DB_LOCATION)
+CONN = psycopg2.connect("dbname=lost host='/tmp/'")
 CUR = CONN.cursor()
 
 
@@ -53,4 +53,5 @@ def moving_inventory():
 
 
 if __name__ == "__main__":
-	app.run(host = HOST, port = PORT, debug = DEBUG)
+        print(HOST, PORT)
+        app.run(host='0.0.0.0',port=8080)
