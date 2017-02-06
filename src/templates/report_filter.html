@@ -15,26 +15,28 @@
 		<h1>Report Filters</h1>
 		<br>
 		<h4>Filter Options</h4>
-		<form action="{{ url_for('report_filter') }}" method="post" id="facility_inventory">
-			<dl>
-				<dt>Choose Facility:</dt>
-				<dd>See inventory in selected facility.</dd>
-				<select name="facility">
-				{% for fac in facilities_list %}
-					<option value="{{ fac }}" SELECTED>{{ fac }}</option>
-				{% endfor %}
-				</select>
-				<dd><input type="submit" value="Filter"></dd>
-			</dl>
-		</form>
+		<div class="row">
+			<form action="{{ url_for('report_filter') }}" method="post" id="facility_inventory" class="six columns">
+				<dl>
+					<dt>Choose Facility:</dt>
+					<small>See inventory in selected facility.</small>
+					<select name="facility">
+					{% for fac in facilities_list %}
+						<option value="{{ fac }}" SELECTED>{{ fac }}</option>
+					{% endfor %}
+					</select>
+					<dt><input type="submit" value="Filter"></dt>
+				</dl>
+			</form>
 
-		<form action="{{ url_for('report_filter') }}" method="post" id="moving_inventory">
-			<dl>
-				<dt>Choose Date:</dt>
-				<dd>Check to see if inventory is in transit on this date.</dd>
-				<dd><input type="date" name="in_transit"></dd>
-				<dd><input type="submit" value="Filter"></dd>
-			</dl>
-		</form>
+			<form action="{{ url_for('report_filter') }}" method="post" id="moving_inventory" placeholder="MM/DD/YYYY" class="six columns">
+				<dl>
+					<dt>Choose Date:</dt>
+					<small>Check to see if inventory is in transit on this date.</small>
+					<dt><input type="date" name="in_transit"></dt>
+					<dt><input type="submit" value="Filter"></dt>
+				</dl>
+			</form>
+		</div>
 	{% endif %}
 {% endblock %}
