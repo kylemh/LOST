@@ -13,8 +13,8 @@ if [ "$#" -ne 1 ]; then
     exit;
 fi
 
-dropdb $1
-createdb $1
+bash dropdb $1
+bash createdb $1
 
 printf '\e[1;34mMoving into database directory...\n\e[0m'
 cd sql
