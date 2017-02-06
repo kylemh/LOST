@@ -149,16 +149,16 @@ if __name__ == '__main__':
 
 	try:
 		DB_NAME = sys.argv[1]
-		PORT = int(sys.argv[2])
+		PORT = sys.argv[2]
 		print("\nDATABASE AND PORT ARE CORRECT! Connecting to lost:5432...\n")
 
 	except:
 		print("\nError with command line arguments!\nConnecting to lost:5432 anyways...\n")
 		DB_NAME = 'lost'
-		PORT = 5432
+		PORT = '5432'
 
 		# Connect to database
-		conn = "host='localhost' port='" + PORT + "' dbname='" + DB_NAME + "' user='osnapdev' password='secret'"
+		conn = "host='localhost' port='" + str(PORT) + "' dbname='" + DB_NAME + "' user='osnapdev' password='secret'"
 		print("Connecting to database\n ->%s" % conn)
 		db = psycopg2.connect(conn)
 		print("CONNECTION COMPLETE")
@@ -172,7 +172,7 @@ if __name__ == '__main__':
 
 	else:
 		# Connect to database
-		conn = "host='localhost' port='" + PORT + "' dbname='" + DB_NAME + "' user='osnapdev' password='secret'"
+		conn = "host='localhost' port='" + str(PORT) + "' dbname='" + DB_NAME + "' user='osnapdev' password='secret'"
 		print("Connecting to database\n ->%s" % conn)
 		db = psycopg2.connect(conn)
 		print("CONNECTION COMPLETE")
