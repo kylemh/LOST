@@ -23,3 +23,7 @@ p {
 #facility_inventory {
     float: left;
 }
+
+#moving_inventory {
+    float: right;
+}

@@ -13,9 +13,13 @@
 
 	{% if session.logged_in %}
 		<h1>Report Filters</h1>
+		<br>
+		<h4>Sorting options include...</h4>
 		<form action="{{ url_for('report_filter') }}" method="post" id="facility_inventory">
 			<dl>
-				<dt>Sort inventory by housed facility:
+				<dt>Choose Facility:</dt>
+				<br>
+				<small>See inventory in selected facility.</small>
 				<dd>
 				<div>
 					<select name="fac">
@@ -23,11 +27,19 @@
 						<option value='{{ fac }}' SELECTED>{{ fac }}</option>
 					</select>
 				</div>
-				<dd><input type="submit" value="fac_inv">
+				<dd><input type="submit" value="sort_by_facility">
 				{% endfor %}
 			</dl>
 		</form>
 
-
+		<form action="{{ url_for('report_filter') }}" method="post">
+			<dl>
+				<dt>Choose Date:
+				<br>
+				<small>Check to see if inventory is in transit on this date.</small>
+				<dd><input type="date" name="in_transit">
+				<dd><input type="submit" value="Submit">
+			</dl>
+		</form>
 	{% endif %}
 {% endblock %}
