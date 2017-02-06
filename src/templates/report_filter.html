@@ -44,3 +44,12 @@
 		</div>
 	{% endif %}
 {% endblock %}
+
+$(document).ready(function() {
+	$("input[id$='by_facilities']").click(function() {
+		$("div.facility").show();
+	});
+	$("input[id$='by_moving']").click(function() {
+		$("div.facility").hide();
+	});
+});
