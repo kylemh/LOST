@@ -113,9 +113,7 @@ def process_products(outf):
 			if not r['compartments'] == 'NULL':
 				(tc, tl) = r['compartments'].split(':')
 
-			outf.write("INSERT INTO security_tags (level_fk, compartment_fk, product_fk) "
-					   "SELECT level_pk, compartment_pk, max(product_pk) FROM sec_levels l,sec_compartments c,products p "
-					   "WHERE l.abbrv='%s and c.abbrv=%s' GROUP BY level_pk,compartment_pk,product_pk;\n" % (tl, tc))
+			outf.write("INSERT INTO security_tags (level_fk, compartment_fk, product_fk) SELECT level_pk, compartment_pk, max(product_pk) FROM sec_levels l,sec_compartments c,products p WHERE l.abbrv='%s and c.abbrv=%s' GROUP BY level_pk,compartment_pk,product_pk;\n"%(tl, tc))
 
 
 def insert(table, columns, values):
