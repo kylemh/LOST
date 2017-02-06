@@ -1,40 +1,41 @@
-from flask import Flask, render_template, request, url_for, redirect
-from datetime import datetime
-import sys, psycopg2
+import psycopg2
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 
-from config import HOST, PORT, DEBUG, APP_SECRET_KEY, DB_LOCATION
+from config import *
 
+
+# Instantiate App
 app = Flask(__name__)
-# app.secret_key = str(APP_SECRET_KEY)
+app.secret_key = APP_SECRET_KEY
 
-CONN = psycopg2.connect("dbname=lost host='/tmp/'")
+# Database Connection
+CONN = psycopg2.connect(DB_LOCATION)
 CUR = CONN.cursor()
 
 
-@app.route('/')
-def index():
-	return render_template('index.html')
-
-
+# Templates
 @app.route('/login')
 def login():
+	error = None
+	if request.method == 'POST':
+		if False and request.form['username'] != 'USERNAME':  # != app.config['USERNAME']:
+			error = 'Invalid username'
+		elif False and request.form['password'] != 'PASSWORD':  # app.config['PASSWORD']:
+			error = 'Invalid password'
+		else:
+			session['logged_in'] = True
+			session['username'] = request.form['username']
+			session['password'] = request.form['password']
+			flash('Welcome ' + session['username'] + '!')
+			return redirect(url_for('report_filter'))
+
 	return render_template('login.html')
 
 
 @app.route('/logout')
 def logout():
+	session['logged_in'] = False
 	return render_template('logout.html')
-
-
-@app.route('/report_menu')
-def report_menu():
-	# cur.execute("SELECT * FROM assets")
-	# records = cur.fetchall()
-	# processed_data = []
-	# for r in res:
-	# 	processed_data.append( dict(zip(('asset_tag', 'description'), r)))
-	# return render_template('report_menu.html', processed_data=processed_data)
-	return render_template('report_menu.html')
 
 
 @app.route('/report_filter')
@@ -52,6 +53,6 @@ def moving_inventory():
 	return render_template('moving_inventory.html', date=request.args.get('report_date'))
 
 
+# Application Deployment
 if __name__ == "__main__":
-        print(HOST, PORT)
-        app.run(host='0.0.0.0',port=8080)
+	app.run(host='0.0.0.0', port=8080, debug=True)
