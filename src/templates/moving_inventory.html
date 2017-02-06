@@ -12,7 +12,9 @@
 	{% endif %}
 
 	{% if session.logged_in %}
-		<h1>Inventory In Facility}}</h1>
+		{% for d in date %}
+		<h1>Inventory In Transit on {{ d }}</h1>
+		{% endfor %}
 		<table class="u-full-width">
 			<thead>
 				<tr>
