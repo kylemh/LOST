@@ -14,6 +14,11 @@ CUR = CONN.cursor()
 
 
 # Templates
+@app.route('/')
+@app.route('/index')
+def index():
+	return redirect(url_for('login'))
+
 @app.route('/login')
 def login():
 	error = None
@@ -51,6 +56,15 @@ def facility_inventory():
 @app.route('/moving_inventory')
 def moving_inventory():
 	return render_template('moving_inventory.html', date=request.args.get('report_date'))
+
+
+# Error Handlers
+@app.errorhandler(404)
+def page_not_found(e):
+	return render_template('404.html'), 404
+
+
+# TODO: Implement other error handlers - http://flask.pocoo.org/docs/0.12/patterns/errorpages/
 
 
 # Application Deployment
