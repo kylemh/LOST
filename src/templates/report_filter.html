@@ -7,10 +7,10 @@
 	<script>
 		$(document).ready(function() {
 			$("input[id$='by_facilities']").click(function() {
-				$("form#facility").show();
+				$("div#facility-form-div").show();
 			});
 			$("input[id$='by_moving']").click(function() {
-				$("form#facility").hide();
+				$("div#facility-form-div").hide();
 			});
 		});
 	</script>
@@ -25,32 +25,30 @@
 		<h1>Report Filters</h1>
 		<br>
 		<h4>Filter Options</h4>
-		<div class="row">
-			<form action="{{ url_for('report_filter') }}" method="post" id="date" placeholder="MM/DD/YYYY" class="four columns offset-by-two u-pull-left">
-				<dl>
-					<dt>Choose Date:</dt>
-					<dt><input type="date" name="in_transit"></dt>
-					<dt><input type="submit" value="Filter"></dt>
-				</dl>
-			</form>
 
-			<form action="{{ url_for('report_filter') }}" method="post" id="facility" class="four columns offset-by-two u-pull-right">
-				<dl>
-					<dt>Choose Facility:</dt>
-					<small>See inventory in selected facility.</small><br>
-					<select name="facility">
+		<form action="{{ url_for('report_filter') }}" method="post">
+			<div class="row">
+				<div class="six columns" id="date-form-div">
+					<label for="date">Write Date:</label>
+					<input class="u-full-width" placeholder="MM/DD/YYYY" id="date" type="date">
+				</div>
+				<div class="six columns" id="facility-form-div">
+					<label for="facility">Choose Facility:</label>
+					<select class="u-full-width" id="facility">
 					{% for fac in facilities_list %}
 						<option value="{{ fac }}" SELECTED>{{ fac }}</option>
 					{% endfor %}
 					</select>
-					<dt><input type="submit" value="Filter"></dt>
-				</dl>
-			</form>
-		</div>
+				</div>
+			</div>
+			<input class="button-primary center" value="Filter" type="submit">
+		</form>
 
 		<div class="row">
-			<input type="radio" name="options" id="by_facilities" value="by_facilities" checked="checked">Report on Facility Inventory</input><br>
-			<input type="radio" name="options" id="by_moving" value="by_moving">Report on Moving Inventory</input><br>
+			<div class="six columns offset-by-three"></div>
+				<input type="radio" name="options" id="by_facilities" value="by_facilities" checked="checked">  Report on Facility Inventory</input><br>
+				<input type="radio" name="options" id="by_moving" value="by_moving">  Report on Moving Inventory</input><br>
+			</div>
 		</div>
 	{% endif %}
 {% endblock %}
