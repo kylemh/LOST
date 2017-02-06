@@ -9,19 +9,19 @@
 #    3. copies the required source to $HOME/wsgi
 
 if [ "$#" -ne 1 ]; then
-    echo "Usage: ./preflight.sh <dbname>"
+    printf '\e[1;34mUsage: ./preflight.sh <dbname>\n\e[0m'
     exit;
 fi
 
-printf 'Moving into database directory...\n'
+printf '\e[1;34mMoving into database directory...\n\e[0m'
 cd sql
 
-printf 'Importing data from legacy documents...\n'
+printf '\e[1;34mImporting data from legacy documents...\n\e[0m'
 bash ./import_data.sh $1 5432
 
-printf 'Moving to application environment...\n'
+printf '\e[1;34mMoving to application environment...\n\e[0m'
 cd ..
 
-printf 'Installing wsgi files...'
+printf '\e[1;34mInstalling wsgi files...\e[0m'
 cp -R src/* $HOME/wsgi
-printf 'COMPLETE!\n\n'
+printf '\e[1;34m~~~COMPLETE~~~\n\n\e[0m'
