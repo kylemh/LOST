@@ -7,6 +7,9 @@ from config import HOST, PORT, DEBUG, APP_SECRET_KEY, DB_LOCATION
 app = Flask(__name__)
 app.secret_key = str(APP_SECRET_KEY)
 
+CONN = psycopg2.connect(DB_LOCATION)
+CUR = CONN.cursor()
+
 
 @app.route('/')
 def index():
@@ -16,6 +19,11 @@ def index():
 @app.route('/login')
 def login():
 	return render_template('login.html')
+
+
+@app.route('/logout')
+def logout():
+	return render_template('logout.html')
 
 
 @app.route('/report_menu')
@@ -35,19 +43,14 @@ def report_filter():
 
 
 @app.route('/facility_inventory')
-def facility_inventory_report():
+def facility_inventory():
 	return render_template('facility_inventory.html', facility=request.args.get('facility'), date=request.args.get('report_date'))
 
 
 @app.route('/moving_inventory')
-def in_transit_report():
+def moving_inventory():
 	return render_template('moving_inventory.html', date=request.args.get('report_date'))
 
 
-@app.route('/logout')
-def logout():
-	return render_template('logout.html')
-
-
-# if __name__ == "__main__":
-# 	app.run(host = config.DB_LOCATION, port = config.PORT, debug = config.DEBUG)
+if __name__ == "__main__":
+	app.run(host = HOST, port = PORT, debug = DEBUG)

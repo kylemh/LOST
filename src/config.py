@@ -19,5 +19,5 @@ with cpath.open() as conf:
 	PORT = c['database']['dbport']
 
 APP_SECRET_KEY = ""  # TODO: string, see note 1 above
-DB_LOCATION = "0.0.0.0"  # TODO: string, see note 2 above
+DB_LOCATION = ("dbname=" + DB_NAME, "host=" + HOST, "port=" + PORT)  # TODO: string, see note 2 above
 DEBUG = True
