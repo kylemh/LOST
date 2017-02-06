@@ -21,8 +21,8 @@ def db_query(sql_string, for_selection, passed_data):
 
 	if for_selection is True:
 		try:
-			data = []
 			entries = cur.fetchall()
+			data = []
 			for row in entries:
 				for column in row:
 					data.append(column)
@@ -30,8 +30,8 @@ def db_query(sql_string, for_selection, passed_data):
 			data = ''
 	else:
 		try:
-			data = {}
 			entries = cur.fetchall()
+			data = {}
 			for row in entries:
 				for column in row:
 					data[column] = row
@@ -48,6 +48,7 @@ def db_query(sql_string, for_selection, passed_data):
 def validate_date(date_string):
 	try:
 		date = datetime.datetime.strptime(date_string, '%m/%d/%Y')
+		print("\n\nThis is the datetime object", date, "\n\n")
 		return date
 	except ValueError:
 		raise ValueError("Incorrect data format, should be MM/DD/YYYY")
@@ -94,9 +95,10 @@ def report_filter():
 		# Validate and pass date
 		try:
 			validated_date = validate_date(request.form['filter_date'])
+			print(validated_date)
 		except ValueError:
-			print(ValueError)
-			flash(ValueError)
+			print("\nValueError.args is:", ValueError.args, "\n")
+			flash(ValueError.args)
 		except TypeError:
 			flash("You need to enter a date.")
 
@@ -116,7 +118,7 @@ def report_filter():
 		else:
 			selected_facility = request.form['filter_facility']
 			facility_query = "SELECT facilities.fcode, facilities.location, assets.asset_tag, assets.description, asset_at.arrive_dt, asset_at.depart_dt" \
-							 "FROM facilities " \
+							 "FROM facilities" \
 							 "JOIN asset_at ON facilities.facility_pk = asset_at.facility_fk" \
 							 "JOIN assets ON asset_at.asset_fk = assets.asset_pk" \
 							 "WHERE facilities.common_name = ''' + facility + "'' \
