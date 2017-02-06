@@ -48,8 +48,7 @@ def db_query(sql_string, for_selection, passed_data):
 def validate_date(date_string):
 	try:
 		date = datetime.datetime.strptime(date_string, '%m/%d/%Y')
-		print("\n\nThis is the datetime object", date, "\n\n")
-		return date
+		return str(date)
 	except ValueError:
 		raise ValueError("Incorrect data format, should be MM/DD/YYYY")
 
@@ -95,11 +94,10 @@ def report_filter():
 		# Validate and pass date
 		try:
 			validated_date = validate_date(request.form['filter_date'])
-			print(validated_date)
 		except ValueError:
-			print("\nValueError.args is:", ValueError.args, "\n")
+			print("\n\nValueError.args is:", ValueError.args, "\n\n")
 			flash(ValueError.args)
-		except TypeError:
+		except TypeError or UnboundLocalError:
 			flash("You need to enter a date.")
 
 		# Not filtering by facility...
@@ -111,6 +109,7 @@ def report_filter():
 						   "JOIN facilities f1 ON convoy.src_fk = f1.facility_pk" \
 						   "JOIN facilities f2 ON convoy.dst_fk = f2.facility_pk" \
 						   "WHERE convoys.arrive_dt >= %d AND convoys.depart_dt <= %d"
+
 			moving_inventory_data = db_query(moving_query, for_selection=False, passed_data=validated_date)
 			return redirect(url_for('moving_inventory'), date=validated_date, data=moving_inventory_data)
 
@@ -123,6 +122,7 @@ def report_filter():
 							 "JOIN assets ON asset_at.asset_fk = assets.asset_pk" \
 							 "WHERE facilities.common_name = ''' + facility + "'' \
 							 "AND asset_at.arrive_dt >= %d AND asset_at.depart_dt <= %d;"
+
 			facility_inventory_data = db_query(facility_query, for_selection=False, passed_data=validated_date)
 			return redirect(url_for('facility_inventory'), facility=selected_facility, data=facility_inventory_data)
 
