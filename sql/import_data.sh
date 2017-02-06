@@ -1,8 +1,6 @@
 #! /bin/bash
 db_name=$1
-port=$2
-
-# TODO: Ask how to deal with conflicting arguments between bash scripts
+port=5432
 
 printf 'Creating empty tables for database model...\n'
 psql lost < create_tables.sql

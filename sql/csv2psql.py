@@ -13,12 +13,12 @@ def main():
 	print("CONNECTION COMPLETE")
 
 	# Create database cursor
-	global cur
-	cur = db.cursor()
+	global CUR
+	CUR = db.cursor()
 
 	# Increase work memory
 	work_mem = 1024
-	cur.execute('SET work_mem TO ' + str(work_mem))
+	CUR.execute('SET work_mem TO ' + str(work_mem))
 
 	# Translate legacy data into useful information for facilities and inventory for each facility
 	facilities()
@@ -53,8 +53,8 @@ def facilities():
 				location = "UNDISCLOSED"
 
 			insert("facilities", ["fcode", "common_name", "location"], [fcode, common_name, location])
-			cur.execute("SELECT facility_pk FROM facilities WHERE fcode = '" + fcode + "';")
-			facility_pk = cur.fetchone()[0]
+			CUR.execute("SELECT facility_pk FROM facilities WHERE fcode = '" + fcode + "';")
+			facility_pk = CUR.fetchone()[0]
 			inventory(fn, facility_pk)
 
 
@@ -63,8 +63,8 @@ def inventory(fn, facility_fk):
 	head = next(reader)
 	for row in reader:
 		insert("assets", ["asset_tag", "description"], [row[0], row[2]])
-		cur.execute("SELECT asset_pk FROM assets WHERE asset_tag = '" + row[0] + "';")
-		asset_fk = cur.fetchone()[0]
+		CUR.execute("SELECT asset_pk FROM assets WHERE asset_tag = '" + row[0] + "';")
+		asset_fk = CUR.fetchone()[0]
 		insert("asset_at", ["asset_fk", "facility_fk"], [asset_fk, facility_fk])
 
 
@@ -88,7 +88,7 @@ def insert(table, columns, values):
 			value_string += ","
 
 	sql_insert = "INSERT INTO {}({}) VALUES ({});".format(table, column_string, value_string)
-	cur.execute(sql_insert)
+	CUR.execute(sql_insert)
 
 
 if __name__ == '__main__':

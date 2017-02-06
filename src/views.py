@@ -13,7 +13,7 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-	# TODO: Implement Below
-	if request.method == 'POST':
+	# # TODO: Implement Below
+	# if request.method == 'POST':
 
 	return render_template('login.html')
