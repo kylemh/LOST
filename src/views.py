@@ -1,6 +1,5 @@
 from src import *
 
-
 @app.route('/')
 def index():
 	# TODO: Implement Below

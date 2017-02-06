@@ -33,9 +33,8 @@ def facilities():
 	for fn in glob.iglob('./osnap_legacy/**/*.csv', recursive=True):
 		if "inventory" in fn:
 			fcode = fn.split('/')[2].split('_')[0]
-
+			print("\nTHIS IS THE FCODE:", fcode, "\n")
 			# Translate facility code into understandable data
-			# TODO: Ensure common names and locations are correctly translated
 			if fcode == "HQ":
 				common_name = "Headquarters"
 				location = "Eugene, OR"
