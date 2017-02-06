@@ -1,13 +1,11 @@
--- noinspection SqlNoDataSourceInspectionForFile
-
--- noinspection SqlDialectInspectionForFile
-
 /* ASSET TABLES */
 CREATE TABLE products (
 	product_pk serial primary key,
 	vendor varchar(128) NOT NULL,
 	description text,
 	alt_description text,
+	product_name    varchar(128),
+  product_model   varchar(128),
 	price numeric
 );
 
