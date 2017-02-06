@@ -1,18 +1,24 @@
 #! /bin/bash
+db_name=$1
+port=$2
 
-# This script is for migrating OSNAP legacy data into the LOST database. Write your own
-# scripts for the data migration. If we find wholesale copying of functional portions of 
-# this code in your final project deliverable, 0 points will be awarded for the data
-# migration.
+#############################
+# CREATE DB & GET CSV FILES #
+#############################
+printf '\e[1;34m\nCreating empty tables for database model...\n\e[0m'
+psql $1 < create_tables.sql
 
-# Some of these scripts handle cases not present in the sample dataset but seem likely to
-# actually occur... The additional logic was written defensively and out of habit.
+printf '\e[1;34m\nCurling in OSNAP legacy data...\n\e[0m'
+curl -O https://classes.cs.uoregon.edu//17W/cis322/files/osnap_legacy.tar.gz
 
-# to speed up dev, put the db in a fresh state
-#dropdb $1
-#createdb $1
-#psql $1 -f create_tables.sql
+printf '\e[1;34m\nUnzipping compressed data...\n\e[0m'
+tar -xvf osnap_legacy.tar.gz
 
+
+#############################
+# POPULATE DATABASE #
+#############################
+printf '\e[1;34m\nFilling tables...\n\e[0m'
 # Load the security data
 python3 prep_sec.py
 psql $1 -f sec_load.sql

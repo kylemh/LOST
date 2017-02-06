@@ -9,15 +9,18 @@
 #    3. copies the required source to $HOME/wsgi
 
 if [ "$#" -ne 1 ]; then
-    printf '\e[1;34mUsage: ./preflight.sh <dbname>\n\e[0m'
+    printf '\e[1;34m\nERROR - Usage: ./preflight.sh <dbname>\n\e[0m'
     exit;
 fi
 
-printf '\e[1;34mMoving into database directory...\n\e[0m'
+printf '\e[1;34m\nMoving into database directory...\n\e[0m'
 cd sql
 
-printf '\e[1;34mImporting data from legacy documents...\n\e[0m'
+printf '\e[1;34m\nImporting data from legacy documents...\n\e[0m'
 bash ./import_data.sh $1 5432
+
+printf '\e[1;34m\nGarbage collection initiated...\n\e[0m'
+rm -rf osnap_legacy osnap_legacy.tar.gz
 
 printf '\e[1;34mMoving to application environment...\n\e[0m'
 cd ..
