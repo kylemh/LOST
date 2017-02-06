@@ -1,3 +1,8 @@
+import json
+import os
+import pathlib
+
+
 """
 NOTE:
 1) the APP_SECRET_KEY is secret. it should be generated in a way that makes everyone comfortable.
@@ -6,11 +11,14 @@ NOTE:
 2) DB_LOCATION is a string that can be passed to psycopg2 to connect to the db
 """
 
-import os
-import uuid
+cpath = pathlib.Path(os.path.realpath(__file__)).parent.joinpath('config.base.json')
 
-HOST = ""  # TODO: string
-PORT= ""  # TODO: int
+with cpath.open() as conf:
+	c = json.load(conf)
+	DB_NAME = c['database']['dbname']
+	HOST = c['database']['dbhost']
+	PORT = c['database']['dbport']
+
 APP_SECRET_KEY = ""  #TODO: string, see note 1 above
-DB_LOCATION = "" #TODO: string, see note 2 above
-DEBUG = False
+DB_LOCATION = "0.0.0.0" #TODO: string, see note 2 above
+DEBUG = True
