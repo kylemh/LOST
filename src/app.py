@@ -11,30 +11,25 @@ app.secret_key = APP_SECRET_KEY
 
 # Database Query Function
 def db_query(sql_string, for_selection):
-	conn = psycopg2.connect(DB_LOCATION)
-	cur = conn.cursor()
-	print("The query being executed is", sql_string, "\n")
-	cur.execute(sql_string)
-
-	# If this query is to populate a selection, force it into a list
-	if for_selection is True:
-		try:
-			data = []
-			for item in list(cur.execute):
-				data.append(item)
-		except:
-			data = ''  # Nothing gets returned from the query
-	else:
-		try:
-			data = cur.fetchall()
-		except:
-			data = ''  # Nothing gets returned from the query
-
-	print("The result is", data, "\n")
-	conn.commit()
-	cur.close()
-	conn.close()
-	return data
+    conn = psycopg2.connect(DB_LOCATION)
+    cur = conn.cursor()
+    print("The query being executed is", sql_string, "\n")
+    cur.execute(sql_string)
+    
+    try:
+        data = []
+        entries = cur.fetchall()
+        for row in entries:
+            for column in row:
+                data.append(column)
+    except:
+        data = ''
+    
+    print("The result is", data)
+    conn.commit()
+    cur.close()
+    conn.close()
+    return data
 
 
 # Templates
