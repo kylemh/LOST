@@ -14,29 +14,26 @@
 	{% if session.logged_in %}
 		<h1>Report Filters</h1>
 		<br>
-		<h4>Sorting options include...</h4>
+		<h4>Filter Options</h4>
 		<form action="{{ url_for('report_filter') }}" method="post" id="facility_inventory">
 			<dl>
 				<dt>Choose Facility:</dt>
-				<br>
-				<small>See inventory in selected facility.</small>
-				<dd>
+				<dd>See inventory in selected facility.</dd>
 				<select name="facility">
 				{% for fac in facilities_list %}
 					<option value="{{ fac }}" SELECTED>{{ fac }}</option>
 				{% endfor %}
 				</select>
-				<dd><input type="submit" value="Filter">
+				<dd><input type="submit" value="Filter"></dd>
 			</dl>
 		</form>
 
 		<form action="{{ url_for('report_filter') }}" method="post" id="moving_inventory">
 			<dl>
-				<dt>Choose Date:
-				<br>
-				<small>Check to see if inventory is in transit on this date.</small>
-				<dd><input type="date" name="in_transit">
-				<dd><input type="submit" value="Filter">
+				<dt>Choose Date:</dt>
+				<dd>Check to see if inventory is in transit on this date.</dd>
+				<dd><input type="date" name="in_transit"></dd>
+				<dd><input type="submit" value="Filter"></dd>
 			</dl>
 		</form>
 	{% endif %}

@@ -4,12 +4,16 @@ body {
 
 h1,
 h2,
-h3,
+h3 {
+    text-align: center;
+    border-bottom: 2px black solid;
+}
+
 h4,
 h5,
 h6 {
     text-align: center;
-    border-bottom: 2px black solid;
+    border: 1px black solid;
 }
 
 h1 {
@@ -26,4 +30,8 @@ p {
 
 #moving_inventory {
     float: right;
+}
+
+#footer {
+    clear: both;
 }
