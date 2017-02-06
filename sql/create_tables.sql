@@ -81,13 +81,13 @@ CREATE TABLE user_supports (
 );
 
 /* SECURITY TABLES */
-CREATE TABLE levels (
+CREATE TABLE sec_levels (
 	level_pk serial primary key,
 	abbrv varchar(8),
 	comment varchar(255)
 );
 
-CREATE TABLE compartments (
+CREATE TABLE sec_compartments (
 	compartment_pk serial primary key,
 	abbrv varchar(8),
 	comment varchar(255)

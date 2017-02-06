@@ -75,7 +75,7 @@ def facilities():
 				location = "National City, CA"
 			elif fcode == "MB005":
 				common_name = "Moonbase"
-				location = "Earth's Moon"
+				location = "The Moon"
 
 			insert("facilities", ["fcode", "common_name", "location"], [fcode, common_name, location])
 			CUR.execute("SELECT facility_pk FROM facilities WHERE fcode = '" + fcode + "';")
@@ -115,11 +115,6 @@ def process_products(outf):
 			if not r['compartments'] == 'NULL':
 				(tc, tl) = r['compartments'].split(':')
 
-			'''
-			This query exploits how serial values are generated and may fail
-			if something else is running at the same time as the migration script.
-			This query is also likely to be super inefficient for large migrations.
-			'''
 			outf.write("INSERT INTO security_tags (level_fk, compartment_fk, product_fk) "
 					   "SELECT level_pk, compartment_pk, max(product_pk) FROM sec_levels l,sec_compartments c,products p "
 					   "WHERE l.abbrv='%s and c.abbrv=%s' GROUP BY level_pk,compartment_pk,product_pk;\n" % (tl, tc))
@@ -150,7 +145,6 @@ if __name__ == '__main__':
 	try:
 		DB_NAME = sys.argv[1]
 		PORT = sys.argv[2]
-		print("\nDATABASE AND PORT ARE CORRECT! Connecting to lost:5432...\n")
 
 	except:
 		print("\nError with command line arguments!\nConnecting to lost:5432 anyways...\n")

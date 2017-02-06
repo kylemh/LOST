@@ -9,7 +9,7 @@ port=$2
 printf '\e[1;34mCreating empty tables for database model...\n\e[0m'
 psql lost < create_tables.sql
 
-printf '\e[1;34mCurling in OSNAP legacy data...\n\e[0m'
+printf '\e[1;34m\nCurling in OSNAP legacy data...\n\e[0m'
 curl -O https://classes.cs.uoregon.edu//17W/cis322/files/osnap_legacy.tar.gz
 
 printf '\e[1;34mUnzipping compressed data...\n\e[0m'
@@ -20,7 +20,7 @@ rm ./osnap_legacy/.*.csv
 #############################
 # CONVERT CSV TO POSTGRESQL #
 #############################
-printf '\e[1;34mAttempting to populate database from legacy data...\n\e[0m'
+printf '\e[1;34m\nAttempting to populate database from legacy data...\e[0m'
 python3 csv2psql.py $db_name $port
 
 
@@ -39,8 +39,8 @@ rm prod_load.sql
 
 
 
-printf '\e[1;34mGarbage collection taking place...\n\e[0m'
+printf '\e[1;34m\nGarbage collection taking place...\n\e[0m'
 rm -rf osnap_legacy
 rm osnap_legacy.tar.gz
 
-printf '\e[1;34m~~~COMPLETE~~~\n\n\e[0m'
+printf '\e[1;34m\n~~~COMPLETE~~~\n\n\e[0m'
