@@ -155,7 +155,7 @@ if __name__ == '__main__':
 	except:
 		print("\nError with command line arguments!\nConnecting to lost:5432 anyways...\n")
 		DB_NAME = 'lost'
-		PORT = '5432'
+		PORT = 5432
 
 		# Connect to database
 		conn = "host='localhost' port='" + PORT + "' dbname='" + DB_NAME + "' user='osnapdev' password='secret'"
