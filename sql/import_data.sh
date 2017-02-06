@@ -1,6 +1,6 @@
 #! /bin/bash
 db_name=$1
-port=5432
+port=$2
 
 printf 'Creating empty tables for database model...\n'
 psql lost < create_tables.sql
