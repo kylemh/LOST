@@ -25,6 +25,6 @@ p {
 }
 
 #footer {
-    text-align: center;
     padding-top: 10%;
+    clear: both;
 }
