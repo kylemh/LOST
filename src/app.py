@@ -84,7 +84,7 @@ def logout():
 @app.route('/report_filter', methods=['GET', 'POST'])
 def report_filter():
 	# Get facilities list for drop-down menu
-	facilities_list = db_query('SELECT common_name FROM facilities;', True, None)
+	facilities_list = db_query('SELECT common_name FROM facilities;', True)
 
 	# If a form has been submitted
 	if request.method == 'POST':
