@@ -112,13 +112,13 @@ def report_filter():
 
 		# Filtering by facility...
 		else:
-			selected_facility = request.form['filter_facility']
+			selected_facility = str(request.form['filter_facility'])
 			facility_query = "SELECT facilities.fcode, facilities.location, assets.asset_tag, assets.description, asset_at.arrive_dt, asset_at.depart_dt" \
 							 " FROM facilities" \
 							 " JOIN asset_at ON facilities.facility_pk = asset_at.facility_fk" \
 							 " JOIN assets ON asset_at.asset_fk = assets.asset_pk" \
-							 " WHERE facilities.common_name = ''' + facility + "'' \
-							 " AND asset_at.arrive_dt >= %s AND asset_at.depart_dt <= %s;" % (validated_date, validated_date)
+							 " WHERE facilities.common_name = %s" \
+							 " AND asset_at.arrive_dt >= %s AND asset_at.depart_dt <= %s;" % (selected_facility, validated_date, validated_date)
 
 			facility_inventory_data = db_query(facility_query, for_selection=False)
 			return redirect(url_for('facility_inventory'), facility=selected_facility, data=facility_inventory_data)
