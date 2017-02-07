@@ -27,14 +27,14 @@
 				</tr>
 			</thead>
 			<tbody>
-			{% for entry in session.query %}
+			{% for item in data %}
 				<tr>
-					<td>{{ entry.asset_tag }}</td>
-					<td>{{ entry.description }}</td>
-					<td>{{ entry.location1 }}</td>
-					<td>{{ entry.location2 }}</td>
-					<td>{{ entry.arrive_dt }}</td>
-					<td>{{ entry.depart_dt }}</td>
+					<td>{{ item.asset_tag }}</td>
+					<td>{{ item.description }}</td>
+					<td>{{ item.location1 }}</td>
+					<td>{{ item.location2 }}</td>
+					<td>{{ item.arrive_dt }}</td>
+					<td>{{ item.depart_dt }}</td>
 				</tr>
 			{% endfor %}
 			</tbody>

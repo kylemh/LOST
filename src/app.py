@@ -105,7 +105,7 @@ def report_filter():
 						   " JOIN convoy ON asset_fk" \
 						   " JOIN facilities f1 ON convoy.src_fk = f1.facility_pk" \
 						   " JOIN facilities f2 ON convoy.dst_fk = f2.facility_pk" \
-						   " WHERE convoys.arrive_dt >= %s AND convoys.depart_dt <= %s" % (validated_date, validated_date)
+						   " WHERE convoys.arrive_dt >= '%s' AND convoys.depart_dt <= '%s'" % (validated_date, validated_date)
 
 			moving_inventory_data = db_query(moving_query, for_selection=False)
 			return redirect(url_for('moving_inventory'), date=validated_date, data=moving_inventory_data)
@@ -117,8 +117,8 @@ def report_filter():
 							 " FROM facilities" \
 							 " JOIN asset_at ON facilities.facility_pk = asset_at.facility_fk" \
 							 " JOIN assets ON asset_at.asset_fk = assets.asset_pk" \
-							 " WHERE facilities.common_name = %s" \
-							 " AND asset_at.arrive_dt >= %s AND asset_at.depart_dt <= %s;" % (selected_facility, validated_date, validated_date)
+							 " WHERE facilities.common_name = '%s'" \
+							 " AND asset_at.arrive_dt >= '%s' AND asset_at.depart_dt <= '%s';" % (selected_facility, validated_date, validated_date)
 
 			facility_inventory_data = db_query(facility_query, for_selection=False)
 			return redirect(url_for('facility_inventory'), facility=selected_facility, data=facility_inventory_data)
