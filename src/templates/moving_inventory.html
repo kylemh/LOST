@@ -27,14 +27,14 @@
 				</tr>
 			</thead>
 			<tbody>
-			{% for item in data %}
+			{% for record in data %}
 				<tr>
-					<td>{{ item[0}}</td>
-					<td>{{ item.description }}</td>
-					<td>{{ item.location1 }}</td>
-					<td>{{ item.location2 }}</td>
-					<td>{{ item.arrive_dt }}</td>
-					<td>{{ item.depart_dt }}</td>
+					<td>{{ item['asset_tag'] }}</td>
+					<td>{{ item['description'] }}</td>
+					<td>{{ item['location1'] }}</td>
+					<td>{{ item['location2'] }}</td>
+					<td>{{ item['arrive_dt'] }}</td>
+					<td>{{ item['depart_dt'] }}</td>
 				</tr>
 			{% endfor %}
 			</tbody>
