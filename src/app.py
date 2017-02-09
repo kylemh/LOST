@@ -33,7 +33,7 @@ def db_query(sql_string, data_array):
 	conn.commit()
 	cur.close()
 	conn.close()
-	return data
+	return result_dict
 
 
 # Date Validation Function
