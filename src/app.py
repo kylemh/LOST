@@ -125,7 +125,7 @@ def report_filter():
 							 " AND asset_at.arrive_dt >= '%s' AND asset_at.depart_dt >= '%s';" % (selected_facility, validated_date, validated_date)
 
 			facility_inventory_data = db_query(facility_query, for_selection=False)
-			return render_template('facility_inventory.html', facility=selected_facility, data=facility_inventory_data)
+			return render_template('facility_inventory.html', facility=selected_facility, data=facility_inventory_data, date=validated_date)
 
 	return render_template('report_filter.html', facilities_list=facilities_list)
 
