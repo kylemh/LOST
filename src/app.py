@@ -109,11 +109,11 @@ def report_filter():
 
 		# FILTER: Inventory by "In Transit" status
 		if request.form['filter_facility'] == 'none':
-			moving_inventory(validated_date)
+			return moving_inventory(validated_date)
 
 		# FILTER: Inventory by Facility
 		else:
-			facility_inventory(validated_date)
+			return facility_inventory(validated_date)
 
 	return render_template('report_filter.html', facilities_list=facilities_list)
 
@@ -141,7 +141,6 @@ def facility_inventory(validated_date):
 	else:
 		print("\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n")
 
-	print("\n\nWE GET ALL THE WAY TYO RIGHT BEFORE THE RENDER\n\n")
 	return render_template('facility_inventory.html', facility=selected_facility, data=facility_inventory_processed, date=validated_date)
 
 
@@ -168,7 +167,6 @@ def moving_inventory(validated_date):
 		else:
 			print("\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n")
 
-	print("\n\nWE GET ALL THE WAY TYO RIGHT BEFORE THE RENDER\n\n")
 	return render_template('moving_inventory.html', date=validated_date, data=moving_inventory_processed)
 
 
