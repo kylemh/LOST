@@ -137,9 +137,6 @@ def report_filter():
 			# else:
 			# 	print("\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n")
 
-			for record in moving_inventory_processed:
-				print("\nThis is a record in the processed date:", record)
-
 			return render_template('moving_inventory.html', date=validated_date, data=moving_inventory_processed)
 
 		###################################
