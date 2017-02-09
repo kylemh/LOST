@@ -31,6 +31,7 @@ def db_query(sql_string, for_selection):
 			data = {}
 			for row in entries:
 				for column in row:
+					print("This is the column:", column, "and this is the row:", row)
 					data[column] = row
 		except:
 			data = ''
