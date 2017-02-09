@@ -15,14 +15,11 @@ app = Flask(__name__)
 app.secret_key = APP_SECRET_KEY
 
 
-"""
-MARK: DATABASE FUNCTIONS
-"""
+# MARK: DATABASE FUNCTIONS
 # Database Query Function
 def db_query(sql_string, data_array):
 	conn = psycopg2.connect(DB_LOCATION)
 	cur = conn.cursor()
-	print("\nIn db_query('" + sql_string + "',", data_array, "):\n")
 	cur.execute(sql_string, data_array)
 
 	# Return data as a dictionary
@@ -32,8 +29,6 @@ def db_query(sql_string, data_array):
 		records = []
 		for row in entries:
 			records.append(row)
-			print("\n\n\nCurrently in row:", row)
-		print("\n\n Records list is:", records)
 	else:
 		# No results in query
 		return failed_query(sql_string)
@@ -53,9 +48,7 @@ def validate_date(date_string):
 		raise ValueError("Incorrect data format, should be MM/DD/YYYY")
 
 
-"""
-MARK: TEMPLATES
-"""
+# MARK: TEMPLATES
 @app.route('/')
 @app.route('/index')
 @app.route('/index.html')
@@ -97,7 +90,6 @@ def report_filter():
 	facilities_list = []
 	for item in list_of_single_tuples:
 		facilities_list.append(item[0])
-	print("\n\n", facilities_list, "\n\n")
 	conn.commit()
 	cur.close()
 	conn.close()
@@ -178,11 +170,10 @@ def moving_inventory(validated_date):
 
 @app.route('/facility_inventory', methods=['GET'])
 def failed_query(query_string):
-	return render_template('failed_query.html', query_string)
+	return render_template('failed_query.html', query=query_string)
 
-"""
-HTTP ERROR PAGES
-"""
+
+# MARK: ERROR PAGES
 @app.errorhandler(404)
 def page_not_found(e):
 	return render_template('404.html'), 404
