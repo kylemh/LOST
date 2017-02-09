@@ -10,29 +10,25 @@ app.secret_key = APP_SECRET_KEY
 
 
 # Database Query Function
-def db_query(sql_string, for_selection):
+def db_query(sql_string, data_array):
 	conn = psycopg2.connect(DB_LOCATION)
 	cur = conn.cursor()
-	cur.execute(sql_string)
+	print("\nIn db_query(sql_string, " + data_array + "):\n")
+	cur.execute(sql_string, data_array)
 
-	if for_selection is True:
-		try:
-			entries = cur.fetchall()
-			data = []
-			for row in entries:
-				for column in row:
-					data.append(column)
-		except:
-			data = ''
-	else:
-		try:
-			entries = cur.fetchall()
-			data = {}
-			for row in entries:
-				for column in row:
-					data[column] = row
-		except:
-			data = ''
+	# Return data as a dictionary
+	try:
+		entries = cur.fetchall()
+		result_dict = {}
+		for row in entries:
+			print("\n\n\nCurrently in row:", row)
+			for column in row:
+				print("\nCurrently iterating over:", column)
+				result_dict[column] = row
+				print("\nValue of data[" + column + "]:", data[column])
+	except:
+		print("\n\n NO RESULTS FOR QUERY \n\n")
+		result_dict = None
 
 	conn.commit()
 	cur.close()
@@ -87,7 +83,16 @@ def logout():
 @app.route('/report_filter', methods=['GET', 'POST'])
 def report_filter():
 	# Get facilities list for drop-down menu
-	facilities_list = db_query('SELECT common_name FROM facilities;', True)
+	# I don't use the db_query function here because there's no data argument
+	fac_query = 'SELECT common_name FROM facilities;'
+	conn = psycopg2.connect(DB_LOCATION)
+	cur = conn.cursor()
+	cur.execute(fac_query)
+	facilities_list = cur.fetchall()
+	print("\n\nfacilities_list = :" + str(facilities_list) + "\n\n")
+	conn.commit()
+	cur.close()
+	conn.close()
 
 	# If a form has been submitted
 	if request.method == 'POST':
@@ -102,15 +107,15 @@ def report_filter():
 
 		# Filtering Inventory by whether or not it is "In Transit"
 		if request.form['filter_facility'] == 'none':
-			moving_query = "SELECT assets.asset_tag, assets.description, f1.location as location1, f2.location as location2, convoys.arrive_dt, convoys.depart_dt" \
+			moving_query = "SELECT assets.asset_tag, assets.description, f1.location as location1, f2.location as location2, convoys.depart_dt, convoys.arrive_dt" \
 						   " FROM assets" \
 						   " JOIN asset_on ON assets.asset_pk = asset_on.asset_fk" \
 						   " JOIN convoys ON asset_on.convoy_fk = convoys.convoy_pk" \
 						   " JOIN facilities f1 ON convoys.src_fk = f1.facility_pk" \
 						   " JOIN facilities f2 ON convoys.dst_fk = f2.facility_pk" \
-						   " WHERE convoys.arrive_dt >= '%s' AND convoys.depart_dt <= '%s'" % (validated_date, validated_date)
+						   " WHERE convoys.arrive_dt >= '%s' AND convoys.depart_dt <= '%s'"
 
-			moving_inventory_data = db_query(moving_query, for_selection=False)
+			moving_inventory_data = db_query(moving_query, [validated_date, validated_date])
 			print("Data being sent via render is:", moving_inventory_data)
 			for item in moving_inventory_data:
 				print("This is the key-value pair being iterated:", item)
@@ -124,9 +129,9 @@ def report_filter():
 							 " JOIN asset_at ON facilities.facility_pk = asset_at.facility_fk" \
 							 " JOIN assets ON asset_at.asset_fk = assets.asset_pk" \
 							 " WHERE facilities.common_name = '%s'" \
-							 " AND asset_at.arrive_dt >= '%s' AND asset_at.depart_dt >= '%s';" % (selected_facility, validated_date, validated_date)
+							 " AND asset_at.arrive_dt >= '%s' AND asset_at.depart_dt >= '%s';"
 
-			facility_inventory_data = db_query(facility_query, for_selection=False)
+			facility_inventory_data = db_query(facility_query, [selected_facility, validated_date, validated_date])
 			return render_template('facility_inventory.html', facility=selected_facility, data=facility_inventory_data, date=validated_date)
 
 	return render_template('report_filter.html', facilities_list=facilities_list)
