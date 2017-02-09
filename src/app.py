@@ -132,10 +132,13 @@ def report_filter():
 
 			# If list is not empty and it's size matches the array of column headers
 			# if moving_inventory_data and ((moving_inventory_data[0]) == len(column_names)):
+			i = 0
 			for record in moving_inventory_data:
 				moving_inventory_processed.append(dict(zip(column_names, record)))
 				print("\nThis is the record that was just processed:", record)
-				print("\nAs a test, here is the asset tag:", record['asset_tag'])
+				print("\nAs a test, here is the asset tag:", moving_inventory_processed[i]['asset_tag'], "\n\n")
+				i += 1
+
 			# else:
 			# 	print("\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n")
 
