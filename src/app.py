@@ -113,7 +113,7 @@ def report_filter():
 						   " JOIN convoys ON asset_on.convoy_fk = convoys.convoy_pk" \
 						   " JOIN facilities f1 ON convoys.src_fk = f1.facility_pk" \
 						   " JOIN facilities f2 ON convoys.dst_fk = f2.facility_pk" \
-						   " WHERE convoys.arrive_dt >= '%s' AND convoys.depart_dt <= '%s'"
+						   " WHERE convoys.arrive_dt >= %s AND convoys.depart_dt <= %s"
 
 			moving_inventory_data = db_query(moving_query, [validated_date, validated_date])
 			print("Data being sent via render is:", moving_inventory_data)
@@ -128,8 +128,8 @@ def report_filter():
 							 " FROM facilities" \
 							 " JOIN asset_at ON facilities.facility_pk = asset_at.facility_fk" \
 							 " JOIN assets ON asset_at.asset_fk = assets.asset_pk" \
-							 " WHERE facilities.common_name = '%s'" \
-							 " AND asset_at.arrive_dt >= '%s' AND asset_at.depart_dt >= '%s';"
+							 " WHERE facilities.common_name = %s" \
+							 " AND asset_at.arrive_dt >= %s AND asset_at.depart_dt >= %s;"
 
 			facility_inventory_data = db_query(facility_query, [selected_facility, validated_date, validated_date])
 			return render_template('facility_inventory.html', facility=selected_facility, data=facility_inventory_data, date=validated_date)
