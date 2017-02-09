@@ -1,5 +1,11 @@
+"""
+TODO: Implement other error handlers - http://flask.pocoo.org/docs/0.12/patterns/errorpages/
+TODO: Shit-loads of refactoring
+"""
+
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-import psycopg2, sys, os, datetime
+import psycopg2
+import datetime
 
 from config import *
 
@@ -75,10 +81,6 @@ def logout():
 	return render_template('logout.html')
 
 
-# TODO: Learn difference between redirect and render functions (lines 115 and 128)
-# TODO: Learn how to properly utilize the 'sessions' module
-
-
 @app.route('/report_filter', methods=['GET', 'POST'])
 def report_filter():
 	# Get facilities list for drop-down menu
@@ -107,7 +109,9 @@ def report_filter():
 		except TypeError or UnboundLocalError:
 			flash("You need to enter a date.")
 
-		# Filtering Inventory by whether or not it is "In Transit"
+		##############################################
+		# Filtering Inventory by "In Transit" status #
+		##############################################
 		if request.form['filter_facility'] == 'none':
 			moving_query = "SELECT assets.asset_tag, assets.description, f1.location as location1, f2.location as location2, convoys.depart_dt, convoys.arrive_dt" \
 						   " FROM assets" \
@@ -118,16 +122,26 @@ def report_filter():
 						   " WHERE convoys.arrive_dt >= %s AND convoys.depart_dt <= %s"
 
 			moving_inventory_data = db_query(moving_query, [validated_date, validated_date])
-			print("Data being sent via render is:", moving_inventory_data)
-			if moving_inventory_data is not None:
-				for record in moving_inventory_data:
-					print("This is the record being iterated over the returned data:", record)
-			else:
+
+			# TODO: Handle NoneType in db_query function
+			if moving_inventory_data is None:
 				moving_inventory_data = []
+
+			column_names = ['asset_tag', 'description', 'location1', 'location2', 'depart_dt', 'arrive_dt']
+			moving_inventory_processed = []
+
+			# If list is not empty and it's size matches the array of column headers
+			if moving_inventory_data and ((moving_inventory_data[0]) == len(column_names)):
+				for record in moving_inventory_data:
+					moving_inventory_processed.append(dict(zip(column_names, record)))
+			else:
+				print("\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n")
 
 			return render_template('moving_inventory.html', date=validated_date, data=moving_inventory_data)
 
-		# Filtering Inventory by Facility
+		###################################
+		# Filtering Inventory by Facility #
+		###################################
 		else:
 			selected_facility = str(request.form['filter_facility'])
 			facility_query = "SELECT facilities.fcode, facilities.location, assets.asset_tag, assets.description, asset_at.arrive_dt, asset_at.depart_dt" \
@@ -138,8 +152,21 @@ def report_filter():
 							 " AND asset_at.arrive_dt >= %s AND asset_at.depart_dt >= %s;"
 
 			facility_inventory_data = db_query(facility_query, [selected_facility, validated_date, validated_date])
+
+			# TODO: Handle NoneType in db_query function
 			if facility_inventory_data is None:
 				facility_inventory_data = []
+
+			column_names = ['fcode', 'location', 'asset_tag', 'description', 'arrive_dt', ' depart_dt']
+			facility_inventory_processed = []
+
+			# If list is not empty and it's size matches the array of column headers
+			if facility_inventory_data and ((facility_inventory_data[0]) == len(column_names)):
+				for record in facility_inventory_data:
+					facility_inventory_processed.append(dict(zip(column_names, record)))
+			else:
+				print("\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n")
+
 			return render_template('facility_inventory.html', facility=selected_facility, data=facility_inventory_data, date=validated_date)
 
 	return render_template('report_filter.html', facilities_list=facilities_list)
@@ -159,9 +186,6 @@ def moving_inventory():
 @app.errorhandler(404)
 def page_not_found(e):
 	return render_template('404.html'), 404
-
-
-# TODO: Implement other error handlers - http://flask.pocoo.org/docs/0.12/patterns/errorpages/
 
 
 # Application Deployment
