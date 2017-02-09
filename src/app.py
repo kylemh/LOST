@@ -134,8 +134,12 @@ def report_filter():
 			# if moving_inventory_data and ((moving_inventory_data[0]) == len(column_names)):
 			for record in moving_inventory_data:
 				moving_inventory_processed.append(dict(zip(column_names, record)))
+				print("\nThis is the record that was just processed:", record)
+				print("\nAs a test, here is the asset tag:", record['asset_tag'])
 			# else:
 			# 	print("\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n")
+
+			print("\n\nThe processed data is this:", moving_inventory_processed, "\n\n")
 
 			return render_template('moving_inventory.html', date=validated_date, data=moving_inventory_processed)
 
