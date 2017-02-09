@@ -137,7 +137,7 @@ def report_filter():
 			else:
 				print("\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n")
 
-			return render_template('moving_inventory.html', date=validated_date, data=moving_inventory_data)
+			return render_template('moving_inventory.html', date=validated_date, data=moving_inventory_processed)
 
 		###################################
 		# Filtering Inventory by Facility #
@@ -167,7 +167,7 @@ def report_filter():
 			else:
 				print("\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n")
 
-			return render_template('facility_inventory.html', facility=selected_facility, data=facility_inventory_data, date=validated_date)
+			return render_template('facility_inventory.html', facility=selected_facility, data=facility_inventory_processed, date=validated_date)
 
 	return render_template('report_filter.html', facilities_list=facilities_list)
 
