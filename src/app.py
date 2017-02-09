@@ -13,7 +13,6 @@ app.secret_key = APP_SECRET_KEY
 def db_query(sql_string, for_selection):
 	conn = psycopg2.connect(DB_LOCATION)
 	cur = conn.cursor()
-	print("The query being executed is", sql_string, "\n")
 	cur.execute(sql_string)
 
 	if for_selection is True:
@@ -31,7 +30,6 @@ def db_query(sql_string, for_selection):
 			data = {}
 			for row in entries:
 				for column in row:
-					print("This is the column:", column, "and this is the row:", row)
 					data[column] = row
 		except:
 			data = ''
@@ -113,6 +111,9 @@ def report_filter():
 						   " WHERE convoys.arrive_dt >= '%s' AND convoys.depart_dt <= '%s'" % (validated_date, validated_date)
 
 			moving_inventory_data = db_query(moving_query, for_selection=False)
+			print("Data being sent via render is:", moving_inventory_data)
+			for item in moving_inventory_data:
+				print("This is the key-value pair being iterated:", item)
 			return render_template('moving_inventory.html', date=validated_date, data=moving_inventory_data)
 
 		# Filtering Inventory by Facility
