@@ -14,7 +14,7 @@ def db_query(sql_string, data_array):
 	conn = psycopg2.connect(DB_LOCATION)
 	cur = conn.cursor()
 	print("\nIn db_query('" + sql_string + "',", data_array, "):\n")
-	cur.execute(sql_string, data_array)
+	cur.execute(sql_string, tuple(data_array))
 
 	# Return data as a dictionary
 	if len(cur.fetchall()) != 0:
