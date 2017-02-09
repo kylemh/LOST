@@ -15,6 +15,9 @@ app = Flask(__name__)
 app.secret_key = APP_SECRET_KEY
 
 
+"""
+MARK: DATABASE FUNCTIONS
+"""
 # Database Query Function
 def db_query(sql_string, data_array):
 	conn = psycopg2.connect(DB_LOCATION)
@@ -32,8 +35,8 @@ def db_query(sql_string, data_array):
 			print("\n\n\nCurrently in row:", row)
 		print("\n\n Records list is:", records)
 	else:
-		print("\n\n NO RESULTS FOR QUERY \n\n")
-		records = None
+		# No results in query
+		return failed_query(sql_string)
 
 	conn.commit()
 	cur.close()
@@ -50,7 +53,9 @@ def validate_date(date_string):
 		raise ValueError("Incorrect data format, should be MM/DD/YYYY")
 
 
-# Templates
+"""
+MARK: TEMPLATES
+"""
 @app.route('/')
 @app.route('/index')
 @app.route('/index.html')
@@ -83,8 +88,7 @@ def logout():
 
 @app.route('/report_filter', methods=['GET', 'POST'])
 def report_filter():
-	# Get facilities list for drop-down menu
-	# I don't use the db_query function here because there's no data argument
+	# Populate Facilities Drop-down menu
 	fac_query = 'SELECT common_name FROM facilities;'
 	conn = psycopg2.connect(DB_LOCATION)
 	cur = conn.cursor()
@@ -109,91 +113,76 @@ def report_filter():
 		except TypeError or UnboundLocalError:
 			flash("You need to enter a date.")
 
-		##############################################
-		# Filtering Inventory by "In Transit" status #
-		##############################################
+		# FILTER: Inventory by "In Transit" status
 		if request.form['filter_facility'] == 'none':
-			moving_query = "SELECT assets.asset_tag, assets.description, f1.location as location1, f2.location as location2, convoys.depart_dt, convoys.arrive_dt" \
-						   " FROM assets" \
-						   " JOIN asset_on ON assets.asset_pk = asset_on.asset_fk" \
-						   " JOIN convoys ON asset_on.convoy_fk = convoys.convoy_pk" \
-						   " JOIN facilities f1 ON convoys.src_fk = f1.facility_pk" \
-						   " JOIN facilities f2 ON convoys.dst_fk = f2.facility_pk" \
-						   " WHERE convoys.arrive_dt >= %s AND convoys.depart_dt <= %s"
+			moving_inventory(validated_date)
 
-			moving_inventory_data = db_query(moving_query, [validated_date, validated_date])
-
-			# TODO: Handle NoneType in db_query function
-			if moving_inventory_data is None:
-				moving_inventory_data = []
-
-			column_names = ['asset_tag', 'description', 'location1', 'location2', 'depart_dt', 'arrive_dt']
-			moving_inventory_processed = []
-
-			# If list is not empty and it's size matches the array of column headers
-			# if moving_inventory_data and ((moving_inventory_data[0]) == len(column_names)):
-			i = 0
-			for record in moving_inventory_data:
-				moving_inventory_processed.append(dict(zip(column_names, record)))
-				print("\nThis is the record that was just processed:", record)
-				print("\nAs a test, here is the asset tag:", moving_inventory_processed[i]['asset_tag'], "\n\n")
-				i += 1
-
-			print("\n\n\nCHECK HERE")
-			for record in moving_inventory_processed:
-				for item in record:
-					print("Item:", item)
-			# else:
-			# 	print("\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n")
-
-			print("\n\nThe processed data is this:", moving_inventory_processed, "\n\n")
-
-			return render_template('moving_inventory.html', date=validated_date, data=moving_inventory_processed)
-
-		###################################
-		# Filtering Inventory by Facility #
-		###################################
+		# FILTER: Inventory by Facility
 		else:
-			selected_facility = str(request.form['filter_facility'])
-			facility_query = "SELECT facilities.fcode, facilities.location, assets.asset_tag, assets.description, asset_at.arrive_dt, asset_at.depart_dt" \
-							 " FROM facilities" \
-							 " JOIN asset_at ON facilities.facility_pk = asset_at.facility_fk" \
-							 " JOIN assets ON asset_at.asset_fk = assets.asset_pk" \
-							 " WHERE facilities.common_name = %s" \
-							 " AND asset_at.arrive_dt >= %s AND asset_at.depart_dt >= %s;"
-
-			facility_inventory_data = db_query(facility_query, [selected_facility, validated_date, validated_date])
-
-			# TODO: Handle NoneType in db_query function
-			if facility_inventory_data is None:
-				facility_inventory_data = []
-
-			column_names = ['fcode', 'location', 'asset_tag', 'description', 'arrive_dt', ' depart_dt']
-			facility_inventory_processed = []
-
-			# If list is not empty and it's size matches the array of column headers
-			if facility_inventory_data and ((facility_inventory_data[0]) == len(column_names)):
-				for record in facility_inventory_data:
-					facility_inventory_processed.append(dict(zip(column_names, record)))
-			else:
-				print("\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n")
-
-			return render_template('facility_inventory.html', facility=selected_facility, data=facility_inventory_processed, date=validated_date)
+			facility_inventory(validated_date)
 
 	return render_template('report_filter.html', facilities_list=facilities_list)
 
 
 @app.route('/facility_inventory', methods=['GET', 'POST'])
-def facility_inventory():
-	return render_template('facility_inventory.html', facility=request.args.get('facility'), date=request.args.get('report_date'))
+def facility_inventory(validated_date):
+	selected_facility = str(request.form['filter_facility'])
+	facility_query = "SELECT facilities.fcode, facilities.location, assets.asset_tag, assets.description, asset_at.arrive_dt, asset_at.depart_dt" \
+					 " FROM facilities" \
+					 " JOIN asset_at ON facilities.facility_pk = asset_at.facility_fk" \
+					 " JOIN assets ON asset_at.asset_fk = assets.asset_pk" \
+					 " WHERE facilities.common_name = %s" \
+					 " AND asset_at.arrive_dt >= %s AND asset_at.depart_dt >= %s;"
+
+	facility_inventory_data = db_query(facility_query, [selected_facility, validated_date, validated_date])
+
+	column_names = ['fcode', 'location', 'asset_tag', 'description', 'arrive_dt', ' depart_dt']
+	facility_inventory_processed = []
+
+	# TODO: Refactor by creating array of tuples to dictionary conversion function
+	# If list is not empty and it's size matches the array of column headers
+	if facility_inventory_data and ((facility_inventory_data[0]) == len(column_names)):
+		for record in facility_inventory_data:
+			facility_inventory_processed.append(dict(zip(column_names, record)))
+	else:
+		print("\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n")
+
+	return render_template('facility_inventory.html', facility=selected_facility, data=facility_inventory_processed, date=validated_date)
 
 
 @app.route('/moving_inventory', methods=['GET', 'POST'])
-def moving_inventory():
-	return render_template('moving_inventory.html', date=request.args.get('report_date'))
+def moving_inventory(validated_date):
+	moving_query = "SELECT assets.asset_tag, assets.description, f1.location as location1, f2.location as location2, convoys.depart_dt, convoys.arrive_dt" \
+				   " FROM assets" \
+				   " JOIN asset_on ON assets.asset_pk = asset_on.asset_fk" \
+				   " JOIN convoys ON asset_on.convoy_fk = convoys.convoy_pk" \
+				   " JOIN facilities f1 ON convoys.src_fk = f1.facility_pk" \
+				   " JOIN facilities f2 ON convoys.dst_fk = f2.facility_pk" \
+				   " WHERE convoys.arrive_dt >= %s AND convoys.depart_dt <= %s"
+
+	moving_inventory_data = db_query(moving_query, [validated_date, validated_date])
+
+	column_names = ['asset_tag', 'description', 'location1', 'location2', 'depart_dt', 'arrive_dt']
+	moving_inventory_processed = []
+
+	# TODO: Refactor by creating array of tuples to dictionary conversion function
+	# If list is not empty and it's size matches the array of column headers
+	if moving_inventory_data and ((moving_inventory_data[0]) == len(column_names)):
+		for record in moving_inventory_data:
+			moving_inventory_processed.append(dict(zip(column_names, record)))
+		else:
+			print("\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n")
+
+	return render_template('moving_inventory.html', date=validated_date, data=moving_inventory_processed)
 
 
-# Error Handlers
+@app.route('/facility_inventory', methods=['GET'])
+def failed_query(query_string):
+	return render_template('failed_query.html', query_string)
+
+"""
+HTTP ERROR PAGES
+"""
 @app.errorhandler(404)
 def page_not_found(e):
 	return render_template('404.html'), 404

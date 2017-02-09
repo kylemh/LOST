@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block head %}
+	{{ super() }}
+{% endblock %}
+
+{% block content %}
+	<h1>Failed Query</h1>
+	<p>Unfortunately, the following query:</p>
+	<br>
+	<div><p>{{ query_string }}</p></div>
+	<br>
+	<p>yielded no results.</p>
+{% endblock %}
