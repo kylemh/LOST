@@ -29,14 +29,14 @@
 			<tbody>
 			{% for record in data %}
 				<tr>
-				{% for item in record %}
+				<!-- {% for item in record %} -->
 					<td>{{ item['asset_tag'] }}</td>
 					<td>{{ item['description'] }}</td>
 					<td>{{ item['location1'] }}</td>
 					<td>{{ item['location2'] }}</td>
 					<td>{{ item['arrive_dt'] }}</td>
 					<td>{{ item['depart_dt'] }}</td>
-				{% endfor %}
+				<!-- {% endfor %} -->
 				</tr>
 			{% endfor %}
 			</tbody>
