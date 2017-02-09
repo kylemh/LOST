@@ -17,6 +17,7 @@ def db_query(sql_string, data_array):
 	cur.execute(sql_string, tuple(data_array))
 
 	# Return data as a dictionary
+	print(cur.fetchall())
 	if len(cur.fetchall()) != 0:
 		entries = cur.fetchall()
 		records = []
