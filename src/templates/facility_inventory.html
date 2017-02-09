@@ -25,15 +25,17 @@
 				</tr>
 			</thead>
 			<tbody>
-			{% for item in data %}
-				<tr>
-					<td>{{ item['fcode'] }}</td>
-					<td>{{ item['location'] }}</td>
-					<td>{{ item['asset_tag'] }}</td>
-					<td>{{ item['description'] }}</td>
-					<td>{{ item['arrive_dt'] }}</td>
-					<td>{{ item['depart_dt'] }}</td>
-				</tr>
+			{% for record in data %}
+				{% for item in record %}
+					<tr>
+						<td>{{ item['fcode'] }}</td>
+						<td>{{ item['location'] }}</td>
+						<td>{{ item['asset_tag'] }}</td>
+						<td>{{ item['description'] }}</td>
+						<td>{{ item['arrive_dt'] }}</td>
+						<td>{{ item['depart_dt'] }}</td>
+					</tr>
+				{% endfor %}
 			{% endfor %}
 			</tbody>
 		</table>
