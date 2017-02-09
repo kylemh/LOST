@@ -89,7 +89,7 @@ def report_filter():
 	list_of_single_tuples = cur.fetchall()
 
 	facilities_list = []
-	for name, comma in list_of_single_tuples:
+	for name, in list_of_single_tuples:
 		facilities_list.append(name)
 
 	conn.commit()
