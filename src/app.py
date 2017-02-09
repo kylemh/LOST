@@ -19,21 +19,21 @@ def db_query(sql_string, data_array):
 	# Return data as a dictionary
 	try:
 		entries = cur.fetchall()
-		result_dict = {}
+		data = {}
 		for row in entries:
 			print("\n\n\nCurrently in row:", row)
 			for column in row:
 				print("\nCurrently iterating over:", column)
-				result_dict[column] = row
+				data[column] = row
 				print("\nValue of data[" + column + "]:", data[column])
 	except:
 		print("\n\n NO RESULTS FOR QUERY \n\n")
-		result_dict = None
+		data = None
 
 	conn.commit()
 	cur.close()
 	conn.close()
-	return result_dict
+	return data
 
 
 # Date Validation Function
