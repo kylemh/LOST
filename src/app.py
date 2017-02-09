@@ -139,6 +139,10 @@ def report_filter():
 				print("\nAs a test, here is the asset tag:", moving_inventory_processed[i]['asset_tag'], "\n\n")
 				i += 1
 
+			print("\n\n\nCHECK HERE")
+			for record in moving_inventory_processed:
+				for item in record:
+					print("Item:", item)
 			# else:
 			# 	print("\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n")
 
