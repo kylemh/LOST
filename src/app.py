@@ -14,12 +14,12 @@ def db_query(sql_string, data_array):
 	conn = psycopg2.connect(DB_LOCATION)
 	cur = conn.cursor()
 	print("\nIn db_query('" + sql_string + "',", data_array, "):\n")
-	cur.execute(sql_string, tuple(data_array))
+	cur.execute(sql_string, data_array)
 
 	# Return data as a dictionary
-	print(cur.fetchall())
-	if len(cur.fetchall()) != 0:
-		entries = cur.fetchall()
+	result = cur.fetchall()
+	if len(result) != 0:
+		entries = result
 		records = []
 		for row in entries:
 			records.append(row)
