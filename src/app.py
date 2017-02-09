@@ -120,7 +120,6 @@ def report_filter():
 
 @app.route('/facility_inventory', methods=['GET', 'POST'])
 def facility_inventory(validated_date):
-	print("\n\nI AM MAKING IT TO THE FACILITY INVENTORY FUNCTION\n\n")
 	selected_facility = str(request.form['filter_facility'])
 	facility_query = "SELECT facilities.fcode, facilities.location, assets.asset_tag, assets.description, asset_at.arrive_dt, asset_at.depart_dt" \
 					 " FROM facilities" \
@@ -142,12 +141,12 @@ def facility_inventory(validated_date):
 	else:
 		print("\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n")
 
+	print("\n\nWE GET ALL THE WAY TYO RIGHT BEFORE THE RENDER\n\n")
 	return render_template('facility_inventory.html', facility=selected_facility, data=facility_inventory_processed, date=validated_date)
 
 
 @app.route('/moving_inventory', methods=['GET', 'POST'])
 def moving_inventory(validated_date):
-	print("\n\nI AM MAKING IT TO THE MOVING INVENTORY FUNCTION\n\n")
 	moving_query = "SELECT assets.asset_tag, assets.description, f1.location as location1, f2.location as location2, convoys.depart_dt, convoys.arrive_dt" \
 				   " FROM assets" \
 				   " JOIN asset_on ON assets.asset_pk = asset_on.asset_fk" \
@@ -169,6 +168,7 @@ def moving_inventory(validated_date):
 		else:
 			print("\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n")
 
+	print("\n\nWE GET ALL THE WAY TYO RIGHT BEFORE THE RENDER\n\n")
 	return render_template('moving_inventory.html', date=validated_date, data=moving_inventory_processed)
 
 
