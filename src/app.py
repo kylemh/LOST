@@ -45,7 +45,7 @@ def db_query(sql_string, for_selection):
 def validate_date(date_string):
 	try:
 		date = datetime.datetime.strptime(date_string, '%m/%d/%Y')
-		return str(date)
+		return str(date.month, date.day, date.year)
 	except ValueError:
 		raise ValueError("Incorrect data format, should be MM/DD/YYYY")
 
