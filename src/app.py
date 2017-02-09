@@ -17,23 +17,21 @@ def db_query(sql_string, data_array):
 	cur.execute(sql_string, data_array)
 
 	# Return data as a dictionary
-	try:
+	if cur.fetchall().length() != 0:
 		entries = cur.fetchall()
-		data = {}
+		records = []
 		for row in entries:
+			records.append(row)
 			print("\n\n\nCurrently in row:", row)
-			for column in row:
-				print("\nCurrently iterating over:", column)
-				data[column] = row
-				print("\nValue of data[" + column + "]:", data[column])
-	except:
+		print("\n\n Records list is:", records)
+	else:
 		print("\n\n NO RESULTS FOR QUERY \n\n")
-		data = None
+		records = None
 
 	conn.commit()
 	cur.close()
 	conn.close()
-	return data
+	return records
 
 
 # Date Validation Function
@@ -88,8 +86,11 @@ def report_filter():
 	conn = psycopg2.connect(DB_LOCATION)
 	cur = conn.cursor()
 	cur.execute(fac_query)
-	facilities_list = cur.fetchall()
-	print("\n\nfacilities_list = :" + str(facilities_list) + "\n\n")
+	list_of_single_tuples = cur.fetchall()
+	facilities_list = []
+	for item in list_of_single_tuples:
+		facilities_list.append(item[0])
+	print("\n\n", facilities_list, "\n\n")
 	conn.commit()
 	cur.close()
 	conn.close()
@@ -117,8 +118,12 @@ def report_filter():
 
 			moving_inventory_data = db_query(moving_query, [validated_date, validated_date])
 			print("Data being sent via render is:", moving_inventory_data)
-			for item in moving_inventory_data:
-				print("This is the key-value pair being iterated:", item)
+			if moving_inventory_data is not None:
+				for record in moving_inventory_data:
+					print("This is the record being iterated over the returned data:", record)
+			else:
+				moving_inventory_data = []
+
 			return render_template('moving_inventory.html', date=validated_date, data=moving_inventory_data)
 
 		# Filtering Inventory by Facility
@@ -132,6 +137,8 @@ def report_filter():
 							 " AND asset_at.arrive_dt >= %s AND asset_at.depart_dt >= %s;"
 
 			facility_inventory_data = db_query(facility_query, [selected_facility, validated_date, validated_date])
+			if facility_inventory_data is None:
+				facility_inventory_data = []
 			return render_template('facility_inventory.html', facility=selected_facility, data=facility_inventory_data, date=validated_date)
 
 	return render_template('report_filter.html', facilities_list=facilities_list)
