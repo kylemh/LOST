@@ -81,6 +81,10 @@ def logout():
 	return render_template('logout.html')
 
 
+# TODO: Learn difference between redirect and render functions (lines 115 and 128)
+# TODO: Learn how to properly utilize the 'sessions' module
+
+
 @app.route('/report_filter', methods=['GET', 'POST'])
 def report_filter():
 	# Get facilities list for drop-down menu
@@ -97,7 +101,7 @@ def report_filter():
 		except TypeError or UnboundLocalError:
 			flash("You need to enter a date.")
 
-		# Not filtering by facility...
+		# Filtering Inventory by whether or not it is "In Transit"
 		if request.form['filter_facility'] == 'none':
 			moving_query = "SELECT assets.asset_tag, assets.description, f1.location as location1, f2.location as location2, convoys.arrive_dt, convoys.depart_dt" \
 						   " FROM assets" \
@@ -108,9 +112,9 @@ def report_filter():
 						   " WHERE convoys.arrive_dt >= '%s' AND convoys.depart_dt <= '%s'" % (validated_date, validated_date)
 
 			moving_inventory_data = db_query(moving_query, for_selection=False)
-			return redirect(url_for('moving_inventory'), date=validated_date, data=moving_inventory_data)
+			return render_template('moving_inventory.html', date=validated_date, data=moving_inventory_data)
 
-		# Filtering by facility...
+		# Filtering Inventory by Facility
 		else:
 			selected_facility = str(request.form['filter_facility'])
 			facility_query = "SELECT facilities.fcode, facilities.location, assets.asset_tag, assets.description, asset_at.arrive_dt, asset_at.depart_dt" \
@@ -121,7 +125,7 @@ def report_filter():
 							 " AND asset_at.arrive_dt >= '%s' AND asset_at.depart_dt >= '%s';" % (selected_facility, validated_date, validated_date)
 
 			facility_inventory_data = db_query(facility_query, for_selection=False)
-			return redirect(url_for('facility_inventory'), facility=selected_facility, data=facility_inventory_data)
+			return render_template('facility_inventory.html', facility=selected_facility, data=facility_inventory_data)
 
 	return render_template('report_filter.html', facilities_list=facilities_list)
 
