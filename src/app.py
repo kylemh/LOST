@@ -162,12 +162,12 @@ def facility_inventory(validated_date):
 	# 				 ' WHERE (asset_at.depart_dt <= %s OR asset_at.depart_dt IS NULL)' \
 	# 				 ' AND asset_at.arrive_dt >= %s'
 
-	facility_query = 'SELECT facilities.fcode, facilities.location, assets.asset_tag, assets.description, asset_at.arrive_dt, asset_at.depart_dt' \
-					 ' FROM (SELECT * FROM facilities WHERE common_name = "National City") as facilities' \
-					 ' JOIN asset_at ON facilities.facility_pk = asset_at.facility_fk' \
-					 ' JOIN assets ON asset_at.asset_fk = assets.asset_pk' \
-					 ' WHERE (asset_at.depart_dt <= "2017-01-01 00:00:00" OR asset_at.depart_dt IS NULL)' \
-					 ' AND asset_at.arrive_dt >= "2017-01-01 00:00:00"'
+	facility_query = "SELECT facilities.fcode, facilities.location, assets.asset_tag, assets.description, asset_at.arrive_dt, asset_at.depart_dt" \
+					 " FROM (SELECT * FROM facilities WHERE common_name = 'National City') as facilities" \
+					 " JOIN asset_at ON facilities.facility_pk = asset_at.facility_fk" \
+					 " JOIN assets ON asset_at.asset_fk = assets.asset_pk" \
+					 " WHERE (asset_at.depart_dt <= '2017-01-01 00:00:00' OR asset_at.depart_dt IS NULL)" \
+					 " AND asset_at.arrive_dt >= '2017-01-01 00:00:00'"
 
 	facility_inventory_data = db_query(facility_query, [selected_facility, validated_date, validated_date])
 	print("\n\nLine 166 - facility_inventory_data:", facility_inventory_data)
