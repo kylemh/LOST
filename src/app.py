@@ -158,7 +158,7 @@ def moving_inventory(validated_date):
 def facility_inventory(validated_date):
 	selected_facility = str(request.form['filter_facility'])
 	facility_query = 'SELECT facilities.fcode, facilities.location, assets.asset_tag, assets.description, asset_at.arrive_dt, asset_at.depart_dt' \
-					 ' FROM (SELECT * FROM facilities WHERE common_name = %s)' \
+					 ' FROM (SELECT * FROM facilities WHERE common_name = %s) as facilities' \
 					 ' JOIN asset_at ON facilities.facility_pk = asset_at.facility_fk' \
 					 ' JOIN assets ON asset_at.asset_fk = assets.asset_pk' \
 					 ' WHERE (asset_at.depart_dt <= %s OR asset_at.depart_dt IS NULL)' \
