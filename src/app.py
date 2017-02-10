@@ -154,7 +154,7 @@ def moving_inventory(validated_date):
 
 @app.route('/facility_inventory', methods=['GET', 'POST'])
 def facility_inventory(validated_date):
-	selected_facility = str(request.form['filter_facility'])
+	selected_facility = request.form['filter_facility']
 	facility_query = 'SELECT facilities.fcode, facilities.location, assets.asset_tag, assets.description, asset_at.arrive_dt, asset_at.depart_dt' \
 					 ' FROM (SELECT * FROM facilities WHERE common_name = %s) as facilities' \
 					 ' JOIN asset_at ON facilities.facility_pk = asset_at.facility_fk' \
@@ -164,7 +164,6 @@ def facility_inventory(validated_date):
 
 	facility_inventory_data = db_query(facility_query, [selected_facility, validated_date, validated_date])
 	print("\n\nLine 166 - facility_inventory_data:\n", facility_inventory_data)
-
 
 	column_names = ['fcode', 'location', 'asset_tag', 'description', 'arrive_dt', ' depart_dt']
 	facility_inventory_processed = []
