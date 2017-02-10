@@ -22,7 +22,6 @@ def db_query(sql_string, data_array):
 	conn = psycopg2.connect(DB_LOCATION)
 	cur = conn.cursor()
 	print("\nThe query is:\n", sql_string, "\nThe data array is:\n", data_array)
-	print("\n\nThe selected facility is:" + data_array[0] + "\n")
 	cur.execute(sql_string, data_array)
 
 	# Return data as an array of dictionaries
@@ -129,13 +128,13 @@ def report_filter():
 
 @app.route('/moving_inventory', methods=['GET', 'POST'])
 def moving_inventory(validated_date):
-	moving_query = "SELECT assets.asset_tag, assets.description, f1.location as location1, f2.location as location2, convoys.depart_dt, convoys.arrive_dt" \
-				   " FROM assets" \
-				   " JOIN asset_on ON assets.asset_pk = asset_on.asset_fk" \
-				   " JOIN convoys ON asset_on.convoy_fk = convoys.convoy_pk" \
-				   " JOIN facilities f1 ON convoys.src_fk = f1.facility_pk" \
-				   " JOIN facilities f2 ON convoys.dst_fk = f2.facility_pk" \
-				   " WHERE convoys.arrive_dt >= %s AND convoys.depart_dt <= %s"
+	moving_query = 'SELECT assets.asset_tag, assets.description, f1.location as location1, f2.location as location2, convoys.depart_dt, convoys.arrive_dt' \
+				   ' FROM assets' \
+				   ' JOIN asset_on ON assets.asset_pk = asset_on.asset_fk' \
+				   ' JOIN convoys ON asset_on.convoy_fk = convoys.convoy_pk' \
+				   ' JOIN facilities f1 ON convoys.src_fk = f1.facility_pk' \
+				   ' JOIN facilities f2 ON convoys.dst_fk = f2.facility_pk' \
+				   ' WHERE convoys.arrive_dt >= %s AND convoys.depart_dt <= %s'
 
 	moving_inventory_data = db_query(moving_query, [validated_date, validated_date])
 
@@ -157,11 +156,11 @@ def moving_inventory(validated_date):
 def facility_inventory(validated_date):
 	selected_facility = request.form['filter_facility']
 	facility_query = "SELECT facilities.fcode, facilities.location, assets.asset_tag, assets.description, asset_at.arrive_dt, asset_at.depart_dt" \
-					 " FROM (SELECT * FROM facilities WHERE common_name = %s) as facilities" \
+					 " FROM (SELECT * FROM facilities WHERE common_name = 'National City') as facilities" \
 					 " JOIN asset_at ON facilities.facility_pk = asset_at.facility_fk" \
 					 " JOIN assets ON asset_at.asset_fk = assets.asset_pk" \
-					 " WHERE (asset_at.depart_dt <= '%s' OR asset_at.depart_dt IS NULL)" \
-					 " AND asset_at.arrive_dt >= '%s'"
+					 " WHERE (asset_at.depart_dt <= %s OR asset_at.depart_dt IS NULL)" \
+					 " AND asset_at.arrive_dt >= %s"
 
 	facility_inventory_data = db_query(facility_query, [selected_facility, validated_date, validated_date])
 	print("\n\nLine 166 - facility_inventory_data:", facility_inventory_data)
@@ -195,22 +194,3 @@ def page_not_found(e):
 # Application Deployment
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', port=8080, debug=True)
-
-
-"""
-SELECT facilities.fcode, facilities.location, assets.asset_tag, assets.description, asset_at.arrive_dt, asset_at.depart_dt
-FROM (SELECT * FROM facilities WHERE common_name = %s) as facilities
-JOIN asset_at ON facilities.facility_pk = asset_at.facility_fk
-JOIN assets ON asset_at.asset_fk = assets.asset_pk
-WHERE (asset_at.depart_dt <= %s OR asset_at.depart_dt IS NULL) AND asset_at.arrive_dt >= %s
-"""
-
-"""
-SELECT assets.asset_tag, assets.description, f1.location as location1, f2.location as location2, convoys.depart_dt, convoys.arrive_dt
-FROM assets
-JOIN asset_on ON assets.asset_pk = asset_on.asset_fk
-JOIN convoys ON asset_on.convoy_fk = convoys.convoy_pk
-JOIN facilities f1 ON convoys.src_fk = f1.facility_pk
-JOIN facilities f2 ON convoys.dst_fk = f2.facility_pk
-WHERE convoys.arrive_dt >= %s AND convoys.depart_dt <= %s
-"""
