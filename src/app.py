@@ -137,20 +137,18 @@ def moving_inventory(validated_date):
 				   ' WHERE convoys.arrive_dt >= %s AND convoys.depart_dt <= %s'
 
 	moving_inventory_data = db_query(moving_query, [validated_date, validated_date])
-	print('Line 138 - moving_enventory_data:', moving_inventory_data)
+
 	column_names = ['asset_tag', 'description', 'location1', 'location2', 'depart_dt', 'arrive_dt']
 	moving_inventory_processed = []
 
 	# TODO: Refactor by creating array of tuples to dictionary conversion function
 	# If list is not empty and it's size matches the array of column headers
 	if moving_inventory_data and (len(moving_inventory_data[0]) == len(column_names)):
-		print('\nNot Empty!\n')
 		for record in moving_inventory_data:
 			moving_inventory_processed.append(dict(zip(column_names, record)))
 	else:
-		print('\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n')
+		print('\n\nERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE\n\n')
 
-	print('\nThis is the data being passed:', moving_inventory_processed)
 	return render_template('moving_inventory.html', date=validated_date, data=moving_inventory_processed)
 
 
@@ -165,6 +163,8 @@ def facility_inventory(validated_date):
 					 ' AND asset_at.arrive_dt >= %s;'
 
 	facility_inventory_data = db_query(facility_query, [selected_facility, validated_date, validated_date])
+	print("\n\nLine 166 - facility_inventory_data:\n", facility_inventory_data)
+
 
 	column_names = ['fcode', 'location', 'asset_tag', 'description', 'arrive_dt', ' depart_dt']
 	facility_inventory_processed = []
@@ -175,8 +175,9 @@ def facility_inventory(validated_date):
 		for record in facility_inventory_data:
 			facility_inventory_processed.append(dict(zip(column_names, record)))
 	else:
-		print('\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n')
+		print('\n\nERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE\n\n')
 
+	print('\nThis is the data being passed:', facility_inventory_processed)
 	return render_template('facility_inventory.html', facility=selected_facility, data=facility_inventory_processed, date=validated_date)
 
 
