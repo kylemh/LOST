@@ -22,16 +22,20 @@ def db_query(sql_string, data_array):
 	cur = conn.cursor()
 	cur.execute(sql_string, data_array)
 
-	# Return data as a dictionary
+	# Return data as an array of dictionaries
+	records = []
 	result = cur.fetchall()
+
+	# If the query returns something...
 	if len(result) != 0:
 		entries = result
-		records = []
+
 		for row in entries:
 			records.append(row)
 	else:
 		# No results in query
-		return failed_query(sql_string)
+		print("\n\bNO RESULTS IN QUERY\n")
+		redirect(url_for('failed_query', query_string=sql_string))
 
 	conn.commit()
 	cur.close()
@@ -132,7 +136,7 @@ def facility_inventory(validated_date):
 
 	column_names = ['fcode', 'location', 'asset_tag', 'description', 'arrive_dt', ' depart_dt']
 	facility_inventory_processed = []
-	print("\nThis is the passed facility_inventory_data:", facility_inventory_data, "\n")
+
 	# TODO: Refactor by creating array of tuples to dictionary conversion function
 	# If list is not empty and it's size matches the array of column headers
 	if facility_inventory_data and ((facility_inventory_data[0]) == len(column_names)):
@@ -164,9 +168,10 @@ def moving_inventory(validated_date):
 	if moving_inventory_data and ((moving_inventory_data[0]) == len(column_names)):
 		for record in moving_inventory_data:
 			moving_inventory_processed.append(dict(zip(column_names, record)))
-		else:
-			print("\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n")
+	else:
+		print("\n\n\n ERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE \n\n\n")
 
+	print("\nThis is the data being passed:", moving_inventory_processed)
 	return render_template('moving_inventory.html', date=validated_date, data=moving_inventory_processed)
 
 
