@@ -26,19 +26,18 @@ def db_query(sql_string, data_array):
 
 	# Return data as an array of dictionaries
 	result = cur.fetchall()
-	print('\nQuery result:', result)
+	print('\nIF THIS IS NOT EMPTY, YOU DID IT - PROBABLY:', result)
 	records = []
 
 	# If the query returns something...
 	if len(result) != 0:
 		entries = result
-		print("\nLine 33 - entries:", entries)
 		for row in entries:
 			records.append(row)
 	else:
 		# No results in query
 		print('\nNO RESULTS IN QUERY\n')
-		redirect(url_for('failed_query', query_string=sql_string))
+		return redirect(url_for('failed_query', query_string=sql_string))
 
 	conn.commit()
 	cur.close()
