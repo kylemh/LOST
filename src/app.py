@@ -37,7 +37,7 @@ def db_query(sql_string, data_array):
 	else:
 		# No results in query
 		print('\nNO RESULTS IN QUERY\n')
-		return redirect(url_for('failed_query', query_string=sql_string))
+		# TODO: Redirect to to failed_query.html
 
 	conn.commit()
 	cur.close()
@@ -146,7 +146,7 @@ def moving_inventory(validated_date):
 		for record in moving_inventory_data:
 			moving_inventory_processed.append(dict(zip(column_names, record)))
 	else:
-		print('\n\nERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE\n\n')
+		print('\n\nERROR - LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE\n\n')
 
 	return render_template('moving_inventory.html', date=validated_date, data=moving_inventory_processed)
 
@@ -173,7 +173,7 @@ def facility_inventory(validated_date):
 		for record in facility_inventory_data:
 			facility_inventory_processed.append(dict(zip(column_names, record)))
 	else:
-		print('\n\nERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE\n\n')
+		print('\n\nERROR - LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE\n\n')
 
 	print('\nThis is the data being passed:', facility_inventory_processed)
 	return render_template('facility_inventory.html', facility=str(selected_facility), data=facility_inventory_processed, date=validated_date)
