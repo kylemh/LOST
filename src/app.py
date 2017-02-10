@@ -22,7 +22,7 @@ def db_query(sql_string, data_array):
 	print('\nThis is the query:\n', sql_string)
 	conn = psycopg2.connect(DB_LOCATION)
 	cur = conn.cursor()
-	print(cur.execute(sql_string, data_array))
+	cur.execute(sql_string, data_array)
 
 	# Return data as an array of dictionaries
 	result = cur.fetchall()
@@ -160,7 +160,7 @@ def facility_inventory(validated_date):
 					 ' JOIN asset_at ON facilities.facility_pk = asset_at.facility_fk' \
 					 ' JOIN assets ON asset_at.asset_fk = assets.asset_pk' \
 					 ' WHERE (asset_at.depart_dt <= %s OR asset_at.depart_dt IS NULL)' \
-					 ' AND asset_at.arrive_dt >= %s;'
+					 ' AND asset_at.arrive_dt >= %s'
 
 	facility_inventory_data = db_query(facility_query, [selected_facility, validated_date, validated_date])
 	print("\n\nLine 166 - facility_inventory_data:", facility_inventory_data)
