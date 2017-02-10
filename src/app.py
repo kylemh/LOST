@@ -22,9 +22,11 @@ def db_query(sql_string, data_array):
 	conn = psycopg2.connect(DB_LOCATION)
 	cur = conn.cursor()
 	cur.execute(sql_string, data_array)
+	print('Query being executed:', sql_string)
 
 	# Return data as an array of dictionaries
 	result = cur.fetchall()
+	print('Query result:', result)
 	records = []
 
 	# If the query returns something...
