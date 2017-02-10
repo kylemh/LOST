@@ -19,14 +19,14 @@ app.secret_key = APP_SECRET_KEY
 # MARK: DATABASE FUNCTIONS
 # Database Query Function
 def db_query(sql_string, data_array):
+	print('\nThis is the data array:\n', data_array)
 	conn = psycopg2.connect(DB_LOCATION)
 	cur = conn.cursor()
 	cur.execute(sql_string, data_array)
-	print('Query being executed:', sql_string)
 
 	# Return data as an array of dictionaries
 	result = cur.fetchall()
-	print('Query result:', result)
+	print('\nQuery result:', result)
 	records = []
 
 	# If the query returns something...
@@ -177,7 +177,7 @@ def facility_inventory(validated_date):
 		print('\n\nERROR LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE\n\n')
 
 	print('\nThis is the data being passed:', facility_inventory_processed)
-	return render_template('facility_inventory.html', facility=selected_facility, data=facility_inventory_processed, date=validated_date)
+	return render_template('facility_inventory.html', facility=str(selected_facility), data=facility_inventory_processed, date=validated_date)
 
 
 @app.route('/facility_inventory', methods=['GET'])
