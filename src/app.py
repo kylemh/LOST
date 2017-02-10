@@ -162,7 +162,7 @@ def facility_inventory(validated_date):
 					 " WHERE (asset_at.depart_dt <= %s OR asset_at.depart_dt IS NULL)" \
 					 " AND asset_at.arrive_dt >= %s"
 
-	facility_inventory_data = db_query(facility_query, [selected_facility, validated_date, validated_date])
+	facility_inventory_data = db_query(facility_query, [validated_date, validated_date])
 	print("\n\nLine 166 - facility_inventory_data:", facility_inventory_data)
 
 	column_names = ['fcode', 'location', 'asset_tag', 'description', 'arrive_dt', ' depart_dt']
