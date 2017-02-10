@@ -50,7 +50,7 @@ def db_query(sql_string, data_array):
 def validate_date(date_string):
 	try:
 		date = datetime.datetime.strptime(date_string, '%m/%d/%Y').date()
-		return date
+		return str(date)
 	except ValueError:
 		raise ValueError('Incorrect data format, should be MM/DD/YYYY')
 
@@ -134,7 +134,7 @@ def moving_inventory(validated_date):
 				   ' JOIN convoys ON asset_on.convoy_fk = convoys.convoy_pk' \
 				   ' JOIN facilities f1 ON convoys.src_fk = f1.facility_pk' \
 				   ' JOIN facilities f2 ON convoys.dst_fk = f2.facility_pk' \
-				   ' WHERE convoys.arrive_dt >= %s AND convoys.depart_dt <= %s'
+				   ' WHERE convoys.arrive_dt >= %s AND convoys.depart_dt <= %s;'
 
 	moving_inventory_data = db_query(moving_query, [validated_date, validated_date])
 
@@ -160,7 +160,7 @@ def facility_inventory(validated_date):
 					 " JOIN asset_at ON facilities.facility_pk = asset_at.facility_fk" \
 					 " JOIN assets ON asset_at.asset_fk = assets.asset_pk" \
 					 " WHERE (asset_at.depart_dt <= %s OR asset_at.depart_dt IS NULL)" \
-					 " AND asset_at.arrive_dt >= %s"
+					 " AND asset_at.arrive_dt >= %s;"
 
 	facility_inventory_data = db_query(facility_query, [selected_facility, validated_date, validated_date])
 	print("\n\nLine 166 - facility_inventory_data:", facility_inventory_data)
