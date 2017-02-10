@@ -19,10 +19,10 @@ app.secret_key = APP_SECRET_KEY
 # MARK: DATABASE FUNCTIONS
 # Database Query Function
 def db_query(sql_string, data_array):
-	print('\nThis is the data array:\n', data_array)
+	print('\nThis is the query:\n', sql_string)
 	conn = psycopg2.connect(DB_LOCATION)
 	cur = conn.cursor()
-	cur.execute(sql_string, data_array)
+	print(cur.execute(sql_string, data_array))
 
 	# Return data as an array of dictionaries
 	result = cur.fetchall()
@@ -163,7 +163,7 @@ def facility_inventory(validated_date):
 					 ' AND asset_at.arrive_dt >= %s;'
 
 	facility_inventory_data = db_query(facility_query, [selected_facility, validated_date, validated_date])
-	print("\n\nLine 166 - facility_inventory_data:\n", facility_inventory_data)
+	print("\n\nLine 166 - facility_inventory_data:", facility_inventory_data)
 
 	column_names = ['fcode', 'location', 'asset_tag', 'description', 'arrive_dt', ' depart_dt']
 	facility_inventory_processed = []
