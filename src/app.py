@@ -22,6 +22,7 @@ def db_query(sql_string, data_array):
 	conn = psycopg2.connect(DB_LOCATION)
 	cur = conn.cursor()
 	print("\nThe query is:\n", sql_string, "\nThe data array is:\n", data_array)
+	print("\n\nThe selected facility is:" + data_array[0] + "\n")
 	cur.execute(sql_string, data_array)
 
 	# Return data as an array of dictionaries
