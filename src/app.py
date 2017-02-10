@@ -132,7 +132,7 @@ def facility_inventory(validated_date):
 
 	column_names = ['fcode', 'location', 'asset_tag', 'description', 'arrive_dt', ' depart_dt']
 	facility_inventory_processed = []
-
+	print("\nThis is the passed facility_inventory_data:", facility_inventory_data, "\n")
 	# TODO: Refactor by creating array of tuples to dictionary conversion function
 	# If list is not empty and it's size matches the array of column headers
 	if facility_inventory_data and ((facility_inventory_data[0]) == len(column_names)):
