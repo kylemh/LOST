@@ -21,12 +21,10 @@ app.secret_key = APP_SECRET_KEY
 def db_query(sql_string, data_array):
 	conn = psycopg2.connect(DB_LOCATION)
 	cur = conn.cursor()
-	print("\nThe query is:\n", sql_string, "\nThe data array is:\n", data_array)
 	cur.execute(sql_string, data_array)
 
 	# Return data as an array of dictionaries
 	result = cur.fetchall()
-	print('\nIF THIS IS NOT EMPTY, YOU DID IT - PROBABLY:', result)
 	records = []
 
 	# If the query returns something...
@@ -162,7 +160,6 @@ def facility_inventory(validated_date):
 					 ' AND asset_at.arrive_dt <= %s;'
 
 	facility_inventory_data = db_query(facility_query, [selected_facility, validated_date, validated_date])
-	print("\n\nLine 166 - facility_inventory_data:", facility_inventory_data)
 
 	column_names = ['fcode', 'location', 'asset_tag', 'description', 'arrive_dt', ' depart_dt']
 	facility_inventory_processed = []
@@ -175,7 +172,6 @@ def facility_inventory(validated_date):
 	else:
 		print('\n\nERROR - LIST OF COLUMN SIZE IS NOT THE SAME SIZE AS RECORD SIZE\n\n')
 
-	print('\nThis is the data being passed:', facility_inventory_processed)
 	return render_template('facility_inventory.html', facility=str(selected_facility), data=facility_inventory_processed, date=validated_date)
 
 
