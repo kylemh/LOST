@@ -162,7 +162,7 @@ def facility_inventory(validated_date):
 					 ' JOIN asset_at ON facilities.facility_pk = asset_at.facility_fk' \
 					 ' JOIN assets ON asset_at.asset_fk = assets.asset_pk' \
 					 ' WHERE (asset_at.depart_dt <= %s OR asset_at.depart_dt IS NULL)' \
-					 ' AND asset_at.arrive_dt >= %s);'
+					 ' AND asset_at.arrive_dt >= %s;'
 
 	facility_inventory_data = db_query(facility_query, [selected_facility, validated_date, validated_date])
 
