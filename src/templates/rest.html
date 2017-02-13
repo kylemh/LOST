@@ -7,10 +7,8 @@
 {% endblock %}
 
 {% block content %}
-	<h1>Welcome to the REST API Endpoint for OSNAP's Logistical Operations Service Tracker (LOST)</h1>
-	<h4>LOST Key</h4> This is the only lost call that does not authenticate the requester and uses plaintext input and output.
-	<br>
-	<br>
+	<h1>LOST REST API Endpoint</h1>
+	<h4>LOST Key</h4> This is the only LOST call that does not authenticate the requester and uses plaintext input and output.
 	<b>Request:</b>
 	<br>
 	The request does not provide values for any of the arguments though the data and signature fields must be present in the request.
@@ -34,8 +32,6 @@
 
 	<h4>Activate User</h4>
 	Reactivates LOST access for a user or generates a new user account if needed.
-	<br>
-	<br>
 	<b>Request:</b>
 	<br>
 	<b>username</b> OSNAP username to activate
@@ -64,8 +60,6 @@
 
 	<h4>Suspend User</h4>
 	Revokes access for a user. If the user does not exist or access has already been revoked, this call has no effect.
-	<br>
-	<br>
 	<b>Request:</b>
 	<br>
 	<b>username</b> OSNAP username to revoke
@@ -93,9 +87,8 @@
 	</pre>
 	<hr>
 
-	<h4>List Products</h4> Requests a listing of all products in LOST based on a filter criteria. Additional filters may be provided and additional data may be returned. The requests of the minimum form documented in the example must be accepted and the produced result must have at least the structure and fields of example provided. Asset information may not be provided by this call (e.g. no returning number of assets that are of product types).
-	<br>
-	<br>
+	<h4>List Products</h4>
+	Requests a listing of all products in LOST based on a filter criteria. Additional filters may be provided and additional data may be returned. The requests of the minimum form documented in the example must be accepted and the produced result must have at least the structure and fields of example provided. Asset information may not be provided by this call (e.g. no returning number of assets that are of product types).
 	<b>Request:</b>
 	<br>
 	<b>vendor</b> Case insensitive string to match against vendor name
@@ -139,9 +132,8 @@
 	</pre>
 	<hr>
 
-	<h4>Add Product</h4> Adds products to LOST. Requests should be atomic (all products are added or no prod- ucts are added) and attempting to add a duplicate product should cause the request to fail. A product is duplicated if at the end of the call the database would have two products with the same vendor and description.
-	<br>
-	<br>
+	<h4>Add Product</h4>
+	Adds products to LOST. Requests should be atomic (all products are added or no products are added) and attempting to add a duplicate product should cause the request to fail. A product is duplicated if at the end of the call the database would have two products with the same vendor and description.
 	<b>Request:</b>
 	<br>
 	<b>new products</b> A JSON list describing the new products
@@ -181,8 +173,6 @@
 	<hr>
 
 	<h4>Add Asset</h4> Adds a new asset to LOST.
-	<br>
-	<br>
 	<b>Request:</b>
 	<br>
 	<b>vendor</b> Vendor of the product
