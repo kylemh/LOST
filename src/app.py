@@ -2,6 +2,8 @@
 TODO: Implement other error handlers - http://flask.pocoo.org/docs/0.12/patterns/errorpages/
 TODO: Shit-loads of refactoring
 TODO: Proper Error Handling of Entries in report_filter()
+TODO: Implement logout.html
+TODO: Add button to point to rest.html on login page
 """
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash
