@@ -17,8 +17,8 @@ app.secret_key = APP_SECRET_KEY
 
 
 # MARK: DATABASE FUNCTIONS
-# Database Query Function
 def db_query(sql_string, data_array):
+	"""This function is designed to take SQL query and a list of data to be used (in order) as variable fill-ins for the query."""
 	conn = psycopg2.connect(DB_LOCATION)
 	cur = conn.cursor()
 	cur.execute(sql_string, data_array)
@@ -43,8 +43,8 @@ def db_query(sql_string, data_array):
 	return records
 
 
-# Date Validation Function
 def validate_date(date_string):
+	"""This function checks to see if the user entered a date in the MM/DD/YYYY format."""
 	try:
 		date = datetime.datetime.strptime(date_string, '%m/%d/%Y').date()
 		return date
@@ -184,6 +184,197 @@ def failed_query(query_string):
 @app.errorhandler(404)
 def page_not_found(e):
 	return render_template('404.html'), 404
+
+
+# MARK: REST API
+@app.route('/rest')
+def rest():
+	return render_template('rest.html')
+
+
+@app.route('/rest/lost_key', methods=['POST'])
+def lost_key():
+	json_data = dict()
+	json_data['timestamp'] = str(datetime.datetime.now())
+	json_data['result'] = 'OK'
+	json_data['key'] = 'bksaoudu......aoelchsauh'
+	data = json.dumps(json_data)
+	return data
+
+
+@app.route('/rest/activate_user', methods=['POST'])
+def activate_user():
+	if request.method == 'POST' and 'arguments' in request.form:
+		req = json.loads(request.form['arguments'])
+		json_data = dict()
+		json_data['timestamp'] = req['timestamp']
+		json_data['result'] = 'OK'
+		data = json.dumps(json_data)
+		return data
+	else:
+		return redirect(url_for('rest'))
+
+
+@app.route('/rest/suspend_user', methods=['POST'])
+def suspend_user():
+	if request.method == 'POST' and 'arguments' in request.form:
+		req = json.loads(request.form['arguments'])
+		json_data = dict()
+		json_data['timestamp'] = req['timestamp']
+
+		conn = psycopg2.connect(DB_LOCATION)
+		cur = conn.cursor()
+
+		try:
+			cur.execute("INSERT INTO users (username) VALUES ('" + req['username'] + "');")
+			conn.commit()
+			json_data['result'] = 'OK'
+		except Exception as e:
+			json_data['result'] = 'FAIL'
+
+		conn.close()
+		data = json.dumps(json_data)
+		return data
+
+	else:
+		return redirect(url_for('rest'))
+
+
+@app.route('/rest/list_products', methods=('POST',))
+def list_products():
+	# Provided Function
+	if request.method == 'POST' and 'arguments' in request.form:
+		req = json.loads(request.form['arguments'])
+	else:
+		return redirect(url_for('rest'))
+
+	conn = psycopg2.connect(DB_LOCATION)
+	cur = conn.cursor()
+
+	if len(req['compartments']) == 0:
+		print("\nDO NOT HAVE COMPARTMENT PERMISSIONS\n")
+		listing_query = "SELECT vendor, description, string_agg(c.abbrv||':'||l.abbrv,',') " \
+				   "FROM products p " \
+				   "LEFT JOIN security_tags t ON p.product_pk = t.product_fk " \
+				   "LEFT JOIN sec_compartments c ON t.compartment_fk = c.compartment_pk " \
+				   "LEFT JOIN sec_levels l ON t.level_fk = l.level_pk"
+
+		if req['vendor'] == '' and req['description'] == '':
+			listing_query += " GROUP BY vendor, description"
+			cur.execute(listing_query)
+		else:
+			if not req['vendor'] == '' and not req['description'] == '':
+				req['vendor'] = "%" + req['vendor'] + "%"
+				req['description'] = "%" + req['description'] + "%"
+				listing_query += " WHERE description ilike %s AND vendor ilike %s GROUP BY vendor, description"
+				cur.execute(listing_query, (req['description'], req['vendor']))
+			elif req['vendor'] == '':
+				req['description'] = "%" + req['description'] + "%"
+				listing_query += " WHERE description ilike %s GROUP BY vendor, description"
+				cur.execute(listing_query, (req['description'],))
+			elif req['description'] == '':
+				req['vendor'] = "%" + req['vendor'] + "%"
+				listing_query += " WHERE vendor ilike %s GROUP BY vendor, description"
+				cur.execute(listing_query, (req['vendor'],))
+	else:
+		print("You have compartment %s" % len(req['compartments']))
+		listing_query = "SELECT vendor, description, string_agg(c.abbrv||':'||l.abbrv,',') " \
+				   "FROM security_tags t " \
+				   "LEFT JOIN sec_compartments c ON t.compartment_fk = c.compartment_pk " \
+				   "LEFT JOIN sec_levels l ON t.level_fk = l.level_pk " \
+				   "LEFT JOIN products p ON t.product_fk = p.product_pk " \
+				   "WHERE product_fk IS NOT NULL " \
+				   "AND c.abbrv||':'||l.abbrv = ANY(%s)"
+
+		if req['vendor'] == '' and req['description'] == '':
+			listing_query += " GROUP BY vendor, description, product_fk HAVING count(*) = %s"
+			cur.execute(listing_query, (req['compartments'], len(req['compartments'])))
+		else:
+			if not req['vendor'] == " AND NOT req['description'] == ":
+				req['vendor'] = "%" + req['vendor'] + "%"
+				req['description'] = "%" + req['description'] + "%"
+				listing_query += " AND description ilike %s AND vendor ilike %s GROUP BY vendor, description, product_fk HAVING count(*) = %s"
+				cur.execute(listing_query, (req['compartments'], req['description'], req['vendor'], len(req['compartments'])))
+			elif req['vendor'] == '':
+				req['description'] = "%" + req['description'] + "%"
+				listing_query += " AND description ilike %s GROUP BY vendor, description, product_fk HAVING count(*) = %s"
+				cur.execute(listing_query, (req['compartments'], req['description'], len(req['compartments'])))
+			elif req['description'] == '':
+				req['vendor'] = "%" + req['vendor'] + "%"
+				listing_query += " AND vendor ilike %s GROUP BY vendor, description, product_fk HAVING count(*) = %s"
+				cur.execute(listing_query, (req['compartments'], req['vendor'], len(req['compartments'])))
+
+	dbres = cur.fetchall()
+	listing = list()
+	for row in dbres:
+		e = dict()
+		e['vendor'] = row[0]
+		e['description'] = row[1]
+		if row[2] is None:
+			e['compartments'] = list()
+		else:
+			e['compartments'] = row[2].split(',')
+		listing.append(e)
+
+	# Prepare the response
+	json_data = dict()
+	json_data['timestamp'] = req['timestamp']
+	json_data['listing'] = listing
+	data = json.dumps(json_data)
+
+	# TODO: See if you can move the connection closer higher up
+	conn.close()
+
+	return data
+
+
+@app.route('/rest/add_products', methods=['POST'])
+def add_products():
+	if request.method == 'POST' and 'arguments' in request.form:
+		req = json.loads(request.form['arguments'])
+		json_data = dict()
+		json_data['timestamp'] = req['timestamp']
+
+		conn = psycopg2.connect(DB_LOCATION)
+		cur = conn.cursor()
+
+		try:
+			cur.execute("INSERT INTO products (description, vendor) VALUES ('" + "description" + "', 'vendor');")
+			conn.commit()
+			json_data['result'] = 'OK'
+		except Exception as e:
+			json_data['result'] = 'FAIL'
+
+		conn.close()
+		data = json.dumps(json_data)
+		return data
+
+	else:
+		return redirect(url_for('rest'))
+
+@app.route('/rest/add_asset', methods=['POST'])
+def add_asset():
+	if request.method == 'POST' and 'arguments' in request.form:
+		req = json.loads(request.form['arguments'])
+		json_data = dict()
+		json_data['timestamp'] = req['timestamp']
+
+		conn = psycopg2.connect(DB_LOCATION)
+		cur = conn.cursor()
+
+		try:
+			cur.execute("INSERT INTO assets (description) VALUES ('" + req['description'] + "');")
+			conn.commit()
+			json_data['result'] = 'OK'
+		except Exception as e:
+			json_data['result'] = 'FAIL'
+
+		conn.close()
+		data = json.dumps(json_data)
+		return data
+
+	else:
+		return redirect(url_for('rest'))
 
 
 # Application Deployment

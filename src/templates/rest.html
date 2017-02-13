@@ -1,0 +1,218 @@
+{% extends "layout.html" %}
+
+{% block title %}REST API{% endblock %}
+
+{% block head %}
+	{{ super() }}
+{% endblock %}
+
+{% block content %}
+	<h1>Welcome to the REST API Endpoint for OSNAP's Logistical Operations Service Tracker (LOST)</h1>
+	<h4>LOST Key</h4> This is the only lost call that does not authenticate the requester and uses plaintext input and output.
+	<br>
+	<br>
+	<b>Request:</b>
+	<br>
+	The request does not provide values for any of the arguments though the data and signature fields must be present in the request.
+	<br>
+	<b>Response:</b>
+	<br>
+	<b>result</b> ‘OK’ or ‘FAIL’
+	<br>
+	<b>key</b> The LOST public key
+	<br>
+	<br>
+	Example:
+	<pre>
+			{
+				"timestamp": "2017-02-02 06:15:13",
+				"result": "OK",
+				"key": "bksaoudu......aoelchsauh"
+			}
+	</pre>
+	<hr>
+
+	<h4>Activate User</h4>
+	Reactivates LOST access for a user or generates a new user account if needed.
+	<br>
+	<br>
+	<b>Request:</b>
+	<br>
+	<b>username</b> OSNAP username to activate
+	<br>
+	<br>
+	Example:
+	<pre>
+			{
+				"timestamp": "2017-02-02 06:15:13",
+				"username": "carter"
+			}
+	</pre>
+	<b>Response:</b>
+	<br>
+	<b>result</b> ‘OK’, ‘NEW’, or ‘FAIL’
+	<br>
+	<br>
+	Example:
+	<pre>
+			{
+				"timestamp": "2017-02-02 06:15:13",
+				"result": "OK"
+			}
+	</pre>
+	<hr>
+
+	<h4>Suspend User</h4>
+	Revokes access for a user. If the user does not exist or access has already been revoked, this call has no effect.
+	<br>
+	<br>
+	<b>Request:</b>
+	<br>
+	<b>username</b> OSNAP username to revoke
+	<br>
+	<br>
+	Example:
+	<pre>
+			{
+				"timestamp": "2017-02-02 06:15:13",
+				"username": "jackson"
+			}
+	</pre>
+	<br>
+	<b>Response:</b>
+	<br>
+	<b>result</b> ‘OK’
+	<br>
+	<br>
+	Example:
+	<pre>
+			{
+				"timestamp": "2017-02-02 06:15:13",
+				"result": "OK"
+			}
+	</pre>
+	<hr>
+
+	<h4>List Products</h4> Requests a listing of all products in LOST based on a filter criteria. Additional filters may be provided and additional data may be returned. The requests of the minimum form documented in the example must be accepted and the produced result must have at least the structure and fields of example provided. Asset information may not be provided by this call (e.g. no returning number of assets that are of product types).
+	<br>
+	<br>
+	<b>Request:</b>
+	<br>
+	<b>vendor</b> Case insensitive string to match against vendor name
+	<br>
+	<b>description</b> Case insensitive string to match against product description
+	<br>
+	<b>compartments</b> Security tags for the asset as a json array, all tags must be matched for compartment and level.
+	<br>
+	<br>
+	Example:
+	<pre>
+			{
+				"timestamp": "2017-02-02 06:15:13",
+				"vendor": "",
+				"description": "notepad",
+				"compartments": []
+			}
+	</pre>
+	<b>Response:</b>
+	<br>
+	<b>listing</b> A JSON list containing the product information entries
+	<br>
+	<br>
+	Example:
+	<pre>
+			{
+				"timestamp": "2017-02-02 06:15:13",
+				"listing": [
+					{
+						"vendor": "Dunder Mifflin",
+						"description": "LOST legal size notepad",
+						"compartments": []
+					},
+					{
+						"vendor": "big n large",
+						"description": "LOST legal size notepad"
+						"compartments": []
+					}
+				]
+			}
+	</pre>
+	<hr>
+
+	<h4>Add Product</h4> Adds products to LOST. Requests should be atomic (all products are added or no prod- ucts are added) and attempting to add a duplicate product should cause the request to fail. A product is duplicated if at the end of the call the database would have two products with the same vendor and description.
+	<br>
+	<br>
+	<b>Request:</b>
+	<br>
+	<b>new products</b> A JSON list describing the new products
+	<br>
+	<br>
+	Example:
+	<pre>
+			{
+				"timestamp": "2017-02-02 06:15:13",
+				"new_products": [
+					{
+						"vendor": "Dunder Mifflin",
+						"description": "LOST letter size notepad",
+						"alt_description": "Children’s storybook"
+						"compartments": ["adm:s"]
+					},
+					{
+						"vendor": "Stark Industries",
+						"description": "Micronized Arc Reactor",
+						"alt_description": "Baseball"
+						"compartments": ["nrg:ts","wpn:s"]
+					}
+			}
+	</pre>
+	<b>Response:</b>
+	<br>
+	<b>result</b> ‘OK’, or ‘FAIL’
+	<br>
+	<br>
+	Example:
+	<pre>
+			{
+				"timestamp": "2017-02-02 06:15:13",
+				"result": "OK"
+			}
+	</pre>
+	<hr>
+
+	<h4>Add Asset</h4> Adds a new asset to LOST.
+	<br>
+	<br>
+	<b>Request:</b>
+	<br>
+	<b>vendor</b> Vendor of the product
+	<br>
+	<b>description</b> Description of the product
+	<br>
+	<b>compartments</b> Additional compartments the asset should be classified under
+	<br>
+	<b>facility</b> Facility code the asset is initially housed at
+	<br>
+	<br>
+	Example:
+	<pre>
+			{
+				"timestamp": "2017-02-02 06:15:13",
+				"vendor": "Dunder Mifflin",
+				"description": "LOST letter size notepad",
+				"compartments": ["wpn:ts"],
+				"facility": "HQ"
+			}
+	</pre>
+	<b>Response:</b>
+	<br>
+	<b>result</b> ‘OK’, or ‘FAIL’
+	<br>
+	Example:
+	<pre>
+			{
+				"timestamp": "2017-02-02 06:15:13",
+				"result": "OK"
+			}
+	</pre>
+{% endblock %}

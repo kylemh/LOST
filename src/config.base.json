@@ -3,5 +3,17 @@
         "dbname": "lost",
         "dbhost": "/tmp",
         "dbport": 5432
+    },
+
+    "crypto": {
+        "lost_priv": "/home/osnapdev/keys/lost.priv",
+        "lost_pub":  "/home/osnapdev/keys/lost.pub",
+        "user_pub":  "/home/osnapdev/keys/hr.pub",
+        "prod_pub":  "/home/osnapdev/keys/prod.pub"
+    },
+
+    "who": {
+        "who_pub": "/osnap/keys/who.pub",
+        "who_url": "http://petunia.cs.uoregon.edu:8080/who"
     }
 }
