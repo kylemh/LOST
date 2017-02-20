@@ -1,30 +1,22 @@
 #! /bin/bash
 
-# preflight.sh
 
-# This script handles the setup that must occur prior to running LOST
-# Specifically this script:
-#    1. creates the database
-#    2. imports the legacy data
-#    3. copies the required source to $HOME/wsgi
+# preflight.sh
+# This script handles the setup that must occur prior to running app.py
+
 
 if [ "$#" -ne 1 ]; then
-    printf '\e[1;34m\nERROR - Usage: ./preflight.sh <dbname>\n\e[0m'
+    printf '\e[1;34m\nERROR NO DBNAME - Usage: ./preflight.sh <dbname>\n\e[0m'
     exit;
 fi
 
-printf '\e[1;34m\nMoving into database directory...\n\e[0m'
+printf '\e[1;34m\n\n~~~Creating users table~~~\n\n\e[0m'
 cd sql
-
-printf '\e[1;34m\nImporting data from legacy documents...\n\e[0m'
-bash ./import_data.sh $1 5432
-
-printf '\e[1;34m\nGarbage collection initiated...\n\e[0m'
-rm -rf osnap_legacy osnap_legacy.tar.gz
-
-printf '\e[1;34mMoving to application environment...\n\e[0m'
+psql $1 -f create_tables.sql
 cd ..
 
-printf '\e[1;34mInstalling wsgi files...\e[0m'
+printf '\e[1;34m\n\n~~~Installing wsgi files~~~\n\n\e[0m'
 cp -R src/* $HOME/wsgi
-printf '\e[1;34m\n\n~~~COMPLETE~~~\nDATABASE IS COMPLETE AND ACTIVE!\n\n\e[0m'
+
+printf '\e[1;34m\n\n~~~Restarting Apache~~~\n\n\e[0m'
+apachectl restart
