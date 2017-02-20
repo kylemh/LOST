@@ -110,6 +110,7 @@ def logout():
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
 	if not session.get('logged_in'):
+		flash('You must login before being allowed access to the dashboard')
 		return redirect(url_for('login'))
 	else:
 		return render_template('dashboard.html')
