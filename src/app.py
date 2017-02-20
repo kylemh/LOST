@@ -9,6 +9,7 @@ TODO: Add button to point to rest.html on login page
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import psycopg2
 import datetime
+import json
 
 from config import *
 
