@@ -67,7 +67,7 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-	if session['logged_in'] == True:
+	if session.get['logged_in'] == True:
 		return redirect(url_for('dashboard'))
 
 	error = None
@@ -109,7 +109,7 @@ def logout():
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
-	if session['logged_in'] == False:
+	if not session.get['logged_in']:
 		return redirect(url_for('login'))
 	else:
 		return render_template('dashboard.html')
