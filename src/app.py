@@ -67,6 +67,9 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+	if session['logged_in']:
+		return redirect(url_for('dashboard'))
+
 	error = None
 	if request.method == 'POST':
 		username = request.form.get('username', None)
@@ -77,18 +80,17 @@ def login():
 		elif password is None:
 			error = 'Please enter a password.'
 		else:
-			check_for_username = "SELECT user_pk FROM users WHERE username = %s;"
-			result = db_query(check_for_username, [username])
+			check_for_user = "SELECT * FROM users WHERE username = %s;"
+			result = db_query(check_for_user, [username])
 
 			if result is None:
 				# User DOES NOT exist:
 				error = 'There is no record of this account.'
 			else:
 				# User DOES exist:
-				if password is result[2]:
+				if password == result[0][2]:
 					# Password is correct
 					session['username'] = username
-					session['password'] = password
 					session['logged_in'] = True
 					flash('Welcome', username)
 					return redirect('/dashboard')
@@ -127,7 +129,7 @@ def create_user():
 		check_for_username = "SELECT user_pk FROM users WHERE username = %s;"
 		response = db_query(check_for_username, [username])
 
-		if len(response) > 0:
+		if response is not None:
 			flash('Username already exists')
 		else:
 			add_username = "INSERT INTO users (username, password) VALUES (%s, %s);"
@@ -150,4 +152,4 @@ def page_not_found(e):
 
 # Application Deployment
 if __name__ == '__main__':
-	app.run(host='0.0.0.0', port=8081, debug=True)
+	app.run(host='0.0.0.0', port=8080, debug=True)
