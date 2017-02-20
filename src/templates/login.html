@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Login{% endblock %}
 
 {% block head %}
 	{{ super() }}
@@ -8,15 +8,19 @@
 
 {% block content %}
 	<h1>LOST LOGIN</h1>
-	<p>Please login with proper credentials in order to use LOST.</p>
-	{% if error %}<small class="warning"><strong>ERROR:</strong> {{ error }}</small>{% endif %}
-	<form action="{{ url_for('login') }}" method="POST">
-		<dl>
-			<dt>Username:</dt>
-			<dt><input type="text" name="username"></dt>
-			<dt>Password:</dt>
-			<dt><input type="password" name="password"></dt>
-			<dt><input type="submit" value="login"></dt>
-		</dl>
-	</form>
+	<p>If you do not have an account, please direct yourself to <a href="{{ url_for('create_user') }}">the account creation page</a>.</p>
+	{% if error %}
+		<strong>ERROR:</strong> {{ error }}
+	{% endif %}
+	<center>
+		<form action="{{ url_for('login') }}" method="POST">
+			<dl>
+				<dt>Username:</dt>
+				<dt><input type="text" name="username"></dt>
+				<dt>Password:</dt>
+				<dt><input type="password" name="password"></dt>
+				<dt><input type="submit" value="login"></dt>
+			</dl>
+		</form>
+	</center>
 {% endblock %}

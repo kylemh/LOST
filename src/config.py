@@ -16,6 +16,3 @@ with cpath.open() as conf:
 	PORT = c['database']['dbport']
 
 APP_SECRET_KEY = str(key)
-DB_LOCATION = ('host=' + str(HOST) + ' port=' + str(PORT) + ' dbname=' + str(DB_NAME))
-USERNAME = 'user'
-PASSWORD = '123'

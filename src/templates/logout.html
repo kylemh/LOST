@@ -8,5 +8,8 @@
 
 {% block content %}
 	<h1>Goodbye!</h1>
-	<p>You've been logged out. Have a nice day.</p>
+	<p>You've been logged out.</p>
+	<p>If you wish to log back in, please direct yourself to <a href="{{ url_for('login') }}">the login page</a>.</p>
+	<br>
+	<h5>Have a nice day.</h5>
 {% endblock %}

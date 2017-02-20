@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block head %}
+	{{ super() }}
+{% endblock %}
+
+{% block content %}
+	{% if not session.logged_in %}
+		<h1 class="alert-warning">AUTHORIZATION FAILURE</h1>
+		<p>If you already <b>have an account</b>, please direct yourself to <a href="{{ url_for('login') }}">the login page</a>.</p>
+		<p>If you <b>do not have an account</b>, please direct yourself to <a href="{{ url_for('create_user') }}">the account creation page</a>.</p>
+	{% endif %}
+	<h1>LOST DASHBOARD</h1>
+	<p>Welcome to the Logistical Operations Service Tracker (LOST)</p>
+	<br>
+	<center><a class="button" href="{{ url_for('logout') }}">LOGOUT</a></center>
+{% endblock %}

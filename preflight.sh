@@ -9,13 +9,13 @@ if [ "$#" -ne 1 ]; then
     exit;
 fi
 
-printf '\e[1;34m\n\n~~~Creating users table~~~\n\e[0m'
+printf '\e[1;34m\n~~~CREATING USERS TABLE~~~\n\e[0m'
 cd sql
 psql $1 -f create_tables.sql
 cd ..
 
-printf '\e[1;34m\n\n~~~Installing wsgi files~~~\n\e[0m'
+printf '\e[1;34m~~~COPYING RELEVANT WSGI FILES~~~\n\e[0m'
 cp -R src/* $HOME/wsgi
 
-printf '\e[1;34m\n\n~~~Restarting Apache~~~\n\e[0m'
+printf '\e[1;34m~~~RESTARTING APACHE~~~\n\e[0m'
 apachectl restart
