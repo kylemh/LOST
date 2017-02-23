@@ -16,6 +16,3 @@ cd ..
 
 printf '\e[1;34m~~~COPYING RELEVANT WSGI FILES~~~\n\e[0m'
 cp -R src/* $HOME/wsgi
-
-printf '\e[1;34m~~~RESTARTING APACHE~~~\n\e[0m'
-apachectl restart
