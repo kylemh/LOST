@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+
+{% block title %}Add Asset{% endblock %}
+
+{% block head %}
+	{{ super() }}
+{% endblock %}
+
+{% block content %}
+	<h1>ADD ASSET</h1>
+	{% if not session.logged_in %}
+	<h4 class="alert">AUTHORIZATION FAILURE</h4>
+	<br>
+	<div class="row">
+		<a class="button one-half column" href="{{ url_for('login') }}">LOGIN</a>
+		<a class="button one-half column" href="{{ url_for('create_user') }}">CREATE USER</a>
+	</div>
+	{% endif %}
+
+	{% if session.logged_in %}
+	<h4>Assets Currently In Database</h4>
+
+	{% if assets_list is not defined %}
+	<p>There are currently no assets in the database.</p>
+	{% endif %}
+
+	{% if assets_list is defined %}
+	<table class="u-full-width">
+		<thead>
+			<tr>
+				<th>Asset Tag</th>
+				<th>Asset Description</th>
+				<th>Asset Location</th>
+			</tr>
+		</thead>
+		{% for ast in assets_list %}
+		<tbody>
+			<tr>
+				<td>{{ ast[2] }}</td>
+				<td>{{ ast[3] }}</td>
+				<td>{{ ast[1] }}</td>
+			</tr>
+		</tbody>
+		{% endfor %}
+	</table>
+	{% endif %}
+		<br>
+		<p>Please follow the guidelines outlined within each text field.</p>
+		<center>
+			<form action="{{ url_for('add_asset') }}" method="POST">
+				<dt>Asset Tag:</dt>
+				<dt><input type="text" name="asset_tag" maxlength="16" placeholder="X001A"></dt>
+				<dt>Asset Description:</dt>
+				<dt><input type="text" name="description" maxlength="128" placeholder="Alien skin samples"></dt>
+				<dt>Arrival Date:</dt>
+				<dt><input type="text" name="date" placeholder="MM/DD/YYYY"></dt>
+				<dt>Storage Facility:</dt>
+				<select name="facility">
+					<option value="None" SELECTED>-- SELECT --</option>
+				{% for fac in facilities_list %}
+					<option value="{{ fac[0] }}">{{ fac[2] }}</option>
+				{% endfor %}
+				</select>
+				<br>
+				<input type="submit" value="add asset">
+			</form>
+			<br>
+			<br>
+			<a class="button" href="{{ url_for('dashboard') }}">RETURN TO DASHBOARD</a>
+		</center>
+	{% endif %}
+{% endblock %}

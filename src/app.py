@@ -7,7 +7,7 @@ TODO: Add button to point to rest.html on login page
 """
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-import psycopg2, json
+import psycopg2, datetime
 
 from config import DB_NAME, HOST, PORT, APP_SECRET_KEY
 
@@ -69,6 +69,16 @@ def duplicate_check(sql_string, data_list):
 		return True
 	else:
 		return False
+
+
+def validate_date(date_string):
+	"""This function checks to see if the user entered a date in the MM/DD/YYYY format."""
+	try:
+		date = datetime.datetime.strptime(date_string, '%m/%d/%Y').date()
+		return date
+	except ValueError:
+		# TODO: Send error via flash
+		raise ValueError('Incorrect data format, should be MM/DD/YYYY')
 
 
 # MARK: TEMPLATES
@@ -167,29 +177,79 @@ def create_user():
 def add_facility():
 	if request.method == 'POST':
 		fcode = request.form.get('fcode', None)
-		common = request.form.get('common', None)
+		common_name = request.form.get('common_name', None)
 		location = request.form.get('location', None)
 
-		if fcode is None or common is None or location is None:
+		print(fcode, common_name, location)
+
+		if fcode is None or common_name is None or location is None:
 			flash('Please complete the form')
 		else:
 			matching_facilities = "SELECT facility_pk FROM facilities WHERE fcode=%s OR common_name=%s;"
-			facility_does_exist = duplicate_check(matching_facilities, [fcode, common])
+			facility_does_exist = duplicate_check(matching_facilities, [fcode, common_name])
 
 			if facility_does_exist:
 				flash('There already exists a facility with that fcode or common name!')
 			else:
 				# Facility does not already exist - create it
 				new_facility = "INSERT INTO facilities (fcode, common_name, location) VALUES (%s, %s, %s);"
-				db_insert(new_facility, [fcode, common, location])
+				db_insert(new_facility, [fcode, common_name, location])
 				flash('New facility was created!')
 
 	# Get all current facilities for table population
-	all_facilities = "SELECT * FROM facilities;"
-	data = db_query(all_facilities, [])
-	print(data)
+	all_facilities = db_query("SELECT * FROM facilities;", [])
 
-	return render_template('add_facility.html', data=data)
+	return render_template('add_facility.html', data=all_facilities)
+
+
+@app.route('/add_asset', methods=['GET', 'POST'])
+def add_asset():
+	if request.method == 'POST':
+		asset_tag = request.form.get('asset_tag', None)
+		description = request.form.get('description', None)
+		facility_fk = request.form.get('facility')
+		date = request.form.get('date')
+		disposed = False
+
+		if asset_tag is None or description is None or facility_fk is None or date is None:
+			flash('Please complete the form')
+			return render_template('add_asset.html')
+		else:
+			try:
+				validated_date = validate_date(date)
+			except ValueError:
+				flash(ValueError.args)
+				return render_template('add_asset.html')
+			except TypeError or UnboundLocalError:
+				flash('TYPE ERROR: You must enter a date.')
+				return render_template('add_asset.html')
+
+			matching_assets = "SELECT asset_pk FROM assets WHERE asset_tag=%s;"
+			asset_does_exist = duplicate_check(matching_assets, [asset_tag])
+
+			if asset_does_exist:
+				flash('There already exists am asset with that tag!')
+			else:
+				# Asset does not already exist - create it
+				new_asset = "INSERT INTO assets (facility_fk, asset_tag, description, disposed) VALUES (%s, %s, %s, %s);"
+				db_insert(new_asset, [facility_fk, asset_tag, description, disposed])
+
+				recently_added_asset = "SELECT asset_pk FROM assets WHERE asset_tag = %s"
+				asset_fk = db_query(recently_added_asset, [asset_tag])
+
+				new_asset_at = "INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt) VALUES (%s, %s, %s);"
+				db_insert(new_asset_at, [asset_fk, facility_fk, validated_date])
+				flash('New asset added!')
+
+	# Get all current assets and facilities for table/drop-down population
+	all_assets = db_query("SELECT * FROM assets;", [])
+	all_facilities = db_query("SELECT * FROM facilities;", [])
+
+	# Handle situation of no assets in database
+	if all_assets is None:
+		all_assets = [('NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES')]
+
+	return render_template('add_asset.html', assets_list=all_assets, facilities_list=all_facilities)
 
 
 # MARK: ERROR PAGES
