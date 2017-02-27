@@ -28,3 +28,12 @@ p {
     padding-top: 10%;
     clear: both;
 }
+
+.flash {
+    border: 2px dashed red;
+    padding: 5px;
+    width: 200px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}

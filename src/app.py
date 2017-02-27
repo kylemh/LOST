@@ -70,35 +70,39 @@ def login():
 	if session.get('logged_in'):
 		return redirect(url_for('dashboard'))
 
-	error = None
 	if request.method == 'POST':
 		username = request.form.get('username', None)
 		password = request.form.get('password', None)
 
 		if username is None:
-			error = 'Please enter a username.'
+			flash('Please enter a username.')
+			return render_template('login.html')
 		elif password is None:
-			error = 'Please enter a password.'
+			flash('Please enter a password.')
+			return render_template('login.html')
 		else:
 			check_for_user = "SELECT * FROM users WHERE username = %s;"
 			result = db_query(check_for_user, [username])
 
 			if result is None:
 				# User DOES NOT exist:
-				error = 'There is no record of this account.'
+				flash('There is no record of this account.')
+				return render_template('login.html')
 			else:
 				# User DOES exist:
-				if password == result[0][2]:
+				if password == result[0][3]:
 					# Password is correct
 					session['username'] = username
 					session['logged_in'] = True
-					flash('Welcome', username)
+					welcome_message = 'Welcome ' + str(session.get('username')) + '!'
+					flash(welcome_message)
 					return redirect('/dashboard')
 				else:
 					# Password is incorrect
-					error = 'Password is incorrect.'
+					flash('Password is incorrect.')
+					return render_template('login.html')
 
-	return render_template('login.html', error=error)
+	return render_template('login.html')
 
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -119,23 +123,28 @@ def dashboard():
 @app.route('/create_user', methods=['GET', 'POST'])
 def create_user():
 	if request.method == 'POST':
-		if 'arguments' in request.form:
-			user_request = json.loads(request.form['arguments'])
-			username = user_request['username']
-			password = user_request['password']
-		else:
-			username = request.form['username']
-			password = request.form['password']
+		username = request.form.get('username', None)
+		password = request.form.get('password', None)
+		role = request.form.get('role', 'Guest')
 
-		check_for_username = "SELECT user_pk FROM users WHERE username = %s;"
-		response = db_query(check_for_username, [username])
-
-		if response is not None:
-			flash('Username already exists')
+		if username is None:
+			flash('Please enter a username.')
+			return render_template('create_user.html')
+		elif password is None:
+			flash('Please enter a password.')
+			return render_template('create_user.html')
 		else:
-			add_username = "INSERT INTO users (username, password) VALUES (%s, %s);"
-			db_insert(add_username, [username, password])
-			flash('Your account was created!')
+			# Form was completed
+			check_for_username = "SELECT user_pk FROM users WHERE username = %s;"
+			response = db_query(check_for_username, [username])
+
+			if response is None:
+				# User does not already exist - create it
+				add_username = "INSERT INTO users (username, password, role_fk) VALUES (%s, %s, %s);"
+				db_insert(add_username, [username, password, role])
+				flash('Your account was created!')
+			else:
+				flash('Username already exists')
 
 	return render_template('create_user.html')
 

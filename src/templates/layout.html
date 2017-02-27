@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='normalize.css') }}">
@@ -20,13 +20,13 @@
 </head>
 
 <body>
-	<div id="flash-box">
+	<div id="content">
+		{% block content %}{% endblock %}
+	</div>
+	<div id="flash-box" class="container">
 		{% for message in get_flashed_messages() %}
     		<div class="flash">{{ message }}</div>
 		{% endfor %}
-	</div>
-	<div id="content">
-		{% block content %}{% endblock %}
 	</div>
 	<div id="footer">
 		{% block footer %}

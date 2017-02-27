@@ -16,9 +16,13 @@
 		<form action="{{ url_for('create_user') }}" method="POST">
 			<dl>
 				<dt>Choose a username:</dt>
-				<dt><input type="text" name="username"></dt>
+				<dt><input type="text" name="username" maxlength="16"></dt>
 				<dt>Choose a password:</dt>
-				<dt><input type="password" name="password"></dt>
+				<dt><input type="password" name="password" maxlength="16"></dt>
+				<dt>
+					<input type="radio" name="role" value="3" checked> Facilities Officer<br>
+					<input type="radio" name="role" value="2"> Logistics Officer
+				</dt>
 				<dt><input type="submit" value="create user"></dt>
 			</dl>
 		</form>
