@@ -9,9 +9,6 @@
 {% block content %}
 	<h1>CREATE ACCOUNT</h1>
 	<p>If you already have an account, please direct yourself to <a href="{{ url_for('login') }}">the login page</a>.</p>
-	{% if error %}
-		<strong>ERROR:</strong> {{ error }}
-	{% endif %}
 	<center>
 		<form action="{{ url_for('create_user') }}" method="POST">
 			<dl>

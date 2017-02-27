@@ -20,14 +20,17 @@
 </head>
 
 <body>
-	<div id="content">
-		{% block content %}{% endblock %}
-	</div>
 	<div id="flash-box" class="container">
 		{% for message in get_flashed_messages() %}
     		<div class="flash">{{ message }}</div>
+			<br>
 		{% endfor %}
 	</div>
+
+	<div id="content">
+		{% block content %}{% endblock %}
+	</div>
+
 	<div id="footer">
 		{% block footer %}
 		<p>&copy; Copyright 2017 - <a href="https://github.com/kylemh">Kyle Holmberg</a>.</p>

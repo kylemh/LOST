@@ -37,3 +37,7 @@ p {
     margin-left: auto;
     margin-right: auto;
 }
+
+alert {
+    color: red !important;
+}

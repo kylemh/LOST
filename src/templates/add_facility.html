@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block title %}Add Facility{% endblock %}
+
+{% block head %}
+	{{ super() }}
+{% endblock %}
+
+{% block content %}
+	<h1>ADD FACILITY</h1>
+	{% if not session.logged_in %}
+		<h4 class="alert">AUTHORIZATION FAILURE</h4>
+		<br>
+		<div class="row">
+			<a class="button one-half column" href="{{ url_for('login') }}">LOGIN</a>
+			<a class="button one-half column" href="{{ url_for('create_user') }}">CREATE USER</a>
+		</div>
+	{% endif %}
+
+	{% if session.logged_in %}
+		<h4>Facilities Currently In Database</h4>
+		<table class="u-full-width">
+			<thead>
+				<tr>
+					<th>Facility Code</th>
+					<th>Facility Name</th>
+					<th>Facility Location</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for entry in data %}
+				<tr>
+					<td>{{ entry[1] }}</td>
+					<td>{{ entry[2] }}</td>
+					<td>{{ entry[3] }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+		<br>
+		<p>Please follow the guidelines outlined within each text field.</p>
+		<center>
+			<form action="{{ url_for('add_facility') }}" method="POST">
+				<dl>
+					<dt>Facility's Code:</dt>
+					<dt><input type="text" name="fcode" maxlength="6" placeholder="OR1876"></dt>
+					<dt>Facility's Common Name:</dt>
+					<dt><input type="text" name="common" maxlength="32" placeholder="University of Oregon"></dt>
+					<dt>Facility's Location:</dt>
+					<dt><input type="text" name="location" maxlength="128" placeholder="Eugene, OR"></dt>
+					<dt><input type="submit" value="add facility"></dt>
+				</dl>
+			</form>
+			<br>
+			<br>
+			<a class="button" href="{{ url_for('dashboard') }}">RETURN TO DASHBOARD</a>
+		</center>
+	{% endif %}
+{% endblock %}

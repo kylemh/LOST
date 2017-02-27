@@ -8,12 +8,20 @@
 
 {% block content %}
 	{% if not session.logged_in %}
-		<h1 class="alert-warning">AUTHORIZATION FAILURE</h1>
-		<p>If you already <b>have an account</b>, please direct yourself to <a href="{{ url_for('login') }}">the login page</a>.</p>
-		<p>If you <b>do not have an account</b>, please direct yourself to <a href="{{ url_for('create_user') }}">the account creation page</a>.</p>
+		<h4 class="alert">AUTHORIZATION FAILURE</h4>
+		<br>
+		<div class="row">
+			<a class="button one-half column" href="{{ url_for('login') }}">LOGIN</a>
+			<a class="button one-half column" href="{{ url_for('create_user') }}">CREATE USER</a>
+		</div>
 	{% endif %}
 	<h1>LOST DASHBOARD</h1>
 	<p>Welcome to the Logistical Operations Service Tracker (LOST)</p>
+	<div class="row">
+		<a class="button one-half column" href="{{ url_for('add_facility') }}">Add Facility</a>
+		<a class="button one-half column" href="{{ url_for('dashboard') }}">DASHBOARD</a>
+	</div>
+	<br>
 	<br>
 	<center><a class="button" href="{{ url_for('logout') }}">LOGOUT</a></center>
 {% endblock %}
