@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block title %}Unauthorized{% endblock %}
+
+{% block head %}
+	{{ super() }}
+{% endblock %}
+
+{% block content %}
+	<h1>Unauthorized Access</h1>
+	<!-- TODO: Dynamically prepare for any user permission issues. -->
+	<p>Unfortunately, you don't have permissions to dispose of assets.</p>
+	<br>
+	<a class="button one-half column" href="{{ url_for('dashboard') }}">RETURN TO DASHBOARD</a>
+	<a class="button one-half column" href="{{ url_for('logout') }}">LOGOUT</a>
+{% endblock %}

@@ -43,14 +43,15 @@ def db_query(sql_string, data_list):
 	return records
 
 
-def db_insert(sql_string, data_list):
+def db_change(sql_string, data_list):
 	"""This function is designed to take a SQL query string and a list of data to be used (in order) as injection-safe, variable fill-ins for the query."""
 	conn = psycopg2.connect(dbname=DB_NAME, host=HOST, port=PORT)
 	cur = conn.cursor()
 	try:
 		cur.execute(sql_string, data_list)
 	except:
-		print("INSERTION FAILED")
+		print("QUERY FAILED")
+		redirect(url_for('failed_query'))
 
 	conn.commit()
 	cur.close()
@@ -165,7 +166,7 @@ def create_user():
 			else:
 				# User does not already exist - create it
 				new_user = "INSERT INTO users (username, password, role_fk) VALUES (%s, %s, %s);"
-				db_insert(new_user, [username, password, role])
+				db_change(new_user, [username, password, role])
 				flash('Your account was created!')
 
 	return render_template('create_user.html')
@@ -181,11 +182,13 @@ def add_facility():
 		# Get all current facilities for table population
 		all_facilities = db_query("SELECT * FROM facilities;", [])
 
+		# If something is missing from the form...
 		if not fcode or not common_name or not location:
 			flash('Please complete the form')
 			return render_template('add_facility.html', data=all_facilities)
 
 		else:
+			# Check for duplicate entry attempt...
 			matching_facilities = "SELECT facility_pk FROM facilities WHERE fcode=%s OR common_name=%s;"
 			facility_does_exist = duplicate_check(matching_facilities, [fcode, common_name])
 
@@ -195,7 +198,7 @@ def add_facility():
 			else:
 				# Facility does not already exist - create it
 				new_facility = "INSERT INTO facilities (fcode, common_name, location) VALUES (%s, %s, %s);"
-				db_insert(new_facility, [fcode, common_name, location])
+				db_change(new_facility, [fcode, common_name, location])
 				flash('New facility was created!')
 
 	# Update all_facilities after insert, but before template rendering
@@ -217,7 +220,7 @@ def add_asset():
 		all_assets = db_query("SELECT * FROM assets;", [])
 		all_facilities = db_query("SELECT * FROM facilities;", [])
 
-		# Handle situation of no assets in database
+		# Handle table when no assets in database
 		if all_assets is None:
 			all_assets = [('NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES')]
 
@@ -226,7 +229,6 @@ def add_asset():
 			flash('Please complete the form')
 			return render_template('add_asset.html', assets_list=all_assets, facilities_list=all_facilities)
 		else:
-			# Form is filled -> Validate the entered date
 			try:
 				validated_date = validate_date(date)
 			except ValueError or TypeError or UnboundLocalError:
@@ -242,13 +244,13 @@ def add_asset():
 			else:
 				# Asset does not already exist - create it...
 				new_asset = "INSERT INTO assets (facility_fk, asset_tag, description, disposed) VALUES (%s, %s, %s, %s);"
-				db_insert(new_asset, [facility_fk, asset_tag, description, disposed])
+				db_change(new_asset, [facility_fk, asset_tag, description, disposed])
 
 				recently_added_asset = "SELECT asset_pk FROM assets WHERE asset_tag = %s"
 				asset_fk = db_query(recently_added_asset, [asset_tag])
 
 				new_asset_at = "INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt) VALUES (%s, %s, %s);"
-				db_insert(new_asset_at, [asset_fk[0][0], facility_fk, validated_date])
+				db_change(new_asset_at, [asset_fk[0][0], facility_fk, validated_date])
 				flash('New asset added!')
 
 	# Update all_assets after insert, but before template rendering
@@ -260,6 +262,67 @@ def add_asset():
 		all_assets = [('NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES')]
 
 	return render_template('add_asset.html', assets_list=all_assets, facilities_list=all_facilities)
+
+
+@app.route('/dispose_asset', methods=['GET', 'POST'])
+def dispose_asset():
+	if session.get('perms') != 2:
+		# Not a logistics officer...
+		flash('You are not a Logistics Officer.\nYou do not have permissions to remove assets!')
+		return render_template('dashboard.html')
+	else:
+		# Get all current assets for table population
+		all_assets = db_query("SELECT * FROM assets;", [])
+
+		# Handle table when no assets in database
+		if all_assets is None:
+			all_assets = [('NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES')]
+			flash('There are currently no assets to remove')
+			return render_template('dispose_asset.html', assets_list=all_assets)
+
+		if request.method == 'POST':
+			asset_tag = request.form.get('asset_tag', None).strip()
+			date = request.form.get('date')
+
+			# If something is missing from the form...
+			if not asset_tag or not date:
+				flash('Please complete the form')
+				return render_template('dispose_asset.html', assets_list=all_assets)
+			else:
+				try:
+					validated_date = validate_date(date)
+				except ValueError or TypeError or UnboundLocalError:
+					flash('Please enter the date in the following format:\nMM/DD/YYYY')
+					return render_template('dispose_asset.html', assets_list=all_assets)
+
+				# Check for matching tag...
+				matching_asset = "SELECT asset_pk FROM assets WHERE asset_tag=%s;"
+				asset_does_exist = duplicate_check(matching_asset, [asset_tag])
+
+				if asset_does_exist:
+					# Change asset_at table to reflect impending disposal
+					update_asset_at = "UPDATE asset_at SET depart_dt=%s  WHERE asset_fk=%s;"
+					db_change(update_asset_at, [validated_date, asset_tag])
+
+					# Remove asset from assets
+					asset_to_dispose = "UPDATE assets SET disposed=TRUE WHERE asset_tag=%s;"
+					db_change(asset_to_dispose, [asset_tag])
+
+					flash('Asset removed!')
+
+					# Update current assets for table population ('diposed' column will have changed)
+					all_assets = db_query("SELECT * FROM assets;", [])
+
+					# Handle table when no assets in database
+					if all_assets is None:
+						all_assets = [('NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES')]
+
+					return render_template('dispose_asset.html', assets_list=all_assets)
+				else:
+					flash('There does not exist an asset with that tag!')
+					return render_template('dispose_asset.html', assets_list=all_assets)
+
+		return render_template('dispose_asset.html', assets_list=all_assets)
 
 
 # MARK: ERROR PAGES
