@@ -300,23 +300,25 @@ def dispose_asset():
 				asset_does_exist = duplicate_check(matching_asset, [asset_tag])
 
 				if asset_does_exist:
+					# Get asset_fk for asset_at update (returns a tuple in an array)
+					asset_fk = db_query(matching_asset, [asset_tag])[0][0]
+
 					# Change asset_at table to reflect impending disposal
-					update_asset_at = "UPDATE asset_at SET depart_dt=%s  WHERE asset_fk=%s;"
-					db_change(update_asset_at, [validated_date, asset_tag])
+					update_asset_at = "UPDATE asset_at SET depart_dt=%s WHERE asset_fk=%s;"
+					db_change(update_asset_at, [validated_date, asset_fk])
 
 					# Remove asset from assets
 					asset_to_dispose = "UPDATE assets SET disposed=TRUE WHERE asset_tag=%s;"
 					db_change(asset_to_dispose, [asset_tag])
 
-					flash('Asset removed!')
-
-					# Update current assets for table population ('diposed' column will have changed)
+					# Update current assets for table population ('disposed' column will have changed)
 					all_assets = db_query("SELECT * FROM assets;", [])
 
 					# Handle table when no assets in database
 					if all_assets is None:
 						all_assets = [('NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES')]
 
+					flash('Asset removed!')
 					return render_template('dispose_asset.html', assets_list=all_assets)
 				else:
 					flash('There does not exist an asset with that tag!')
