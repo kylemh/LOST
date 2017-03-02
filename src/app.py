@@ -180,23 +180,27 @@ def add_facility():
 		common_name = request.form.get('common_name', None)
 		location = request.form.get('location', None)
 
-		print(fcode, common_name, location)
+		# Get all current facilities for table population
+		all_facilities = db_query("SELECT * FROM facilities;", [])
 
 		if fcode is None or common_name is None or location is None:
 			flash('Please complete the form')
+			return render_template('add_facility.html', data=all_facilities)
+
 		else:
 			matching_facilities = "SELECT facility_pk FROM facilities WHERE fcode=%s OR common_name=%s;"
 			facility_does_exist = duplicate_check(matching_facilities, [fcode, common_name])
 
 			if facility_does_exist:
 				flash('There already exists a facility with that fcode or common name!')
+				return render_template('add_facility.html', data=all_facilities)
 			else:
 				# Facility does not already exist - create it
 				new_facility = "INSERT INTO facilities (fcode, common_name, location) VALUES (%s, %s, %s);"
 				db_insert(new_facility, [fcode, common_name, location])
 				flash('New facility was created!')
 
-	# Get all current facilities for table population
+	# Update all_facilities after insert, but before template rendering
 	all_facilities = db_query("SELECT * FROM facilities;", [])
 
 	return render_template('add_facility.html', data=all_facilities)
@@ -211,26 +215,34 @@ def add_asset():
 		date = request.form.get('date')
 		disposed = False
 
+		# Get all current assets and facilities for table/drop-down population
+		all_assets = db_query("SELECT * FROM assets;", [])
+		all_facilities = db_query("SELECT * FROM facilities;", [])
+
+		# Handle situation of no assets in database
+		if all_assets is None:
+			all_assets = [('NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES')]
+
+		# If something is missing from the form...
 		if asset_tag is None or description is None or facility_fk is None or date is None:
 			flash('Please complete the form')
-			return render_template('add_asset.html')
+			return render_template('add_asset.html', assets_list=all_assets, facilities_list=all_facilities)
 		else:
+			# Form is filled -> Validate the entered date
 			try:
 				validated_date = validate_date(date)
-			except ValueError:
-				flash(ValueError.args)
-				return render_template('add_asset.html')
-			except TypeError or UnboundLocalError:
-				flash('TYPE ERROR: You must enter a date.')
-				return render_template('add_asset.html')
+			except ValueError or TypeError or UnboundLocalError:
+				flash('Please enter the date in the following format:\nMM/DD/YYYY')
+				return render_template('add_asset.html', assets_list=all_assets, facilities_list=all_facilities)
 
+			# Check for duplicate entry attempt...
 			matching_assets = "SELECT asset_pk FROM assets WHERE asset_tag=%s;"
 			asset_does_exist = duplicate_check(matching_assets, [asset_tag])
 
 			if asset_does_exist:
-				flash('There already exists am asset with that tag!')
+				flash('There already exists an asset with that tag!')
 			else:
-				# Asset does not already exist - create it
+				# Asset does not already exist - create it...
 				new_asset = "INSERT INTO assets (facility_fk, asset_tag, description, disposed) VALUES (%s, %s, %s, %s);"
 				db_insert(new_asset, [facility_fk, asset_tag, description, disposed])
 
@@ -238,10 +250,10 @@ def add_asset():
 				asset_fk = db_query(recently_added_asset, [asset_tag])
 
 				new_asset_at = "INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt) VALUES (%s, %s, %s);"
-				db_insert(new_asset_at, [asset_fk, facility_fk, validated_date])
+				db_insert(new_asset_at, [asset_fk[0][0], facility_fk, validated_date])
 				flash('New asset added!')
 
-	# Get all current assets and facilities for table/drop-down population
+	# Update all_assets after insert, but before template rendering
 	all_assets = db_query("SELECT * FROM assets;", [])
 	all_facilities = db_query("SELECT * FROM facilities;", [])
 
