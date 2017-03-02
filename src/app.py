@@ -149,14 +149,12 @@ def dashboard():
 @app.route('/create_user', methods=['GET', 'POST'])
 def create_user():
 	if request.method == 'POST':
-		username = request.form.get('username', None)
+		username = request.form.get('username', None).strip()
 		password = request.form.get('password', None)
 		role = request.form.get('role', 'Guest')
 
-		if username is None:
-			flash('Please enter a username.')
-		elif password is None:
-			flash('Please enter a password.')
+		if not username or not password or password == '':
+			flash('Please enter a username and password.')
 		else:
 			# Form was completed
 			matching_user = "SELECT user_pk FROM users WHERE username = %s;"
@@ -176,14 +174,14 @@ def create_user():
 @app.route('/add_facility', methods=['GET', 'POST'])
 def add_facility():
 	if request.method == 'POST':
-		fcode = request.form.get('fcode', None)
+		fcode = request.form.get('fcode', None).strip()
 		common_name = request.form.get('common_name', None)
 		location = request.form.get('location', None)
 
 		# Get all current facilities for table population
 		all_facilities = db_query("SELECT * FROM facilities;", [])
 
-		if fcode is None or common_name is None or location is None:
+		if not fcode or not common_name or not location:
 			flash('Please complete the form')
 			return render_template('add_facility.html', data=all_facilities)
 
@@ -209,7 +207,7 @@ def add_facility():
 @app.route('/add_asset', methods=['GET', 'POST'])
 def add_asset():
 	if request.method == 'POST':
-		asset_tag = request.form.get('asset_tag', None)
+		asset_tag = request.form.get('asset_tag', None).strip()
 		description = request.form.get('description', None)
 		facility_fk = request.form.get('facility')
 		date = request.form.get('date')
@@ -224,7 +222,7 @@ def add_asset():
 			all_assets = [('NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES')]
 
 		# If something is missing from the form...
-		if asset_tag is None or description is None or facility_fk is None or date is None:
+		if not asset_tag or not description or not facility_fk or not date:
 			flash('Please complete the form')
 			return render_template('add_asset.html', assets_list=all_assets, facilities_list=all_facilities)
 		else:
