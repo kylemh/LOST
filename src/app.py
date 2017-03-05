@@ -209,23 +209,27 @@ def add_facility():
 
 @app.route('/add_asset', methods=['GET', 'POST'])
 def add_asset():
+	# Create Query Strings for GET and POST utilization
+	all_assets_query_string = "SELECT assets.asset_tag, assets.description, facilities.location FROM assets JOIN facilities ON assets.facility_fk = facilities.facility_pk;"
+	all_facilities_query_string = "SELECT * FROM facilities;"
+
 	if request.method == 'POST':
 		asset_tag = request.form.get('asset_tag', None).strip()
 		description = request.form.get('description', None)
-		facility_fk = request.form.get('facility')
+		facility = request.form.get('facility')
 		date = request.form.get('date')
 		disposed = False
 
 		# Get all current assets and facilities for table/drop-down population
-		all_assets = db_query("SELECT * FROM assets;", [])
-		all_facilities = db_query("SELECT * FROM facilities;", [])
+		all_assets = db_query(all_assets_query_string, [])
+		all_facilities = db_query(all_facilities_query_string, [])
 
 		# Handle table when no assets in database
 		if all_assets is None:
 			all_assets = [('NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES')]
 
 		# If something is missing from the form...
-		if not asset_tag or not description or not facility_fk or not date:
+		if not asset_tag or not description or not facility or not date:
 			flash('Please complete the form')
 			return render_template('add_asset.html', assets_list=all_assets, facilities_list=all_facilities)
 		else:
@@ -243,19 +247,19 @@ def add_asset():
 				flash('There already exists an asset with that tag!')
 			else:
 				# Asset does not already exist - create it...
-				new_asset = "INSERT INTO assets (facility_fk, asset_tag, description, disposed) VALUES (%s, %s, %s, %s);"
-				db_change(new_asset, [facility_fk, asset_tag, description, disposed])
+				new_asset = "INSERT INTO assets (facility, asset_tag, description, disposed) VALUES (%s, %s, %s, %s);"
+				db_change(new_asset, [facility, asset_tag, description, disposed])
 
 				recently_added_asset = "SELECT asset_pk FROM assets WHERE asset_tag = %s"
 				asset_fk = db_query(recently_added_asset, [asset_tag])
 
-				new_asset_at = "INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt) VALUES (%s, %s, %s);"
-				db_change(new_asset_at, [asset_fk[0][0], facility_fk, validated_date])
+				new_asset_at = "INSERT INTO asset_at (asset_fk, facility, arrive_dt) VALUES (%s, %s, %s);"
+				db_change(new_asset_at, [asset_fk[0][0], facility, validated_date])
 				flash('New asset added!')
 
 	# Update all_assets after insert, but before template rendering
-	all_assets = db_query("SELECT * FROM assets;", [])
-	all_facilities = db_query("SELECT * FROM facilities;", [])
+	all_assets = db_query(all_assets_query_string, [])
+	all_facilities = db_query(all_facilities_query_string, [])
 
 	# Handle situation of no assets in database
 	if all_assets is None:
@@ -272,7 +276,9 @@ def dispose_asset():
 		return render_template('dashboard.html')
 	else:
 		# Get all current assets for table population
-		all_assets = db_query("SELECT * FROM assets;", [])
+		all_assets_query_string = "SELECT assets.asset_tag, assets.description, facilities.location, assets.disposed FROM assets " \
+								  "JOIN facilities ON assets.facility_fk = facilities.facility_pk;"
+		all_assets = db_query(all_assets_query_string, [])
 
 		# Handle table when no assets in database
 		if all_assets is None:
@@ -312,7 +318,7 @@ def dispose_asset():
 					db_change(asset_to_dispose, [asset_tag])
 
 					# Update current assets for table population ('disposed' column will have changed)
-					all_assets = db_query("SELECT * FROM assets;", [])
+					all_assets = db_query(all_assets_query_string, [])
 
 					# Handle table when no assets in database
 					if all_assets is None:
@@ -325,6 +331,34 @@ def dispose_asset():
 					return render_template('dispose_asset.html', assets_list=all_assets)
 
 		return render_template('dispose_asset.html', assets_list=all_assets)
+
+
+@app.route('/asset_report', methods=['GET', 'POST'])
+def asset_report():
+	# List of single-tuples of all facilities in DB
+	all_facilities = db_query("SELECT * FROM facilities;", [])
+
+	# User Input from Form
+	facility = request.form.get('facility')
+	date = request.form.get('date')
+	if facility == 'All':
+		facility = all_facilities
+
+	# If a form has been submitted
+	if request.method == 'POST':
+		if not date:
+			flash('Please complete the form')
+			return render_template('asset_report.html', facilities_list=all_facilities, report=False)
+		else:
+			try:
+				validated_date = validate_date(date)
+			except ValueError or TypeError or UnboundLocalError:
+				flash('Please enter the date in the following format:\nMM/DD/YYYY')
+				return render_template('asset_report.html', facilities_list=all_facilities, report=False)
+
+
+
+	return render_template('asset_report.html', date=validated_date, facilities_list=all_facilities, report=True)
 
 
 # MARK: ERROR PAGES

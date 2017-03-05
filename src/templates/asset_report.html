@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+
+{% block title %}Asset Report{% endblock %}
+
+{% block head %}
+	{{ super() }}
+{% endblock %}
+
+{% block content %}
+	<h1>ASSET REPORT</h1>
+	{% if not session.logged_in %}
+		<h1 class="alert-warning">AUTHORIZATION FAILURE</h1>
+		<br>
+		<div class="row">
+			<a class="button one-half column" href="{{ url_for('login') }}">LOGIN</a>
+			<a class="button one-half column" href="{{ url_for('create_user') }}">CREATE USER</a>
+		</div>
+	{% endif %}
+
+	{% if session.logged_in %}
+		{% if report %}
+		<!-- Only show table if report is True -->
+		<h3>Inventory at {{ facility }} on </h3>
+		<table class="u-full-width">
+			<thead>
+				<tr>
+					<th>Asset Tag</th>
+					<th>Asset Description</th>
+					<th>Source Facility</th>
+					<th>Destination Facility</th>
+					<th>Arrival Date</th>
+					<th>Departure Date</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for entry in data %}
+				<tr>
+					<td>{{ entry['asset_tag'] }}</td>
+					<td>{{ entry['description'] }}</td>
+					<td>{{ entry['location1'] }}</td>
+					<td>{{ entry['location2'] }}</td>
+					<td>{{ entry['arrive_dt'] }}</td>
+					<td>{{ entry['depart_dt'] }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+		<br>
+		{%  endif %}
+
+		<!-- Filter Form -->
+		<center>
+			<form action="{{ url_for('asset_report') }}" method="POST">
+				<dt>Search Date:</dt>
+				<dt><input type="text" name="date" placeholder="MM/DD/YYYY"></dt>
+				<dt>Storage Facility:</dt>
+				<select name="facility">
+					<option value="All" SELECTED>All Facilities</option>
+				{% for fac in facilities_list %}
+					<option value="{{ fac[0] }}">{{ fac[2] }}</option>
+				{% endfor %}
+				</select>
+				<br>
+				<input type="submit" value="show report">
+			</form>
+			<br>
+			<br>
+			<a class="button" href="{{ url_for('dashboard') }}">RETURN TO DASHBOARD</a>
+		</center>
+	{% endif %}
+{% endblock %}

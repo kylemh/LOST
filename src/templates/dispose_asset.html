@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 
-{% block title %}Add Asset{% endblock %}
+{% block title %}Dispose Asset{% endblock %}
 
 {% block head %}
 	{{ super() }}
@@ -9,43 +9,43 @@
 {% block content %}
 	<h1>DISPOSE OF ASSET</h1>
 	{% if not session.logged_in %}
-	<h4 class="alert">AUTHORIZATION FAILURE</h4>
-	<br>
-	<div class="row">
-		<a class="button one-half column" href="{{ url_for('login') }}">LOGIN</a>
-		<a class="button one-half column" href="{{ url_for('create_user') }}">CREATE USER</a>
-	</div>
+		<h4 class="alert">AUTHORIZATION FAILURE</h4>
+		<br>
+		<div class="row">
+			<a class="button one-half column" href="{{ url_for('login') }}">LOGIN</a>
+			<a class="button one-half column" href="{{ url_for('create_user') }}">CREATE USER</a>
+		</div>
 	{% endif %}
 
 	{% if session.logged_in %}
-	<h4>Assets Currently In Database</h4>
+		<h4>Assets Currently In Database</h4>
 
-	{% if assets_list is not defined %}
-	<p>There are currently no assets in the database.</p>
-	{% endif %}
+		{% if assets_list is not defined %}
+			<p>There are currently no assets in the database.</p>
+		{% endif %}
 
-	{% if assets_list is defined %}
-	<table class="u-full-width">
-		<thead>
-			<tr>
-				<th>Asset Tag</th>
-				<th>Asset Description</th>
-				<th>Asset Location</th>
-				<th>Disposal Status</th>
-			</tr>
-		</thead>
-		{% for ast in assets_list %}
-		<tbody>
-			<tr>
-				<td>{{ ast[2] }}</td>
-				<td>{{ ast[3] }}</td>
-				<td>{{ ast[1] }}</td>
-				<td>{{ ast[4] }}</td>
-			</tr>
-		</tbody>
-		{% endfor %}
-	</table>
-	{% endif %}
+		{% if assets_list is defined %}
+			<table class="u-full-width">
+				<thead>
+					<tr>
+						<th>Asset Tag</th>
+						<th>Asset Description</th>
+						<th>Asset Location</th>
+						<th>Disposal Status</th>
+					</tr>
+				</thead>
+				{% for ast in assets_list %}
+					<tbody>
+						<tr>
+							<td>{{ ast[0] }}</td>
+							<td>{{ ast[1] }}</td>
+							<td>{{ ast[2] }}</td>
+							<td>{{ ast[3] }}</td>
+						</tr>
+					</tbody>
+				{% endfor %}
+			</table>
+		{% endif %}
 		<br>
 		<p>Please follow the guidelines outlined within each text field.</p>
 		<center>
