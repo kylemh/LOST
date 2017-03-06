@@ -335,17 +335,18 @@ def dispose_asset():
 
 @app.route('/asset_report', methods=['GET', 'POST'])
 def asset_report():
-	# List of single-tuples of all facilities in DB
-	all_facilities = db_query("SELECT * FROM facilities;", [])
-
-	# User Input from Form
-	facility = request.form.get('facility')
-	date = request.form.get('date')
-	if facility == 'All':
-		facility = all_facilities
+	all_facilities_query_string = "SELECT * FROM facilities;"
 
 	# If a form has been submitted
 	if request.method == 'POST':
+		# List of single-tuples of all facilities to populate drop-down
+		all_facilities = db_query(all_facilities_query_string, [])
+
+		# User Input from Form
+		facility = request.form.get('facility')
+		date = request.form.get('date')
+
+		# Validate Inputs
 		if not date:
 			flash('Please complete the form')
 			return render_template('asset_report.html', facilities_list=all_facilities, report=False)
@@ -356,9 +357,47 @@ def asset_report():
 				flash('Please enter the date in the following format:\nMM/DD/YYYY')
 				return render_template('asset_report.html', facilities_list=all_facilities, report=False)
 
+		# Assets at all facilities
+		if facility == 'All':
+			all_assets_report = "SELECT assets.asset_tag, assets.description, facilities.location, asset_at.arrive_dt, asset_at.depart_dt FROM assets " \
+								"JOIN facilities ON assets.facility_fk = facilities.facility_pk JOIN asset_at ON assets.asset_pk = asset_at.asset_fk " \
+								"WHERE (asset_at.depart_dt >= %s OR asset_at.depart_dt IS NULL) " \
+								"AND asset_at.arrive_dt <= %s;"
+			all_assets = db_query(all_assets_report, [validated_date, validated_date])
 
+			# No Results
+			if all_assets is None:
+				all_assets = [('NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES')]
+				msg = ('There exists no asset within any facility on', validated_date)
+				flash(msg)
 
-	return render_template('asset_report.html', date=validated_date, facilities_list=all_facilities, report=True)
+			# Handle <h4> at top of asset_report for all facilities option - sought for as facility[2]
+			facility = ['', '', 'all facilities']
+
+			return render_template('asset_report.html', facility=facility, date=validated_date, assets_list=all_assets, facilities_list=all_facilities, report=True)
+
+		# Assets at a specific facility
+		else:
+			individual_facility_report = "SELECT assets.asset_tag, assets.description, facilities.location, asset_at.arrive_dt, asset_at.depart_dt " \
+										 "FROM assets " \
+					   					 "JOIN (SELECT facility_pk, location FROM facilities WHERE facility_pk = %s) as facilities ON facilities.facility_pk = assets.facility_fk " \
+					   					 "JOIN asset_at ON assets.asset_pk = asset_at.asset_fk " \
+										 "WHERE (asset_at.depart_dt >= %s OR asset_at.depart_dt IS NULL) " \
+										 "AND asset_at.arrive_dt <= %s;"
+			filtered_assets = db_query(individual_facility_report, [facility, validated_date, validated_date])
+
+			# No Results
+			if filtered_assets is None:
+				filtered_assets = [('NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES')]
+				msg = ('There exists no asset within', filtered_assets[2], 'on', validated_date)
+				flash(msg)
+
+			return render_template('asset_report.html', facility=filtered_assets[0][2], date=validated_date, assets_list=filtered_assets, facilities_list=all_facilities, report=True)
+
+	# List of single-tuples of all facilities to populate drop-down
+	all_facilities = db_query(all_facilities_query_string, [])
+
+	return render_template('asset_report.html', facilities_list=all_facilities, report=False)
 
 
 # MARK: ERROR PAGES

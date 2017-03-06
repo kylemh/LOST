@@ -7,26 +7,22 @@
 {% endblock %}
 
 {% block content %}
-	{% if not session.logged_in %}
-		<h4 class="alert">AUTHORIZATION FAILURE</h4>
+	{%  include "authorization_header.html" %}
+
+	{% if session.logged_in %}
+		<h1>LOST DASHBOARD</h1>
+		<h6>Welcome to the Logistical Operations Service Tracker (LOST)</h6>
+		<div class="row">
+			<a class="button one-half column" href="{{ url_for('add_facility') }}">Add Facility</a>
+			<a class="button one-half column" href="{{ url_for('add_asset') }}">Add Asset</a>
+		</div>
 		<br>
 		<div class="row">
-			<a class="button one-half column" href="{{ url_for('login') }}">LOGIN</a>
-			<a class="button one-half column" href="{{ url_for('create_user') }}">CREATE USER</a>
+			<a class="button one-half column" href="{{ url_for('asset_report') }}">Asset Report</a>
+			<a class="button one-half column" href="{{ url_for('dispose_asset') }}">Dispose Asset</a>
 		</div>
+		<br>
+		<br>
+		<center><a class="button" href="{{ url_for('logout') }}">LOGOUT</a></center>
 	{% endif %}
-	<h1>LOST DASHBOARD</h1>
-	<p>Welcome to the Logistical Operations Service Tracker (LOST)</p>
-	<div class="row">
-		<a class="button one-half column" href="{{ url_for('add_facility') }}">Add Facility</a>
-		<a class="button one-half column" href="{{ url_for('add_asset') }}">Add Asset</a>
-	</div>
-	<br>
-	<div class="row">
-		<a class="button one-half column" href="{{ url_for('asset_report') }}">Asset Report</a>
-		<a class="button one-half column" href="{{ url_for('dispose_asset') }}">Dispose Asset</a>
-	</div>
-	<br>
-	<br>
-	<center><a class="button" href="{{ url_for('logout') }}">LOGOUT</a></center>
 {% endblock %}

@@ -7,17 +7,10 @@
 {% endblock %}
 
 {% block content %}
-	<h1>ADD FACILITY</h1>
-	{% if not session.logged_in %}
-		<h4 class="alert">AUTHORIZATION FAILURE</h4>
-		<br>
-		<div class="row">
-			<a class="button one-half column" href="{{ url_for('login') }}">LOGIN</a>
-			<a class="button one-half column" href="{{ url_for('create_user') }}">CREATE USER</a>
-		</div>
-	{% endif %}
+	{% include "authorization_header.html" %}
 
 	{% if session.logged_in %}
+		<h1>ADD FACILITY</h1>
 		<h4>Facilities Currently In Database</h4>
 		<table class="u-full-width">
 			<thead>

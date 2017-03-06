@@ -7,40 +7,31 @@
 {% endblock %}
 
 {% block content %}
-	<h1>ASSET REPORT</h1>
-	{% if not session.logged_in %}
-		<h1 class="alert-warning">AUTHORIZATION FAILURE</h1>
-		<br>
-		<div class="row">
-			<a class="button one-half column" href="{{ url_for('login') }}">LOGIN</a>
-			<a class="button one-half column" href="{{ url_for('create_user') }}">CREATE USER</a>
-		</div>
-	{% endif %}
+	{%  include "authorization_header.html" %}
 
 	{% if session.logged_in %}
-		{% if report %}
+		<h1>ASSET REPORT</h1>
+		{% if report == True %}
 		<!-- Only show table if report is True -->
-		<h3>Inventory at {{ facility }} on </h3>
+		<h4>Inventory at {{ facility[2] }} on {{ date }}</h4>
 		<table class="u-full-width">
 			<thead>
 				<tr>
 					<th>Asset Tag</th>
 					<th>Asset Description</th>
-					<th>Source Facility</th>
-					<th>Destination Facility</th>
-					<th>Arrival Date</th>
+					<th>Asset Location</th>
+					<th>Arrival Data</th>
 					<th>Departure Date</th>
 				</tr>
 			</thead>
 			<tbody>
-			{% for entry in data %}
+			{% for asset in assets_list %}
 				<tr>
-					<td>{{ entry['asset_tag'] }}</td>
-					<td>{{ entry['description'] }}</td>
-					<td>{{ entry['location1'] }}</td>
-					<td>{{ entry['location2'] }}</td>
-					<td>{{ entry['arrive_dt'] }}</td>
-					<td>{{ entry['depart_dt'] }}</td>
+					<td>{{ asset[0] }}</td>
+					<td>{{ asset[1] }}</td>
+					<td>{{ asset[2] }}</td>
+					<td>{{ asset[3] }}</td>
+					<td>{{ asset[4] }}</td>
 				</tr>
 			{% endfor %}
 			</tbody>

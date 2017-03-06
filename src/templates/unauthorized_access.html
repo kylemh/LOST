@@ -8,7 +8,7 @@
 
 {% block content %}
 	<h1>Unauthorized Access</h1>
-	<!-- TODO: Dynamically prepare for any user permission issues. -->
+	<!-- TODO: Instead of having this seperate page, handle with sessions.permissions in header of dispose_asset.html -->
 	<p>Unfortunately, you don't have permissions to dispose of assets.</p>
 	<br>
 	<a class="button one-half column" href="{{ url_for('dashboard') }}">RETURN TO DASHBOARD</a>
