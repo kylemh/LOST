@@ -121,8 +121,7 @@ def login():
 					session['username'] = username
 					session['logged_in'] = True
 					session['perms'] = result[0][1]
-					welcome_message = 'Welcome ' + str(session.get('username')) + '!'
-					flash(welcome_message)
+					session['user_id'] = result[0][0]
 					return redirect('/dashboard')
 				else:
 					# Password is incorrect
@@ -136,15 +135,6 @@ def login():
 def logout():
 	session['logged_in'] = False
 	return render_template('logout.html')
-
-
-@app.route('/dashboard', methods=['GET'])
-def dashboard():
-	if not session.get('logged_in'):
-		flash('You must login before being allowed access to the dashboard')
-		return redirect(url_for('login'))
-	else:
-		return render_template('dashboard.html')
 
 
 @app.route('/create_user', methods=['GET', 'POST'])
@@ -170,6 +160,142 @@ def create_user():
 				flash('Your account was created!')
 
 	return render_template('create_user.html')
+
+
+@app.route('/dashboard', methods=['GET','POST'])
+def dashboard():
+	if not session.get('logged_in'):
+		flash('You must login before being allowed access to the dashboard')
+		return redirect(url_for('login'))
+
+	cur_user = session['username']
+
+	# POST METHOD
+	if request.method == 'POST':
+		if session['perms'] == 2:
+			# MARK: USER IS A LOGISTICS OFFICER
+			selected_request = request.form.get('request_pk')
+			load_date = request.form.get('load date', None)
+			unload_date = request.form.get('unload date', None)
+
+			if not selected_request:
+				# Something Wasn't Selected
+				flash('Please chose a request to update.')
+			elif load_date and unload_date:
+				# Both Load and Unload Date Submitted
+				transit_update_string = "UPDATE in_transit SET load_dt = %s, unload_dt = %s WHERE request.fk = %s;"
+				db_change(transit_update_string, [load_date, unload_date, selected_request])
+				delete_request_string = "DELETE FROM requests WHERE requests.request_pk = %s"
+				db_change(delete_request_string, [selected_request])
+				flash('Transfer Completed - Request Deleted')
+			elif not load_date and not unload_date:
+				# Neither Dates Submitted
+				flash('Please fill in at least one of the two dates to update.')
+			else:
+				if not unload_date:
+					# Updating Only Load Date
+					transit_update_string = "UPDATE in_transit SET load_dt = %s WHERE request.fk = %s;"
+					db_change(transit_update_string, [load_date, selected_request])
+					flash('Load Date Updated')
+				else:
+					# Attempting To Only Update Unload Date
+					load_date_string = "SELECT r.request_pk, t.load_dt " \
+									   "FROM requests as r " \
+									   "JOIN in_transit as t ON r.request_pk = t.request_fk " \
+									   "WHERE approved=TRUE AND r.request_pk = %s;"
+					lo_requests = db_query(load_date_string, [selected_request])
+
+					if not lo_requests[1]:
+						# There is no load date for this asset
+						flash('The asset must be loaded before it can be unloaded.')
+					else:
+						# There is a load date for this asset-in-transit
+						transit_update_string = "UPDATE in_transit SET unload_dt = %s WHERE request.fk = %s;"
+						db_change(transit_update_string, [unload_date, selected_request])
+
+			# Populate Table
+			requests_query_string = "SELECT r.request_pk, r.asset_fk, r.user_fk, r.src_fk, r.dest_fk, t.load_dt, t.unload_dt " \
+									"FROM requests as r " \
+									"JOIN in_transit as t ON r.request_pk = t.request_fk " \
+									"WHERE approved=TRUE;"
+			lo_requests = db_query(requests_query_string, [])
+			return render_template('dashboard.html', user=cur_user, requests=lo_requests)
+
+		elif session['perms'] == 3:
+			# MARK: USER IS A FACILITY OFFICER
+			selected_request = request.form.get('request_pk')
+
+			if not selected_request:
+				# Nothing Selected
+				flash('Please select a request.')
+			else:
+				# Something Selected
+				if request.form['submit'] == 'reject':
+					# Request Rejected
+					delete_request_string = "DELETE FROM requests WHERE requests.request_pk = %s"
+					db_change(delete_request_string, [selected_request])
+					flash('Request DENIED.')
+				else:
+					# Request Approved
+					update_request_sql_string = "UPDATE requests SET approved=TRUE WHERE requests.request_pk = %s"
+					db_change(update_request_sql_string, [selected_request])
+					flash('Request APPROVED.')
+
+			# Populate Table
+			requests_query_string = "SELECT r.request_pk, a.asset_tag, r.user_fk, f1.common_name, f2.common_name " \
+									"FROM requests as r " \
+									"JOIN assets as a ON r.asset_fk = a.asset_pk " \
+									"JOIN facilities as f1 ON r.src_fk = f1.facility_pk " \
+									"JOIN facilities as f2 ON r.dest_fk = f2.facility_pk " \
+									"WHERE r.approved=FALSE;"
+			fo_requests = db_query(requests_query_string, [])
+
+			return render_template('dashboard.html', user=cur_user, requests=fo_requests)
+
+	# GET METHOD
+	if session['perms'] == 2:
+		# User is a Logistics Officer
+		requests_query_string = "SELECT r.request_pk, r.asset_fk, r.user_fk, r.src_fk, r.dest_fk, t.load_dt, t.unload_dt " \
+								"FROM requests as r " \
+								"JOIN in_transit as t ON r.request_pk = t.request_fk " \
+								"WHERE approved=TRUE;"
+		lo_requests = db_query(requests_query_string, [])
+		return render_template('dashboard.html', user=cur_user, requests=lo_requests)
+
+	elif session['perms'] == 3:
+		# User is a Facility Officer
+		requests_query_string = "SELECT r.request_pk, a.asset_tag, r.user_fk, f1.common_name, f2.common_name " \
+								"FROM requests as r " \
+								"JOIN assets as a ON r.asset_fk = a.asset_pk " \
+								"JOIN facilities as f1 ON r.src_fk = f1.facility_pk " \
+								"JOIN facilities as f2 ON r.dest_fk = f2.facility_pk " \
+								"WHERE r.approved=FALSE;"
+		fo_requests = db_query(requests_query_string, [])
+		return render_template('dashboard.html', user=cur_user, requests=fo_requests)
+
+	else:
+		flash('You do not have access. Please login or create an account.')
+		redirect(url_for('login'))
+
+
+@app.route('/approve_req', methods=['GET'])
+def approve_req():
+	# TODO: Ask about the necessity of this route.
+	if session['perms'] == 3:
+		pass
+	else:
+		flash('You must be a facility officer to approve requests.')
+	return redirect(url_for('dashboard'))
+
+
+@app.route('/update_transit', methods=['GET'])
+def update_transit():
+	# TODO: Ask about the necessity of this route.
+	if session['perms'] == 2:
+		pass
+	else:
+		flash('You must be a logistics officer to update transit records.')
+	return redirect(url_for('dashboard'))
 
 
 @app.route('/add_facility', methods=['GET', 'POST'])
@@ -210,7 +336,9 @@ def add_facility():
 @app.route('/add_asset', methods=['GET', 'POST'])
 def add_asset():
 	# Create Query Strings for GET and POST utilization
-	all_assets_query_string = "SELECT assets.asset_tag, assets.description, facilities.location FROM assets JOIN facilities ON assets.facility_fk = facilities.facility_pk;"
+	all_assets_query_string = "SELECT assets.asset_tag, assets.description, facilities.location FROM assets " \
+							  "JOIN asset_at ON assets.asset_pk = asset_at.asset_fk " \
+							  "JOIN facilities ON asset_at.facility_fk = facilities.facility_pk;"
 	all_facilities_query_string = "SELECT * FROM facilities;"
 
 	if request.method == 'POST':
@@ -229,7 +357,7 @@ def add_asset():
 			all_assets = [('NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES')]
 
 		# If something is missing from the form...
-		if not asset_tag or not description or not facility or not date:
+		if not asset_tag or not description or not date or facility == '':
 			flash('Please complete the form')
 			return render_template('add_asset.html', assets_list=all_assets, facilities_list=all_facilities)
 		else:
@@ -247,14 +375,17 @@ def add_asset():
 				flash('There already exists an asset with that tag!')
 			else:
 				# Asset does not already exist - create it...
-				new_asset = "INSERT INTO assets (facility, asset_tag, description, disposed) VALUES (%s, %s, %s, %s);"
-				db_change(new_asset, [facility, asset_tag, description, disposed])
+				new_asset = "INSERT INTO assets (asset_tag, description, disposed) VALUES (%s, %s, %s);"
+				db_change(new_asset, [asset_tag, description, disposed])
 
+				# Get Asset Key for asset_at insertion
 				recently_added_asset = "SELECT asset_pk FROM assets WHERE asset_tag = %s"
 				asset_fk = db_query(recently_added_asset, [asset_tag])
 
-				new_asset_at = "INSERT INTO asset_at (asset_fk, facility, arrive_dt) VALUES (%s, %s, %s);"
+				# Insert asset_at record for newly added asset
+				new_asset_at = "INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt) VALUES (%s, %s, %s);"
 				db_change(new_asset_at, [asset_fk[0][0], facility, validated_date])
+
 				flash('New asset added!')
 
 	# Update all_assets after insert, but before template rendering
@@ -277,7 +408,8 @@ def dispose_asset():
 	else:
 		# Get all current assets for table population
 		all_assets_query_string = "SELECT assets.asset_tag, assets.description, facilities.location, assets.disposed FROM assets " \
-								  "JOIN facilities ON assets.facility_fk = facilities.facility_pk;"
+								  "JOIN asset_at ON assets.asset_pk = asset_at.asset_fk " \
+								  "JOIN facilities ON asset_at.facility_fk = facilities.facility_pk;"
 		all_assets = db_query(all_assets_query_string, [])
 
 		# Handle table when no assets in database
@@ -360,7 +492,8 @@ def asset_report():
 		# Assets at all facilities
 		if facility == 'All':
 			all_assets_report = "SELECT assets.asset_tag, assets.description, facilities.location, asset_at.arrive_dt, asset_at.depart_dt FROM assets " \
-								"JOIN facilities ON assets.facility_fk = facilities.facility_pk JOIN asset_at ON assets.asset_pk = asset_at.asset_fk " \
+								"JOIN asset_at ON assets.asset_pk = asset_at.asset_fk " \
+								"JOIN facilities ON asset_at.facility_fk = facilities.facility_pk " \
 								"WHERE (asset_at.depart_dt >= %s OR asset_at.depart_dt IS NULL) " \
 								"AND asset_at.arrive_dt <= %s;"
 			all_assets = db_query(all_assets_report, [validated_date, validated_date])
@@ -368,8 +501,6 @@ def asset_report():
 			# No Results
 			if all_assets is None:
 				all_assets = [('NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES')]
-				msg = ('There exists no asset within any facility on', validated_date)
-				flash(msg)
 
 			# Handle <h4> at top of asset_report for all facilities option - sought for as facility[2]
 			facility = ['', '', 'all facilities']
@@ -380,8 +511,9 @@ def asset_report():
 		else:
 			individual_facility_report = "SELECT assets.asset_tag, assets.description, facilities.location, asset_at.arrive_dt, asset_at.depart_dt " \
 										 "FROM assets " \
-					   					 "JOIN (SELECT facility_pk, location FROM facilities WHERE facility_pk = %s) as facilities ON facilities.facility_pk = assets.facility_fk " \
-					   					 "JOIN asset_at ON assets.asset_pk = asset_at.asset_fk " \
+										 "JOIN asset_at ON assets.asset_pk = asset_at.asset_fk " \
+										 "JOIN (SELECT facility_pk, location FROM facilities WHERE facility_pk = %s) as facilities " \
+										 "ON facilities.facility_pk = asset_at.facility_fk " \
 										 "WHERE (asset_at.depart_dt >= %s OR asset_at.depart_dt IS NULL) " \
 										 "AND asset_at.arrive_dt <= %s;"
 			filtered_assets = db_query(individual_facility_report, [facility, validated_date, validated_date])
@@ -389,15 +521,69 @@ def asset_report():
 			# No Results
 			if filtered_assets is None:
 				filtered_assets = [('NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES')]
-				msg = ('There exists no asset within', filtered_assets[2], 'on', validated_date)
-				flash(msg)
 
-			return render_template('asset_report.html', facility=filtered_assets[0][2], date=validated_date, assets_list=filtered_assets, facilities_list=all_facilities, report=True)
+			# Handle <h4> at top of asset_report for all facilities option - sought for as facility[2]
+			facility = filtered_assets[0]
+
+			return render_template('asset_report.html', facility=facility, date=validated_date, assets_list=filtered_assets, facilities_list=all_facilities, report=True)
 
 	# List of single-tuples of all facilities to populate drop-down
 	all_facilities = db_query(all_facilities_query_string, [])
 
 	return render_template('asset_report.html', facilities_list=all_facilities, report=False)
+
+
+@app.route('/transfer_report', methods=['GET', 'POST'])
+def transfer_report():
+	return render_template('transfer_report.html')
+
+
+@app.route('/transfer_req', methods=['GET', 'POST'])
+def transfer_req():
+	if session.get('perms') != 2:
+		# Not a logistics officer...
+		flash('You are not a Logistics Officer.\nYou do not have permissions to request transfers!')
+		return render_template('dashboard.html')
+
+	if request.method == 'POST':
+		asset_key = request.form['asset']
+		src_facility = request.form['src_facility']
+		dest_facility = request.form['dest_facility']
+		date = datetime.datetime.now()
+
+		location_query_string = "SELECT asset_at.facility_fk FROM asset_at " \
+								"JOIN assets ON asset_at.asset_fk = assets.asset_pk " \
+								"WHERE asset_pk=%s"
+		actual_asset_location = db_query(location_query_string, [asset_key])
+
+		if asset_key == '':
+			flash('Please select an asset. NOTE: The database may not yet contain an asset.')
+		elif src_facility == '' or dest_facility == '':
+			flash('Please select a facility. NOTE: The database may not yet contain a facility.')
+		elif src_facility != str(actual_asset_location[0][0]):
+			flash('The source facility you selected is not where the asset is stored.')
+		elif dest_facility == src_facility:
+			flash('Please select a destination facility that differs from the source facility in order to submit request.')
+		else:
+			# Inputs Validated
+			request_sql_string = "INSERT INTO requests (asset_fk, user_fk, src_fk, dest_fk, request_dt, approved) VALUES (%s, %s, %s, %s, %s, 'False');"
+			db_change(request_sql_string, [asset_key, session['user_id'], src_facility, dest_facility, date])
+			flash('Request Submitted. Please await Facility Officer approval.')
+
+	# Drop-Down selection population
+	all_assets_query_string = "SELECT * FROM assets;"
+	all_facilities_query_string = "SELECT * FROM facilities;"
+	all_assets = db_query(all_assets_query_string, [])
+	all_facilities = db_query(all_facilities_query_string, [])
+
+	# Handle empty result query cases
+	if all_assets is None:
+		all_assets = [(None, 'NO ASSETS')]
+
+	if all_facilities is None:
+		all_facilities = [(None, None, 'NO FACILITIES')]
+
+	return render_template('transfer_req.html', asset_list=all_assets, facility_list=all_facilities)
 
 
 # MARK: ERROR PAGES

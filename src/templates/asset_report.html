@@ -20,7 +20,7 @@
 					<th>Asset Tag</th>
 					<th>Asset Description</th>
 					<th>Asset Location</th>
-					<th>Arrival Data</th>
+					<th>Arrival Date</th>
 					<th>Departure Date</th>
 				</tr>
 			</thead>
@@ -40,11 +40,11 @@
 		{%  endif %}
 
 		<!-- Filter Form -->
-		<center>
+		<div class="centered-form">
 			<form action="{{ url_for('asset_report') }}" method="POST">
-				<dt>Search Date:</dt>
-				<dt><input type="text" name="date" placeholder="MM/DD/YYYY"></dt>
-				<dt>Storage Facility:</dt>
+				Search Date:
+				<input type="text" name="date" placeholder="MM/DD/YYYY"><br>
+				Storage Facility:<br>
 				<select name="facility">
 					<option value="All" SELECTED>All Facilities</option>
 				{% for fac in facilities_list %}
@@ -52,11 +52,12 @@
 				{% endfor %}
 				</select>
 				<br>
+				<br>
 				<input type="submit" value="show report">
 			</form>
-			<br>
-			<br>
-			<a class="button" href="{{ url_for('dashboard') }}">RETURN TO DASHBOARD</a>
-		</center>
+		</div>
+		<br>
+		<br>
+		<h6><a class="button" href="{{ url_for('dashboard') }}">RETURN TO DASHBOARD</a></h6>
 	{% endif %}
 {% endblock %}

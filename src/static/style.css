@@ -24,20 +24,52 @@ p {
     text-align: center;
 }
 
-#footer {
-    padding-top: 10%;
-    clear: both;
+alert {
+    color: red !important;
+}
+
+form {
+    padding-top: 30px;
+}
+
+input {
+    width: 100%;
+}
+
+label {
+    display: inline-block !important;
+    padding-right: 10%;
+    font-weight: 300 !important;
+}
+
+select {
+    width: 100%;
+}
+
+.centered-form {
+    margin-left: auto;
+    margin-right: auto;
+    width: 25%;
+    border: 2px solid black;
+    padding: 1%;
 }
 
 .flash {
     border: 2px dashed red;
     padding: 5px;
-    width: 200px;
+    width: 300px;
     text-align: center;
     margin-left: auto;
     margin-right: auto;
 }
 
-alert {
-    color: red !important;
+.radio-label {
+    display: inline-block;
+    text-align: center;
+    width: auto;
+}
+
+#footer {
+    padding-top: 10%;
+    clear: both;
 }

@@ -2,7 +2,7 @@
 
 <h4>CONTENTS</h4>
 <ul>
-<li><b>create_tables.sql</b> - SQL script which creates a users table</li>
+<li><b>create_tables.sql</b> - SQL script which creates <a href="https://classes.cs.uoregon.edu//17W/cis322/files/derp_req.pdf">a predescriped database model</a></li>
 </ul>
 
 <br>
