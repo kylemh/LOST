@@ -32,7 +32,7 @@
 				{% for record in requests %}
 					<tbody>
 						<tr>
-							<td><input type="checkbox" name="request_pk" value="{{ record[0] }}"></td>
+							<td><input form="lo-request" type="radio" name="request_pk" value="{{ record[0] }}"></td>
 							<td>{{ record[1] }}</td>
 							<td>{{ record[2] }}</td>
 							<td>{{ record[3] }}</td>
@@ -45,7 +45,7 @@
 			</table>
 			<br>
 			<div class="centered-form">
-				<form action="{{ url_for('dashboard') }}" method="POST">
+				<form id="lo-request" action="{{ url_for('dashboard') }}" method="POST">
 					Load Date:
 					<input type="date" name="load date" placeholder="MM/DD/YYYY"><br>
 					Unload Date:
@@ -71,7 +71,7 @@
 				{% for record in requests %}
 					<tbody>
 						<tr>
-							<td><input type="radio" name="request_pk" value="{{ record[0] }}"></td>
+							<td><input form="fo-request" type="radio" name="request_pk" value="{{ record[0] }}"></td>
 							<td>{{ record[1] }}</td>
 							<td>{{ record[2] }}</td>
 							<td>{{ record[3] }}</td>
@@ -82,9 +82,9 @@
 			</table>
 			<br>
 			<div class="centered-form">
-				<form action="{{ url_for('dashboard') }}" method="POST">
-					<input type="submit" value="approve">
-					<input type="submit" value="reject">
+				<form id="fo-request" action="{{ url_for('dashboard') }}" method="POST">
+					<input type="submit" name="approve" value="approve">
+					<input type="submit" name="reject" value="reject">
 				</form>
 			</div>
 		{% endif %}
