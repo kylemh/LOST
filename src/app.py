@@ -190,9 +190,6 @@ def dashboard():
 			elif selected_request == 'NO REQUESTS':
 				# No requests in DB
 				flash('There are no requests to edit.')
-			elif not selected_request:
-				# No Record Was Selected
-				flash('Please chose a request to update.')
 			elif not load_date and not unload_date:
 				# Neither Dates Submitted
 				flash('Please at least fill in a load date.')
@@ -200,17 +197,18 @@ def dashboard():
 				# Both Load and Unload Date Submitted
 				if load_date > unload_date:
 					# Impossible use case
-					flash('It is not possible for an asset to be loaded after it was unloaded.\n\nMake sure you entred your dates correctly.')
+					flash('It is not possible for an asset to be loaded after it was unloaded.\n\nMake sure you entered your dates correctly.')
 				else:
 					# Check for logical dates...
 					transit_update = "UPDATE in_transit SET load_dt = %s, unload_dt = %s WHERE request_fk = %s;"
 					db_change(transit_update, [load_date, unload_date, selected_request])
 
+					# selected_request = [(r.request_pk, r.asset_fk, r.src_fk, r.dest_fk, aa.arrive_dt)]
 					update_asset_at = "UPDATE asset_at SET depart_dt = %s WHERE asset_fk = %s AND arrive_dt = %s;"
-					db_change(update_asset_at, [load_date, selected_request_record[0][3], selected_request_record[0][4]])
+					db_change(update_asset_at, [load_date, selected_request_record[0][1], selected_request_record[0][4]])
 
 					new_asset_at = "INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt) VALUES (%s, %s, %s);"
-					db_change(new_asset_at, [selected_request_record[0][3], selected_request_record[0][1], unload_date])
+					db_change(new_asset_at, [selected_request_record[0][1], selected_request_record[0][3], unload_date])
 
 					update_request = "UPDATE requests SET completed = TRUE WHERE request_pk = %s"
 					db_change(update_request, [selected_request])
@@ -221,8 +219,9 @@ def dashboard():
 				transit_update = "UPDATE in_transit SET load_dt = %s WHERE request_fk = %s;"
 				db_change(transit_update, [load_date, selected_request])
 
+				# selected_request_record = [(r.request_pk, r.asset_fk, r.src_fk, r.dest_fk, aa.arrive_dt)]
 				update_asset_at = "UPDATE asset_at SET depart_dt = %s WHERE asset_fk = %s AND arrive_dt = %s;"
-				db_change(update_asset_at, [load_date, selected_request_record[0][3], selected_request_record[0][4]])
+				db_change(update_asset_at, [load_date, selected_request_record[0][1], selected_request_record[0][4]])
 
 				flash('Load Date Updated')
 			else:
@@ -239,14 +238,12 @@ def dashboard():
 					flash('The asset must be loaded before it can be unloaded.')
 				else:
 					# There is a load date for this asset-in-transit
-					selected_request_query = "SELECT request_pk, asset_fk, src_fk, dest_fk FROM requests WHERE request_pk = %s;"
-					selected_request_record = db_query(selected_request_query, [selected_request])
-
 					transit_update = "UPDATE in_transit SET unload_dt = %s WHERE request_fk = %s;"
 					db_change(transit_update, [unload_date, selected_request])
 
+					# selected_request_record = [(r.request_pk, r.asset_fk, r.src_fk, r.dest_fk, aa.arrive_dt)]
 					new_asset_at = "INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt) VALUES (%s, %s, %s);"
-					db_change(new_asset_at, [selected_request_record[0][3], selected_request_record[0][1], unload_date])
+					db_change(new_asset_at, [selected_request_record[0][1], selected_request_record[0][3], unload_date])
 
 					update_request = "UPDATE requests SET completed = TRUE WHERE request_pk = %s"
 					db_change(update_request, [selected_request])
