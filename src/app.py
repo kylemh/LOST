@@ -169,8 +169,6 @@ def dashboard():
 		return redirect(url_for('login'))
 
 	cur_user = session['username']
-	current_requests_query = "SELECT request_pk FROM requests WHERE approved=FALSE;"
-	requests_exist = db_query(current_requests_query, [])
 
 	# POST METHOD
 	if request.method == 'POST':
@@ -179,6 +177,11 @@ def dashboard():
 			selected_request = request.form.get('request_pk', None)
 			load_date = request.form.get('load date', None)
 			unload_date = request.form.get('unload date', None)
+
+			print("\n\n" + selected_request + "\n\n")
+
+			current_requests_query = "SELECT request_pk FROM requests WHERE approved=TRUE;"
+			requests_exist = db_query(current_requests_query, [])
 
 			if not requests_exist:
 				# No requests in DB
@@ -258,6 +261,10 @@ def dashboard():
 				flash('Please select a request.')
 			else:
 				# Something Selected
+
+				current_requests_query = "SELECT request_pk FROM requests WHERE approved=FALSE;"
+				requests_exist = db_query(current_requests_query, [])
+
 				if 'reject' in request.form:
 					# Request Rejected
 					if not requests_exist:
