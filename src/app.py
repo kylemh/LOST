@@ -18,11 +18,11 @@ app.secret_key = APP_SECRET_KEY
 
 
 # MARK: DATABASE FUNCTIONS
-def db_query(sql_string, data_list):
-	"""This function is designed to take a SQL query string and a list of data to be used - in order - as injection-safe, variable fill-ins for the query."""
+def db_query(sql, data_list):
+	"""This function is designed to take a SQL query and a list of data to be used - in order - as injection-safe, variable fill-ins for the query."""
 	conn = psycopg2.connect(dbname=DB_NAME, host=HOST, port=PORT)
 	cur = conn.cursor()
-	cur.execute(sql_string, data_list)
+	cur.execute(sql, data_list)
 
 	# Return data as an array of dictionaries
 	result = cur.fetchall()
@@ -43,12 +43,12 @@ def db_query(sql_string, data_list):
 	return records
 
 
-def db_change(sql_string, data_list):
-	"""This function is designed to take a SQL query string and a list of data to be used (in order) as injection-safe, variable fill-ins for the query."""
+def db_change(sql, data_list):
+	"""This function is designed to take a SQL query and a list of data to be used (in order) as injection-safe, variable fill-ins for the query."""
 	conn = psycopg2.connect(dbname=DB_NAME, host=HOST, port=PORT)
 	cur = conn.cursor()
 	try:
-		cur.execute(sql_string, data_list)
+		cur.execute(sql, data_list)
 	except:
 		print("QUERY FAILED")
 		redirect(url_for('failed_query'))
@@ -58,11 +58,11 @@ def db_change(sql_string, data_list):
 	conn.close()
 
 
-def duplicate_check(sql_string, data_list):
+def duplicate_check(sql, data_list):
 	"""This function is designed to return True if a query yields a result and False if not."""
 	conn = psycopg2.connect(dbname=DB_NAME, host=HOST, port=PORT)
 	cur = conn.cursor()
-	cur.execute(sql_string, data_list)
+	cur.execute(sql, data_list)
 	result = cur.fetchall()
 	cur.close()
 	conn.close()
@@ -72,10 +72,10 @@ def duplicate_check(sql_string, data_list):
 		return False
 
 
-def validate_date(date_string):
+def validate_date(date):
 	"""This function checks to see if the user entered a date in the MM/DD/YYYY format."""
 	try:
-		date = datetime.datetime.strptime(date_string, '%m/%d/%Y').date()
+		date = datetime.datetime.strptime(date, '%m/%d/%Y').date()
 		return date
 	except ValueError:
 		# TODO: Send error via flash
@@ -169,45 +169,53 @@ def dashboard():
 		return redirect(url_for('login'))
 
 	cur_user = session['username']
-	current_requests_query_string = "SELECT request_pk FROM requests WHERE approved=FALSE;"
-	requests_exist = db_query(current_requests_query_string, [])
+	current_requests_query = "SELECT request_pk FROM requests WHERE approved=FALSE;"
+	requests_exist = db_query(current_requests_query, [])
 
 	# POST METHOD
 	if request.method == 'POST':
 		# LOGISTICS OFFICER
 		if session['perms'] == 2:
-			selected_request = request.form.get('request_pk')
+			selected_request = request.form.get('request_pk', None)
 			load_date = request.form.get('load date', None)
 			unload_date = request.form.get('unload date', None)
 
-			if not selected_request:
-				# Something Wasn't Selected
+			if not requests_exist:
+				# No requests in DB
+				flash('There are no requests to edit.')
+			elif not selected_request:
+				# No Record Was Selected
 				flash('Please chose a request to update.')
 			elif load_date and unload_date:
 				# Both Load and Unload Date Submitted
-				transit_update_string = "UPDATE in_transit SET load_dt = %s, unload_dt = %s WHERE request.fk = %s;"
-				db_change(transit_update_string, [load_date, unload_date, selected_request])
-				update_request_string = "UPDATE requests SET completed = TRUE WHERE request_fk = %s"
-				db_change(update_request_string, [selected_request])
-				# TODO - Get query of requests
+				selected_request_query = "SELECT request_pk, asset_fk, src_fk, dest_fk FROM requests WHERE request_pk = %s;"
+				selected_request_record = db_query(selected_request_query, [selected_request])
 
-				update_asset_string = "UPDATE asset_at SET "
+				transit_update = "UPDATE in_transit SET load_dt = %s, unload_dt = %s WHERE request.fk = %s;"
+				db_change(transit_update, [load_date, unload_date, selected_request])
+
+				update_request = "UPDATE requests SET completed = TRUE WHERE request_fk = %s"
+				db_change(update_request, [selected_request])
+
+				update_asset_at = "UPDATE asset_at SET facility_fk = %s WHERE asset_fk = %s;"
+				db_change(update_asset_at, [selected_request_record[3], selected_request_record[1]])
+
 				flash('Transfer Completed - Request Completed')
 			elif not load_date and not unload_date:
 				# Neither Dates Submitted
 				flash('Please at least fill in a load date.')
-			elif not unload_date and load_date:
+			elif load_date and not unload_date:
 				# Updating Only Load Date
-				transit_update_string = "UPDATE in_transit SET load_dt = %s WHERE request.fk = %s;"
-				db_change(transit_update_string, [load_date, selected_request])
+				transit_update = "UPDATE in_transit SET load_dt = %s WHERE request.fk = %s;"
+				db_change(transit_update, [load_date, selected_request])
 				flash('Load Date Updated')
 			else:
 				# Attempting To Only Update Unload Date
-				load_date_string = "SELECT r.request_pk, t.load_dt " \
-								   "FROM requests as r " \
-								   "JOIN in_transit as t ON r.request_pk = t.request_fk " \
-								   "WHERE r.approved = TRUE AND r.request_pk = %s;"
-				lo_requests = db_query(load_date_string, [selected_request])
+				load_date = "SELECT r.request_pk, t.load_dt " \
+							"FROM requests as r " \
+							"JOIN in_transit as t ON r.request_pk = t.request_fk " \
+							"WHERE r.approved = TRUE AND r.request_pk = %s;"
+				lo_requests = db_query(load_date, [selected_request])
 
 				print(lo_requests)
 				if not lo_requests[0][1]:
@@ -215,18 +223,26 @@ def dashboard():
 					flash('The asset must be loaded before it can be unloaded.')
 				else:
 					# There is a load date for this asset-in-transit
-					transit_update_string = "UPDATE in_transit SET unload_dt = %s WHERE request.fk = %s;"
-					db_change(transit_update_string, [unload_date, selected_request])
-					update_request_string = "UPDATE requests SET completed = TRUE WHERE request_fk = %s"
-					db_change(update_request_string, [selected_request])
+					selected_request_query = "SELECT request_pk, asset_fk, src_fk, dest_fk FROM requests WHERE request_pk = %s;"
+					selected_request_record = db_query(selected_request_query, [selected_request])
+
+					transit_update = "UPDATE in_transit SET unload_dt = %s WHERE request.fk = %s;"
+					db_change(transit_update, [unload_date, selected_request])
+
+					update_request = "UPDATE requests SET completed = TRUE WHERE request_fk = %s"
+					db_change(update_request, [selected_request])
+
+					update_asset_at = "UPDATE asset_at SET facility_fk = %s WHERE asset_fk = %s;"
+					db_change(update_asset_at, [selected_request_record[3], selected_request_record[1]])
+
 					flash('Unload Date Updated\n\nTransfer Completed - Request Completed')
 
 			# Populate Table
-			requests_query_string = "SELECT r.request_pk, r.asset_fk, r.user_fk, r.src_fk, r.dest_fk, t.load_dt, t.unload_dt " \
+			requests_query = "SELECT r.request_pk, r.asset_fk, r.user_fk, r.src_fk, r.dest_fk, t.load_dt, t.unload_dt " \
 									"FROM requests as r " \
 									"JOIN in_transit as t ON r.request_pk = t.request_fk " \
 									"WHERE r.approved = TRUE AND r.completed = FALSE;"
-			lo_requests = db_query(requests_query_string, [])
+			lo_requests = db_query(requests_query, [])
 
 			if lo_requests is None:
 				lo_requests = [('NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS')]
@@ -245,32 +261,32 @@ def dashboard():
 				if 'reject' in request.form:
 					# Request Rejected
 					if not requests_exist:
-						flash('There are no requests to approve.')
+						flash('There are no requests to reject.')
 					else:
-						delete_request_string = "DELETE FROM requests WHERE requests.request_pk = %s"
-						db_change(delete_request_string, [selected_request])
+						delete_request = "DELETE FROM requests WHERE requests.request_pk = %s"
+						db_change(delete_request, [selected_request])
 						flash('Request DENIED.')
 				else:
 					# Request Approved
 					if not requests_exist:
 						flash('There are no requests to approve.')
 					else:
-						update_request_sql_string = "UPDATE requests SET approved = TRUE, approve_dt = %s WHERE request_fk = %s"
-						db_change(update_request_sql_string, [datetime.datetime.now(), selected_request])
+						update_request_sql = "UPDATE requests SET approved = TRUE, approve_dt = %s WHERE request_pk = %s"
+						db_change(update_request_sql, [datetime.datetime.now(), selected_request])
 
-						transit_sql_string = "INSERT INTO in_transit (request_fk) VALUES (%s);"
-						db_change(transit_sql_string, [selected_request])
+						transit_sql = "INSERT INTO in_transit (request_fk) VALUES (%s);"
+						db_change(transit_sql, [selected_request])
 
 						flash('Request APPROVED.')
 
 			# Populate Table
-			requests_query_string = "SELECT r.request_pk, a.asset_tag, r.user_fk, f1.common_name, f2.common_name " \
+			requests_query = "SELECT r.request_pk, a.asset_tag, r.user_fk, f1.common_name, f2.common_name " \
 									"FROM requests as r " \
 									"JOIN assets as a ON r.asset_fk = a.asset_pk " \
 									"JOIN facilities as f1 ON r.src_fk = f1.facility_pk " \
 									"JOIN facilities as f2 ON r.dest_fk = f2.facility_pk " \
 									"WHERE r.approved=FALSE;"
-			fo_requests = db_query(requests_query_string, [])
+			fo_requests = db_query(requests_query, [])
 
 			if fo_requests is None:
 				fo_requests = [('NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS')]
@@ -281,11 +297,11 @@ def dashboard():
 	else:
 		# LOGISTICS OFFICER
 		if session['perms'] == 2:
-			requests_query_string = "SELECT r.request_pk, r.asset_fk, r.user_fk, r.src_fk, r.dest_fk, t.load_dt, t.unload_dt " \
-									"FROM requests as r " \
-									"JOIN in_transit as t ON r.request_pk = t.request_fk " \
-									"WHERE approved=TRUE;"
-			lo_requests = db_query(requests_query_string, [])
+			requests_query = "SELECT r.request_pk, r.asset_fk, r.user_fk, r.src_fk, r.dest_fk, t.load_dt, t.unload_dt " \
+							 "FROM requests as r " \
+							 "JOIN in_transit as t ON r.request_pk = t.request_fk " \
+							 "WHERE approved=TRUE;"
+			lo_requests = db_query(requests_query, [])
 
 			if lo_requests is None:
 				lo_requests = [('NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS')]
@@ -294,13 +310,13 @@ def dashboard():
 
 		# FACILITY OFFICER
 		elif session['perms'] == 3:
-			requests_query_string = "SELECT r.request_pk, a.asset_tag, r.user_fk, f1.common_name, f2.common_name " \
-									"FROM requests as r " \
-									"JOIN assets as a ON r.asset_fk = a.asset_pk " \
-									"JOIN facilities as f1 ON r.src_fk = f1.facility_pk " \
-									"JOIN facilities as f2 ON r.dest_fk = f2.facility_pk " \
-									"WHERE r.approved=FALSE;"
-			fo_requests = db_query(requests_query_string, [])
+			requests_query = "SELECT r.request_pk, a.asset_tag, r.user_fk, f1.common_name, f2.common_name " \
+							 "FROM requests as r " \
+							 "JOIN assets as a ON r.asset_fk = a.asset_pk " \
+							 "JOIN facilities as f1 ON r.src_fk = f1.facility_pk " \
+							 "JOIN facilities as f2 ON r.dest_fk = f2.facility_pk " \
+							 "WHERE r.approved=FALSE;"
+			fo_requests = db_query(requests_query, [])
 
 			if fo_requests is None:
 				fo_requests = [('NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS')]
@@ -367,11 +383,11 @@ def add_facility():
 
 @app.route('/add_asset', methods=['GET', 'POST'])
 def add_asset():
-	# Create query strings to populate dropdown menu and current assets table
-	all_assets_query_string = "SELECT assets.asset_tag, assets.description, facilities.location FROM assets " \
+	# Create querys to populate dropdown menu and current assets table
+	all_assets_query = "SELECT assets.asset_tag, assets.description, facilities.location FROM assets " \
 							  "JOIN asset_at ON assets.asset_pk = asset_at.asset_fk " \
 							  "JOIN facilities ON asset_at.facility_fk = facilities.facility_pk;"
-	all_facilities_query_string = "SELECT * FROM facilities;"
+	all_facilities_query = "SELECT * FROM facilities;"
 
 	if request.method == 'POST':
 		asset_tag = request.form.get('asset_tag', None).strip()
@@ -381,8 +397,8 @@ def add_asset():
 		disposed = False
 
 		# Get all current assets and facilities for table/drop-down population
-		all_assets = db_query(all_assets_query_string, [])
-		all_facilities = db_query(all_facilities_query_string, [])
+		all_assets = db_query(all_assets_query, [])
+		all_facilities = db_query(all_facilities_query, [])
 
 		# Handle table when no assets in database
 		if all_assets is None:
@@ -421,8 +437,8 @@ def add_asset():
 				flash('New asset added!')
 
 	# Update all_assets after insert, but before template rendering
-	all_assets = db_query(all_assets_query_string, [])
-	all_facilities = db_query(all_facilities_query_string, [])
+	all_assets = db_query(all_assets_query, [])
+	all_facilities = db_query(all_facilities_query, [])
 
 	# Handle situation of no assets in database
 	if all_assets is None:
@@ -439,10 +455,10 @@ def dispose_asset():
 		return render_template('dashboard.html')
 	else:
 		# Get all current assets for table population
-		all_assets_query_string = "SELECT assets.asset_tag, assets.description, facilities.location, assets.disposed FROM assets " \
-								  "JOIN asset_at ON assets.asset_pk = asset_at.asset_fk " \
-								  "JOIN facilities ON asset_at.facility_fk = facilities.facility_pk;"
-		all_assets = db_query(all_assets_query_string, [])
+		all_assets_query = "SELECT assets.asset_tag, assets.description, facilities.location, assets.disposed FROM assets " \
+							"JOIN asset_at ON assets.asset_pk = asset_at.asset_fk " \
+							"JOIN facilities ON asset_at.facility_fk = facilities.facility_pk;"
+		all_assets = db_query(all_assets_query, [])
 
 		# Handle table when no assets in database
 		if all_assets is None:
@@ -482,7 +498,7 @@ def dispose_asset():
 					db_change(asset_to_dispose, [asset_tag])
 
 					# Update current assets for table population ('disposed' column will have changed)
-					all_assets = db_query(all_assets_query_string, [])
+					all_assets = db_query(all_assets_query, [])
 
 					# Handle table when no assets in database
 					if all_assets is None:
@@ -499,12 +515,12 @@ def dispose_asset():
 
 @app.route('/asset_report', methods=['GET', 'POST'])
 def asset_report():
-	all_facilities_query_string = "SELECT * FROM facilities;"
+	all_facilities_query = "SELECT * FROM facilities;"
 
 	# If a form has been submitted
 	if request.method == 'POST':
 		# List of single-tuples of all facilities to populate drop-down
-		all_facilities = db_query(all_facilities_query_string, [])
+		all_facilities = db_query(all_facilities_query, [])
 
 		# User Input from Form
 		facility = request.form.get('facility')
@@ -560,7 +576,7 @@ def asset_report():
 			return render_template('asset_report.html', facility=facility, date=validated_date, assets_list=filtered_assets, facilities_list=all_facilities, report=True)
 
 	# List of single-tuples of all facilities to populate drop-down
-	all_facilities = db_query(all_facilities_query_string, [])
+	all_facilities = db_query(all_facilities_query, [])
 
 	return render_template('asset_report.html', facilities_list=all_facilities, report=False)
 
@@ -582,10 +598,10 @@ def transfer_req():
 		src_facility = request.form['src_facility']
 		dest_facility = request.form['dest_facility']
 
-		location_query_string = "SELECT asset_at.facility_fk FROM asset_at " \
+		location_query = "SELECT asset_at.facility_fk FROM asset_at " \
 								"JOIN assets ON asset_at.asset_fk = assets.asset_pk " \
 								"WHERE asset_pk=%s"
-		actual_asset_location = db_query(location_query_string, [asset_key])
+		actual_asset_location = db_query(location_query, [asset_key])
 
 		if asset_key == '':
 			flash('Please select an asset. NOTE: The database may not yet contain an asset.')
@@ -597,15 +613,15 @@ def transfer_req():
 			flash('Please select a destination facility that differs from the source facility in order to submit request.')
 		else:
 			# Inputs Validated
-			request_sql_string = "INSERT INTO requests (asset_fk, user_fk, src_fk, dest_fk, request_dt, approved, completed) VALUES (%s, %s, %s, %s, %s, 'False', 'False');"
-			db_change(request_sql_string, [asset_key, session['user_id'], src_facility, dest_facility, datetime.datetime.now()])
+			request_sql = "INSERT INTO requests (asset_fk, user_fk, src_fk, dest_fk, request_dt, approved, completed) VALUES (%s, %s, %s, %s, %s, 'False', 'False');"
+			db_change(request_sql, [asset_key, session['user_id'], src_facility, dest_facility, datetime.datetime.now()])
 			flash('Request Submitted. Please await Facility Officer approval.')
 
 	# Drop-Down selection population
-	all_assets_query_string = "SELECT * FROM assets;"
-	all_facilities_query_string = "SELECT * FROM facilities;"
-	all_assets = db_query(all_assets_query_string, [])
-	all_facilities = db_query(all_facilities_query_string, [])
+	all_assets_query = "SELECT * FROM assets;"
+	all_facilities_query = "SELECT * FROM facilities;"
+	all_assets = db_query(all_assets_query, [])
+	all_facilities = db_query(all_facilities_query, [])
 
 	# Handle empty result query cases
 	if all_assets is None:
@@ -624,8 +640,8 @@ def page_not_found(e):
 
 
 @app.route('/failed_query', methods=['GET'])
-def failed_query(query_string):
-	return render_template('failed_query.html', query=query_string)
+def failed_query(query):
+	return render_template('failed_query.html', query=query)
 
 
 # Application Deployment
