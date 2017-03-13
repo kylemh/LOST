@@ -1,7 +1,7 @@
 {
     "database": {
         "dbname": "lost",
-        "dbhost": "/tmp",
+        "dbhost": "localhost",
         "dbport": 5432
     }
 }
