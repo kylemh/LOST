@@ -178,12 +178,10 @@ def dashboard():
 			load_date = request.form.get('load date', None)
 			unload_date = request.form.get('unload date', None)
 
-			print("\n\n" + selected_request + "\n\n")
-
-			current_requests_query = "SELECT request_pk FROM requests WHERE approved=TRUE;"
-			requests_exist = db_query(current_requests_query, [])
-
-			if not requests_exist:
+			if not selected_request:
+				# Nothing Selected
+				flash('Please choose a request to edit.')
+			elif selected_request is None:
 				# No requests in DB
 				flash('There are no requests to edit.')
 			elif not selected_request:
@@ -194,14 +192,14 @@ def dashboard():
 				selected_request_query = "SELECT request_pk, asset_fk, src_fk, dest_fk FROM requests WHERE request_pk = %s;"
 				selected_request_record = db_query(selected_request_query, [selected_request])
 
-				transit_update = "UPDATE in_transit SET load_dt = %s, unload_dt = %s WHERE request.fk = %s;"
+				transit_update = "UPDATE in_transit SET load_dt = %s, unload_dt = %s WHERE request_fk = %s;"
 				db_change(transit_update, [load_date, unload_date, selected_request])
 
-				update_request = "UPDATE requests SET completed = TRUE WHERE request_fk = %s"
-				db_change(update_request, [selected_request])
-
 				update_asset_at = "UPDATE asset_at SET facility_fk = %s WHERE asset_fk = %s;"
-				db_change(update_asset_at, [selected_request_record[3], selected_request_record[1]])
+				db_change(update_asset_at, [selected_request_record[0][3], selected_request_record[0][1]])
+
+				update_request = "UPDATE requests SET completed = TRUE WHERE request_pk = %s"
+				db_change(update_request, [selected_request])
 
 				flash('Transfer Completed - Request Completed')
 			elif not load_date and not unload_date:
@@ -209,7 +207,7 @@ def dashboard():
 				flash('Please at least fill in a load date.')
 			elif load_date and not unload_date:
 				# Updating Only Load Date
-				transit_update = "UPDATE in_transit SET load_dt = %s WHERE request.fk = %s;"
+				transit_update = "UPDATE in_transit SET load_dt = %s WHERE request_fk = %s;"
 				db_change(transit_update, [load_date, selected_request])
 				flash('Load Date Updated')
 			else:
@@ -219,8 +217,8 @@ def dashboard():
 							"JOIN in_transit as t ON r.request_pk = t.request_fk " \
 							"WHERE r.approved = TRUE AND r.request_pk = %s;"
 				lo_requests = db_query(load_date, [selected_request])
-
 				print(lo_requests)
+
 				if not lo_requests[0][1]:
 					# There is no load date for this asset
 					flash('The asset must be loaded before it can be unloaded.')
@@ -229,14 +227,14 @@ def dashboard():
 					selected_request_query = "SELECT request_pk, asset_fk, src_fk, dest_fk FROM requests WHERE request_pk = %s;"
 					selected_request_record = db_query(selected_request_query, [selected_request])
 
-					transit_update = "UPDATE in_transit SET unload_dt = %s WHERE request.fk = %s;"
+					transit_update = "UPDATE in_transit SET unload_dt = %s WHERE request_fk = %s;"
 					db_change(transit_update, [unload_date, selected_request])
-
-					update_request = "UPDATE requests SET completed = TRUE WHERE request_fk = %s"
-					db_change(update_request, [selected_request])
 
 					update_asset_at = "UPDATE asset_at SET facility_fk = %s WHERE asset_fk = %s;"
 					db_change(update_asset_at, [selected_request_record[3], selected_request_record[1]])
+
+					update_request = "UPDATE requests SET completed = TRUE WHERE request_pk = %s"
+					db_change(update_request, [selected_request])
 
 					flash('Unload Date Updated\n\nTransfer Completed - Request Completed')
 
@@ -254,37 +252,30 @@ def dashboard():
 
 		# FACILITY OFFICER
 		elif session['perms'] == 3:
-			selected_request = request.form.get('request_pk')
+			selected_request = request.form.get('request_pk', None)
 
 			if not selected_request:
 				# Nothing Selected
 				flash('Please select a request.')
+			elif selected_request is None:
+				# No requests in DB
+				flash('There are no requests to approve/disapprove.')
 			else:
 				# Something Selected
-
-				current_requests_query = "SELECT request_pk FROM requests WHERE approved=FALSE;"
-				requests_exist = db_query(current_requests_query, [])
-
 				if 'reject' in request.form:
 					# Request Rejected
-					if not requests_exist:
-						flash('There are no requests to reject.')
-					else:
-						delete_request = "DELETE FROM requests WHERE requests.request_pk = %s"
-						db_change(delete_request, [selected_request])
-						flash('Request DENIED.')
+					delete_request = "DELETE FROM requests WHERE requests.request_pk = %s"
+					db_change(delete_request, [selected_request])
+					flash('Request DENIED.')
 				else:
 					# Request Approved
-					if not requests_exist:
-						flash('There are no requests to approve.')
-					else:
-						update_request_sql = "UPDATE requests SET approved = TRUE, approve_dt = %s WHERE request_pk = %s"
-						db_change(update_request_sql, [datetime.datetime.now(), selected_request])
+					update_request_sql = "UPDATE requests SET approved = TRUE, approve_dt = %s WHERE request_pk = %s"
+					db_change(update_request_sql, [datetime.datetime.now(), selected_request])
 
-						transit_sql = "INSERT INTO in_transit (request_fk) VALUES (%s);"
-						db_change(transit_sql, [selected_request])
+					transit_sql = "INSERT INTO in_transit (request_fk) VALUES (%s);"
+					db_change(transit_sql, [selected_request])
 
-						flash('Request APPROVED.')
+					flash('Request APPROVED.')
 
 			# Populate Table
 			requests_query = "SELECT r.request_pk, a.asset_tag, r.user_fk, f1.common_name, f2.common_name " \
@@ -307,7 +298,7 @@ def dashboard():
 			requests_query = "SELECT r.request_pk, r.asset_fk, r.user_fk, r.src_fk, r.dest_fk, t.load_dt, t.unload_dt " \
 							 "FROM requests as r " \
 							 "JOIN in_transit as t ON r.request_pk = t.request_fk " \
-							 "WHERE approved=TRUE;"
+							 "WHERE approved = TRUE AND completed = FALSE;"
 			lo_requests = db_query(requests_query, [])
 
 			if lo_requests is None:
@@ -322,7 +313,7 @@ def dashboard():
 							 "JOIN assets as a ON r.asset_fk = a.asset_pk " \
 							 "JOIN facilities as f1 ON r.src_fk = f1.facility_pk " \
 							 "JOIN facilities as f2 ON r.dest_fk = f2.facility_pk " \
-							 "WHERE r.approved=FALSE;"
+							 "WHERE r.approved = FALSE AND r.completed = FALSE;"
 			fo_requests = db_query(requests_query, [])
 
 			if fo_requests is None:
