@@ -69,6 +69,7 @@ INSERT INTO facilities (fcode,common_name,location) VALUES ('LANM', 'Los Alamos,
 INSERT INTO facilities (fcode,common_name,location) VALUES ('SPNV', 'Sparks, NV', 'Sparks, NV');
 INSERT INTO facilities (fcode,common_name,location) VALUES ('S300', 'Site 300', 'Area 51, NV');
 INSERT INTO facilities (fcode,common_name,location) VALUES ('GRLK', 'Groom Lake', 'Groom Lake, NV');
+INSERT INTO facilities (fcode,common_name,location) VALUES ('UO', 'University of Oregon', 'Eugene, OR');
 
 INSERT INTO assets (asset_tag, description, disposed) VALUES ('X001A', 'Alien skin samples', FALSE);
 INSERT INTO assets (asset_tag, description, disposed) VALUES ('X002A', 'Alien hair follicles', FALSE);
@@ -76,11 +77,15 @@ INSERT INTO assets (asset_tag, description, disposed) VALUES ('X003A', 'Alien to
 INSERT INTO assets (asset_tag, description, disposed) VALUES ('X020H', 'Alien armor', FALSE);
 INSERT INTO assets (asset_tag, description, disposed) VALUES ('Z020A', 'Aid package', FALSE);
 INSERT INTO assets (asset_tag, description, disposed) VALUES ('X100A', 'UFO Chassis', FALSE);
+INSERT INTO assets (asset_tag, description, disposed) VALUES ('Z021A', 'Aid package', FALSE);
+INSERT INTO assets (asset_tag, description, disposed) VALUES ('UO111Q', 'QB Helmet', FALSE);
 
-INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt, depart_dt) VALUES (1, 1, '2017-01-15 00:00:00', NULL);
-INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt, depart_dt) VALUES (2, 1, '2017-01-16 00:00:00', NULL);
+
+INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt, depart_dt) VALUES (1, 1, '2017-01-15 23:00:00', NULL);
+INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt, depart_dt) VALUES (2, 1, '2017-01-16 20:15:00', NULL);
 INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt, depart_dt) VALUES (3, 1, '2017-01-17 00:00:00', NULL);
 INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt, depart_dt) VALUES (4, 5, '2017-01-30 00:00:00', NULL);
 INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt, depart_dt) VALUES (5, 8, '2017-02-05 00:00:00', NULL);
 INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt, depart_dt) VALUES (6, 7, '2017-02-15 00:00:00', NULL);
-
+INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt, depart_dt) VALUES (7, 8, '2015-01-29 06:30:00', NULL);
+INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt, depart_dt) VALUES (8, 9, '2000-01-01 00:00:00', NULL);

@@ -178,37 +178,52 @@ def dashboard():
 			load_date = request.form.get('load date', None)
 			unload_date = request.form.get('unload date', None)
 
+			selected_request_query = "SELECT r.request_pk, r.asset_fk, r.src_fk, r.dest_fk, aa.arrive_dt " \
+									 "FROM requests as r " \
+									 "JOIN asset_at as aa ON r.asset_fk = aa.asset_fk " \
+									 "WHERE request_pk = %s;"
+			selected_request_record = db_query(selected_request_query, [selected_request])
+
 			if not selected_request:
 				# Nothing Selected
 				flash('Please choose a request to edit.')
-			elif selected_request is None:
+			elif selected_request == 'NO REQUESTS':
 				# No requests in DB
 				flash('There are no requests to edit.')
 			elif not selected_request:
 				# No Record Was Selected
 				flash('Please chose a request to update.')
-			elif load_date and unload_date:
-				# Both Load and Unload Date Submitted
-				selected_request_query = "SELECT request_pk, asset_fk, src_fk, dest_fk FROM requests WHERE request_pk = %s;"
-				selected_request_record = db_query(selected_request_query, [selected_request])
-
-				transit_update = "UPDATE in_transit SET load_dt = %s, unload_dt = %s WHERE request_fk = %s;"
-				db_change(transit_update, [load_date, unload_date, selected_request])
-
-				update_asset_at = "UPDATE asset_at SET facility_fk = %s WHERE asset_fk = %s;"
-				db_change(update_asset_at, [selected_request_record[0][3], selected_request_record[0][1]])
-
-				update_request = "UPDATE requests SET completed = TRUE WHERE request_pk = %s"
-				db_change(update_request, [selected_request])
-
-				flash('Transfer Completed - Request Completed')
 			elif not load_date and not unload_date:
 				# Neither Dates Submitted
 				flash('Please at least fill in a load date.')
+			elif load_date and unload_date:
+				# Both Load and Unload Date Submitted
+				if load_date > unload_date:
+					# Impossible use case
+					flash('It is not possible for an asset to be loaded after it was unloaded.\n\nMake sure you entred your dates correctly.')
+				else:
+					# Check for logical dates...
+					transit_update = "UPDATE in_transit SET load_dt = %s, unload_dt = %s WHERE request_fk = %s;"
+					db_change(transit_update, [load_date, unload_date, selected_request])
+
+					update_asset_at = "UPDATE asset_at SET depart_dt = %s WHERE asset_fk = %s AND arrive_dt = %s;"
+					db_change(update_asset_at, [load_date, selected_request_record[0][3], selected_request_record[0][4]])
+
+					new_asset_at = "INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt) VALUES (%s, %s, %s);"
+					db_change(new_asset_at, [selected_request_record[0][3], selected_request_record[0][1], unload_date])
+
+					update_request = "UPDATE requests SET completed = TRUE WHERE request_pk = %s"
+					db_change(update_request, [selected_request])
+
+					flash('Transfer Completed - Request Completed')
 			elif load_date and not unload_date:
 				# Updating Only Load Date
 				transit_update = "UPDATE in_transit SET load_dt = %s WHERE request_fk = %s;"
 				db_change(transit_update, [load_date, selected_request])
+
+				update_asset_at = "UPDATE asset_at SET depart_dt = %s WHERE asset_fk = %s AND arrive_dt = %s;"
+				db_change(update_asset_at, [load_date, selected_request_record[0][3], selected_request_record[0][4]])
+
 				flash('Load Date Updated')
 			else:
 				# Attempting To Only Update Unload Date
@@ -230,8 +245,8 @@ def dashboard():
 					transit_update = "UPDATE in_transit SET unload_dt = %s WHERE request_fk = %s;"
 					db_change(transit_update, [unload_date, selected_request])
 
-					update_asset_at = "UPDATE asset_at SET facility_fk = %s WHERE asset_fk = %s;"
-					db_change(update_asset_at, [selected_request_record[3], selected_request_record[1]])
+					new_asset_at = "INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt) VALUES (%s, %s, %s);"
+					db_change(new_asset_at, [selected_request_record[0][3], selected_request_record[0][1], unload_date])
 
 					update_request = "UPDATE requests SET completed = TRUE WHERE request_pk = %s"
 					db_change(update_request, [selected_request])
@@ -239,14 +254,17 @@ def dashboard():
 					flash('Unload Date Updated\n\nTransfer Completed - Request Completed')
 
 			# Populate Table
-			requests_query = "SELECT r.request_pk, r.asset_fk, r.user_fk, r.src_fk, r.dest_fk, t.load_dt, t.unload_dt " \
-									"FROM requests as r " \
-									"JOIN in_transit as t ON r.request_pk = t.request_fk " \
-									"WHERE r.approved = TRUE AND r.completed = FALSE;"
+			requests_query = "SELECT r.request_pk, a.asset_tag, r.user_fk, f1.common_name, f2.common_name, t.load_dt, t.unload_dt " \
+							 "FROM requests as r " \
+							 "JOIN assets as a ON r.asset_fk = a.asset_pk " \
+							 "JOIN facilities as f1 on r.src_fk = f1.facility_pk " \
+							 "JOIN facilities as f2 on r.dest_fk = f2.facility_pk " \
+							 "JOIN in_transit as t ON r.request_pk = t.request_fk " \
+							 "WHERE r.approved = TRUE AND r.completed = FALSE;"
 			lo_requests = db_query(requests_query, [])
 
 			if lo_requests is None:
-				lo_requests = [('NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS')]
+				lo_requests = [('NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS', 'NO REQUESTS')]
 
 			return render_template('dashboard.html', user=cur_user, requests=lo_requests)
 
@@ -257,15 +275,15 @@ def dashboard():
 			if not selected_request:
 				# Nothing Selected
 				flash('Please select a request.')
-			elif selected_request is None:
+			elif selected_request == 'NO REQUESTS':
 				# No requests in DB
 				flash('There are no requests to approve/disapprove.')
 			else:
 				# Something Selected
 				if 'reject' in request.form:
-					# Request Rejected
-					delete_request = "DELETE FROM requests WHERE requests.request_pk = %s"
-					db_change(delete_request, [selected_request])
+					# Request Rejected (Completed w/o approval or other adjustments)
+					reject_request = "UPDATE requests SET completed = TRUE WHERE request_pk = %s;"
+					db_change(reject_request, [selected_request])
 					flash('Request DENIED.')
 				else:
 					# Request Approved
@@ -279,11 +297,11 @@ def dashboard():
 
 			# Populate Table
 			requests_query = "SELECT r.request_pk, a.asset_tag, r.user_fk, f1.common_name, f2.common_name " \
-									"FROM requests as r " \
-									"JOIN assets as a ON r.asset_fk = a.asset_pk " \
-									"JOIN facilities as f1 ON r.src_fk = f1.facility_pk " \
-									"JOIN facilities as f2 ON r.dest_fk = f2.facility_pk " \
-									"WHERE r.approved=FALSE;"
+							 "FROM requests as r " \
+							 "JOIN assets as a ON r.asset_fk = a.asset_pk " \
+							 "JOIN facilities as f1 ON r.src_fk = f1.facility_pk " \
+							 "JOIN facilities as f2 ON r.dest_fk = f2.facility_pk " \
+							 "WHERE r.approved = FALSE AND r.completed = FALSE;"
 			fo_requests = db_query(requests_query, [])
 
 			if fo_requests is None:
@@ -295,10 +313,13 @@ def dashboard():
 	else:
 		# LOGISTICS OFFICER
 		if session['perms'] == 2:
-			requests_query = "SELECT r.request_pk, r.asset_fk, r.user_fk, r.src_fk, r.dest_fk, t.load_dt, t.unload_dt " \
+			requests_query = "SELECT r.request_pk, a.asset_tag, r.user_fk, f1.common_name, f2.common_name, t.load_dt, t.unload_dt " \
 							 "FROM requests as r " \
+							 "JOIN assets as a ON r.asset_fk = a.asset_pk " \
+							 "JOIN facilities as f1 on r.src_fk = f1.facility_pk " \
+							 "JOIN facilities as f2 on r.dest_fk = f2.facility_pk " \
 							 "JOIN in_transit as t ON r.request_pk = t.request_fk " \
-							 "WHERE approved = TRUE AND completed = FALSE;"
+							 "WHERE r.approved = TRUE AND r.completed = FALSE;"
 			lo_requests = db_query(requests_query, [])
 
 			if lo_requests is None:
