@@ -4,16 +4,17 @@ import os
 import glob
 import sys
 
-from config import DB_NAME, HOST, PORT
 
-global CONN
-global CUR
+# Connect()
+if len(sys.argv) > 1:
+	DB_NAME = sys.argv[1]
+else:
+	DB_NAME = 'lost'
+CONN = psycopg2.connect(dbname=DB_NAME, host='localhost', port=5432)
+CUR = CONN.cursor()
 
 
 def main():
-	"""Migration Driver. Return nothing."""
-	connect()
-
 	# Convert users, facilities, assets, and transfers tables to CSV files
 	export_users()
 	export_facilities()
@@ -21,7 +22,6 @@ def main():
 	export_transfers()
 
 	# Close Postgres Database
-	CONN.commit()
 	CUR.close()
 	CONN.close()
 
@@ -29,98 +29,79 @@ def main():
 	return
 
 
-def create_csv(csv_filename, header_list):
-	"""Take a filename with a csv suffix and a list of strings (as CSV header names). Return a CSV writer."""
+def create_csv(csv_filename, header_list, sql_query_string):
+	"""Transfer records from database query to a new .csv file.
+
+    Keyword arguments:
+    csv_filename -- String with a '.csv' suffix
+    header_list -- List of strings (as CSV header names)
+    sql_query_string -- Passed to match header_list format
+    """
+
 	with open(csv_filename, 'w', newline='\n') as csvfile:
 		csv_writer = csv.writer(csvfile, quotechar="'", quoting=csv.QUOTE_MINIMAL)
 		csv_writer.writerow(header_list)
 
-		records = CUR.execute("SELECT * FROM %s;", csv_filename[:-4]) # Filename without csv suffix
-		return [records, csv_writer]
-
-
-def connect():
-	"""Open Postgres connection while migration runs."""
-	CONN = psycopg2.connect(dbname=DB_NAME, host=HOST, port=PORT)
-	CUR = CONN.cursor()
-	return
+		CUR.execute(sql_query_string)
+		records = CUR.fetchall()
+		CONN.commit()
+		for entry in records:
+			csv_writer.writerow(entry)
 
 
 def export_users():
 	fn = 'users.csv'
 	header_names = ['username', 'password', 'role', 'active']
-	data = create_csv(fn, header_names)
+	query_string = "SELECT u.username, u.password, r.title, TRUE FROM users as u " \
+				   "JOIN roles as r ON u.role_fk = r.role_pk;"
 
-	for records, csv_writer in data:
-		for row in records:
-			username = row[2]
-			password = row[3]
-			CUR.execute("SELECT * FROM roles WHERE role_pk = %s;", row[1])
-			role = CUR.fetchone()[1]
-			active = 'TRUE'
-
-			csv_writer.writerow([username, password, role, active])
+	create_csv(fn, header_names, query_string)
+	print("\nUsers exported to", fn)
+	return
 
 
 def export_facilities():
 	fn = 'facilities.csv'
 	header_names = ['fcode', 'common_name']
-	data = create_csv(fn, header_names)
+	query_string = "SELECT fcode, common_name FROM facilities;"
 
-	for records, csv_writer in data:
-		for row in records:
-			fcode = row[1]
-			common_name = row[2]
-			csv_writer.writerow([fcode, common_name])
+	create_csv(fn, header_names, query_string)
+	print("\nFacilities exported to", fn)
+	return
+
+
+def export_assets():
+	fn = 'assets.csv'
+	header_names = ['asset_tag', 'description', 'facility', 'acquired', 'disposed']
+	query_string = "SELECT a.asset_tag, a.description, f.common_name, MIN(a_a.arrive_dt)::date, a.disposed " \
+				   "FROM assets as a " \
+				   "JOIN asset_at as a_a ON a.asset_pk = a_a.asset_fk " \
+				   "JOIN facilities as f ON a_a.facility_fk = f.facility_pk " \
+				   "GROUP BY a.asset_tag, a.description, f.common_name, a.disposed;"
+
+	create_csv(fn, header_names, query_string)
+	print("\nAssets exported to", fn)
+	return
 
 
 def export_transfers():
 	fn = 'transfers.csv'
 	header_names = ['asset_tag', 'request_by', 'request_dt', 'approve_by', 'approve_dt', 'source', 'destination', 'load_dt', 'unload_dt']
-	data = create_csv(fn, header_names)
+	query_string = "SELECT a.asset_tag, requester.username, r.request_dt::date, " \
+				   "approval_u.username, r.approve_dt::date, f1.fcode, f2.fcode, " \
+				   "i_t.load_dt::date, i_t.unload_dt::date " \
+				   "FROM assets as a " \
+				   "JOIN requests as r ON a.asset_pk = r.asset_fk " \
+				   "JOIN users as requester ON r.user_fk = requester.user_pk " \
+				   "JOIN users as approval_u ON r.approving_user_fk = approval_u.user_pk " \
+				   "JOIN facilities as f1 ON r.src_fk = f1.facility_pk " \
+				   "JOIN facilities as f2 ON r.dest_fk = f2.facility_pk " \
+				   "JOIN in_transit as i_t ON r.request_pk = i_t.request_fk;"
 
-	for records, csv_writer in data:
-		for row in records:
+	create_csv(fn, header_names, query_string)
+	print("\nTransfers exported to", fn)
+	return
 
-			# TODO: Fix query - Also, apply this design pattern to export_assets()
-			query_string = "SELECT a.asset_tag, requester.username, r.request_dt, approval_u.username, r.approve_dt, f1.fcode, f2.fcode, i_t.load_dt, i_t.unload_dt " \
-						   "FROM assets as a " \
-						   "JOIN requests as r ON a.asset_pk = r.asset_fk " \
-						   "JOIN users as requester ON r.user_fk = requester.user_pk " \
-						   "JOIN users as approval_u ON r.approving_user_fk = approval_u.user_pk " \
-						   "JOIN facilities as f1 ON r.src_fk = f1.facility_pk " \
-						   "JOIN facilities as f2 ON r.dest_fk = f2.facility_pk " \
-						   "JOIN in_transit as i_t ON r.request_pk = i_t.request_fk;"
-			CUR.execute()
 
-			CUR.execute("SELECT * FROM assets WHERE asset_pk = %s;", row[1])
-			asset_tag = CUR.fetchone()[1]
-			print('\n\nThis is asset_tag:', asset_tag) # DEBUG
-
-			CUR.execute("SELECT * FROM users WHERE user_pk = %s;", row[2])
-			request_by = CUR.fetchone()[2]
-			print('\n\nThis is request_by:', request_by) # DEBUG
-
-			request_dt = row[5]
-			print('\n\nThis is request_dt', request_dt) # DEBUG
-
-			approved = CUR.execute("SELECT * FROM requests WHERE user_fk = %s AND approved = TRUE;", row[2])
-			if not approved:
-				approve_by = 'NULL'
-				approve_dt = 'NULL'
-			else:
-				fetch = CUR.fetchone()
-				approve_by = fetch[2]
-				approve_dt = fetch[6]
-
-			CUR.execute("SELECT * FROM facilities WHERE facility_pk = %s;", row[3])
-			source = CUR.fetchone()[1]
-			CUR.execute("SELECT * FROM facilities WHERE facility_pk = %s;", row[4])
-			destination = CUR.fetchone()[1]
-
-			# TODO
-			CUR.execute("SELECT load_dt, unload_dt FROM in_transit")
-			load_dt = None
-			unload_dt = None
-
-			csv_writer.writerow([asset_tag, request_by, request_dt, approve_by, approve_dt, source, destination, load_dt, unload_dt])
+if __name__ == '__main__':
+	main()

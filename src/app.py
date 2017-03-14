@@ -608,8 +608,8 @@ def transfer_req():
 		dest_facility = request.form['dest_facility']
 
 		location_query = "SELECT asset_at.facility_fk FROM asset_at " \
-								"JOIN assets ON asset_at.asset_fk = assets.asset_pk " \
-								"WHERE asset_pk=%s"
+						 "JOIN assets ON asset_at.asset_fk = assets.asset_pk " \
+						 "WHERE asset_pk = %s"
 		actual_asset_location = db_query(location_query, [asset_key])
 
 		if asset_key == '':
@@ -627,6 +627,7 @@ def transfer_req():
 			flash('Request Submitted. Please await Facility Officer approval.')
 
 	# Drop-Down selection population
+	# TODO: change all_assets_query to only get assets that dont already have a transfer request in action
 	all_assets_query = "SELECT * FROM assets;"
 	all_facilities_query = "SELECT * FROM facilities;"
 	all_assets = db_query(all_assets_query, [])
