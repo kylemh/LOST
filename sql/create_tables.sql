@@ -42,6 +42,7 @@ CREATE TABLE requests (
     request_dt TIMESTAMP,
     approve_dt TIMESTAMP,
     approved BOOLEAN NOT NULL,
+    approving_user_fk INTEGER REFERENCES users(user_pk), -- Needed for data export/import
     completed BOOLEAN NOT NULL
 );
 

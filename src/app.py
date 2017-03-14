@@ -277,8 +277,8 @@ def dashboard():
 					flash('Request DENIED.')
 				else:
 					# Request Approved
-					update_request_sql = "UPDATE requests SET approved = TRUE, approve_dt = %s WHERE request_pk = %s"
-					db_change(update_request_sql, [datetime.datetime.now(), selected_request])
+					update_request_sql = "UPDATE requests SET approved = TRUE, approving_user_fk = %s, approve_dt = %s WHERE request_pk = %s"
+					db_change(update_request_sql, [session['user_id'], datetime.datetime.now(), selected_request])
 
 					transit_sql = "INSERT INTO in_transit (request_fk) VALUES (%s);"
 					db_change(transit_sql, [selected_request])
