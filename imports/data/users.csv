@@ -1,7 +1,10 @@
 username,password,role,active
-log,abc,Logistics Officer,True
-fac,abc,Facilities Officer,True
-illegal,abc,Guest,True
-log2,abbadabba,Logistics Officer,True
-fac2,abbadabbafac,Facilities Officer,True
-bob_dylan,imarriedisis,Logistics Officer,True
+malcom,svalley,Logistics Officer,TRUE
+kaylee,sh1ny,Facilities Officer,TRUE
+inara,AeICfUZdNUyg,Facilities Officer,TRUE
+jayne,b00m,Logistics Officer,TRUE
+river,2x2HandsOfBlue,Logistics Officer,TRUE
+shepherd,h4v3n,Facilities Officer,FALSE
+simon,river,Facilities Officer,TRUE
+zoe,svalley,Logistics Officer,TRUE
+wash,dinosaurs,Facilities Officer,FALSE

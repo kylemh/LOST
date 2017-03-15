@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Check for correct number of commandline arguments
-if [ "$#" -ne 3 ]; then
+if [ "$#" -ne 2 ]; then
 	echo "\e[1;34mUsage: ./import_data.sh <dbname> <input dir>\e[0m"
 	exit;
 fi

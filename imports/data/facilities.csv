@@ -1,11 +1,9 @@
 fcode,common_name
-MB005,Moonbase
-DC,'Washington, DC'
 HQ,Headquarters
-NC,National City
-LANM,'Los Alamos, NM'
-SPNV,'Sparks, NV'
-S300,Site 300
-GRLK,Groom Lake
-UO,University of Oregon
-CA1802,Sabio Complex
+DC,Capital
+M0A,Alpha Site
+M0B,Beta Site
+M0G,Gamma Site
+P4OM,Olympus
+P4HB,Hellas Basin
+G001,Abydos

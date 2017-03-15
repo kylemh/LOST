@@ -18,8 +18,8 @@ CUR = CONN.cursor()
 
 def main():
 	# Convert users, facilities, assets, and transfers tables to CSV files
-	import_users()
-	import_facilities()
+	# import_users()
+	# import_facilities()
 	import_assets()
 	import_transfers()
 
@@ -33,53 +33,170 @@ def main():
 
 def import_users():
 	file = DIR + 'users.csv'
-	users_query = "INSERT INTO users (role_fk, username, password, active) VALUES (%s, %s, %s, TRUE);"
+	users_insert = "INSERT INTO users (role_fk, username, password, active) VALUES (%s, %s, %s, %s);"
 
 	with open(file) as csvfile:
-		rows = csv.DictReader(csvfile)
+		rows = csv.DictReader(csvfile, delimiter=",", quotechar="'")
 		for record in rows:
-			CUR.execute(users_query, (record['role'], record['username'], record['password'], record['active']))
-		CONN.commit()
+			# Easy conversion of role name to role_fk
+			if record['role'] == 'Logistics Officer':
+				record['role'] = 2
+			elif record['role'] == 'Facilities Officer':
+				record['role'] = 3
+			else:
+				record['role'] = 1
+
+			CUR.execute(
+				users_insert, [
+					record['role'],
+					record['username'],
+					record['password'],
+					record['active']
+				]
+			)
+			CONN.commit()
+	print('Users have been imported!')
 	return
 
 
 def import_facilities():
 	file = DIR + 'facilities.csv'
-	facilities_query = "INSERT INTO facilities (fcode, common_name) VALUES (%s, %s);"
+	facilities_insert = "INSERT INTO facilities (fcode, common_name) VALUES (%s, %s);"
 
 	with open(file) as csvfile:
-		rows = csv.DictReader(csvfile)
+		rows = csv.DictReader(csvfile, delimiter=",", quotechar="'")
 		for record in rows:
-			CUR.execute(facilities_query, (record['fcode'], record['common_name']))
-		CONN.commit()
+			CUR.execute(
+				facilities_insert, [
+					record['fcode'],
+					record['common_name']
+				]
+			)
+			CONN.commit()
+	print('Facilities have been imported!')
 	return
 
 
 def import_assets():
 	file = DIR + 'assets.csv'
-	assets_query = "INSERT INTO assets (asset_tag, description, disposed) VALUES (%s, %s, %s);"
+	assets_insert = "INSERT INTO assets (asset_tag, description, disposed) VALUES (%s, %s, %s);"
 
-	asset_at_query = "INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt, depart_dt) VALUES " \
-					 "((SELECT asset_pk FROM assets WHERE asset_tag = %s), " \
-					 "(SELECT facility_pk FROM facilities WHERE common_name = %s), %s, " \
-					 "(SELECT depart_dt FROM asset_at WHERE arrive_dt = %s));"
+	asset_at_insert = "INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt, depart_dt) VALUES (%s, %s, %s, %s);"
 
 	with open(file) as csvfile:
-		rows = csv.DictReader(csvfile)
+		rows = csv.DictReader(csvfile, delimiter=",", quotechar="'")
 		for record in rows:
-			print('\n\nDisposed is', record['disposed'], '\n\n')
-			if record['disposed'] is None:
-				disposed = 'FALSE'
-			CUR.execute(assets_query, record['asset_tag'], record['description'], record['disposed'])
-			CUR.execute(asset_at_query, [record['asset_tag'], record['facility'], record['acquired'], record['acquired']])
-		CONN.commit()
+			print(record)
+			# TODO: *fist slam* There must be a better way...
+			if record['disposed'] == 'NULL':
+				asset_disposed_bool = 'FALSE'
+				record['disposed'] = None
+			elif record['disposed'] == '':
+				asset_disposed_bool = 'FALSE'
+				record['disposed'] = None
+			else:
+				asset_disposed_bool = 'TRUE'
+
+			CUR.execute(
+				assets_insert, [
+					record['asset_tag'],
+					record['description'],
+					asset_disposed_bool
+				]
+			)
+			CONN.commit()
+
+			CUR.execute("SELECT asset_pk FROM assets WHERE asset_tag = %s;", [record['asset_tag']])
+			asset_pk = CUR.fetchone()
+			CONN.commit()
+
+			CUR.execute("SELECT facility_pk FROM facilities WHERE fcode = %s;", [record['facility']])
+			facility_pk = CUR.fetchone()
+			CONN.commit()
+
+			CUR.execute(
+				asset_at_insert, [
+					asset_pk,
+					facility_pk,
+					record['acquired'],
+					record['disposed']
+				]
+			)
+			CONN.commit()
+	print('Assets and asset_at tables have been populated!')
 	return
 
 
 def import_transfers():
 	file = DIR + 'transfers.csv'
-	transfers_query = "INSERT INTO "
+	transfer_requests_insert = "INSERT INTO requests (asset_fk, user_fk, src_fk, dest_fk, request_dt, approve_dt, approved, approving_user_fk, completed) " \
+					  	   	   "VALUES (" \
+							   "(SELECT asset_pk FROM assets WHERE asset_tag = %s LIMIT 1), " \
+							   "(SELECT user_pk FROM users WHERE username = %s), " \
+							   "(SELECT facility_pk FROM facilities WHERE fcode = %s), " \
+							   "(SELECT facility_pk FROM facilities WHERE fcode = %s), " \
+							   "%s, %s, %s, " \
+							   "(SELECT user_pk FROM users WHERE username = %s), " \
+							   "%s)"
 
+	in_transit_insert = "INSERT INTO in_transit (request_fk, load_dt, unload_dt) VALUES (%s, %s, %s);"
+
+	with open(file) as csvfile:
+		rows = csv.DictReader(csvfile, delimiter=",", quotechar="'")
+		if __name__ == '__main__':
+			for record in rows:
+				print('\nCURRENT RECORD:', record)
+				# Insert into requests table...
+				if record['approve_dt'] == '':
+					approved = 'FALSE'
+				else:
+					approved = 'TRUE'
+
+				unload_dt = record['unload_dt']
+				if unload_dt == '' or unload_dt == 'NULL' or unload_dt is None:
+					completed = 'FALSE'
+				else:
+					completed = 'TRUE'
+
+				CUR.execute(
+					transfer_requests_insert, (
+						record['asset_tag'],
+						record['request_by'],
+						record['source'],
+						record['destination'],
+						record['request_dt'],
+						record['approve_dt'],
+						approved,
+						record['approve_by'],
+						completed
+					)
+				)
+				CONN.commit()
+
+				# Insert into in_transit table...
+				CUR.execute("SELECT request_pk FROM requests;")
+				request_fk = CUR.fetchall()[-1][0]
+				CONN.commit()
+
+				load_dt = record['load_dt']
+				if load_dt == '':
+					load_dt = None
+					unload_dt = None  # LOGIC: If no load time, then no unload time!
+				else:
+					if unload_dt == '':
+						unload_dt = None
+
+				print('\nHere\'s the in_transit entry:', request_fk, load_dt, unload_dt, '\n')
+
+				CUR.execute(
+					in_transit_insert, [
+						request_fk,
+						load_dt,
+						unload_dt
+					]
+				)
+				CONN.commit()
+	print('Requests and in_transit tables have been populated!')
 	return
 
 

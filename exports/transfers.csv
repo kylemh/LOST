@@ -1,5 +1,0 @@
-asset_tag,request_by,request_dt,approve_by,approve_dt,source,destination,load_dt,unload_dt
-X002A,log,2017-03-14,fac2,2017-03-14,MB005,DC,,
-C322B,log2,2017-03-14,fac2,2017-03-14,CA1802,UO,2017-03-01,2017-03-04
-C322A,log2,2017-03-14,fac2,2017-03-14,CA1802,UO,2017-03-01,
-X001A,log,2017-03-14,fac2,2017-03-14,MB005,DC,2017-03-06,2017-03-14

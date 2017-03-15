@@ -1,7 +1,0 @@
-username,password,role,active
-log,abc,Logistics Officer,True
-fac,abc,Facilities Officer,True
-illegal,abc,Guest,True
-log2,abbadabba,Logistics Officer,True
-fac2,abbadabbafac,Facilities Officer,True
-bob_dylan,imarriedisis,Logistics Officer,True
