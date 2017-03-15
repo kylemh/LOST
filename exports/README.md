@@ -4,7 +4,7 @@
 <br>
 
 <h4>Usage</h4>
-`$ export_data.sh <database_name> <output_directory>`
+`$ export_data.sh $database_name> $output_directory`
 
 <br>
 
