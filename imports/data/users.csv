@@ -2,7 +2,6 @@ username,password,role,active
 log,abc,Logistics Officer,True
 fac,abc,Facilities Officer,True
 illegal,abc,Guest,True
-fac2,password,Facilities Officer,True
-log2,password,Logistics Officer,True
-fac3,NotAFace!8,Facilities Officer,True
-log3,NotALoge!3,Logistics Officer,True
+log2,abbadabba,Logistics Officer,True
+fac2,abbadabbafac,Facilities Officer,True
+bob_dylan,imarriedisis,Logistics Officer,True

@@ -37,10 +37,8 @@ def import_users():
 
 	with open(file) as csvfile:
 		rows = csv.DictReader(csvfile)
-
 		for record in rows:
 			CUR.execute(users_query, (record['role'], record['username'], record['password'], record['active']))
-
 		CONN.commit()
 	return
 
@@ -51,10 +49,8 @@ def import_facilities():
 
 	with open(file) as csvfile:
 		rows = csv.DictReader(csvfile)
-
 		for record in rows:
 			CUR.execute(facilities_query, (record['fcode'], record['common_name']))
-
 		CONN.commit()
 	return
 
@@ -62,19 +58,20 @@ def import_facilities():
 def import_assets():
 	file = DIR + 'assets.csv'
 	assets_query = "INSERT INTO assets (asset_tag, description, disposed) VALUES (%s, %s, %s);"
+
 	asset_at_query = "INSERT INTO asset_at (asset_fk, facility_fk, arrive_dt, depart_dt) VALUES " \
 					 "((SELECT asset_pk FROM assets WHERE asset_tag = %s), " \
-					 "(SELECT facility_pk FROM facilities WHERE common_name = %s), %s, %s);"
+					 "(SELECT facility_pk FROM facilities WHERE common_name = %s), %s, " \
+					 "(SELECT depart_dt FROM asset_at WHERE arrive_dt = %s));"
 
 	with open(file) as csvfile:
 		rows = csv.DictReader(csvfile)
-
 		for record in rows:
-			#  asset_tag, description, facility, acquired, disposed
-
+			print('\n\nDisposed is', record['disposed'], '\n\n')
+			if record['disposed'] is None:
+				disposed = 'FALSE'
 			CUR.execute(assets_query, record['asset_tag'], record['description'], record['disposed'])
-			CUR.execute(asset_at_query, [record['asset_tag'], record['facility'], record['acquired'], record['disposed']])
-
+			CUR.execute(asset_at_query, [record['asset_tag'], record['facility'], record['acquired'], record['acquired']])
 		CONN.commit()
 	return
 
