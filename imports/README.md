@@ -1,34 +1,25 @@
-<h2>Data Export</h2>
-<p>This directory contains scripts and files necessary to export a representational look at LOST's current data via .csv files.<p>
+<h2>Data Import</h2>
+<p>This directory contains scripts and files necessary to convert import .csv files into the database.<p>
 
 <br>
 
 <h4>Usage</h4>
-`$ export_data.sh <database_name> <output_directory>`
+`$ import_data.sh <database_name> <input_directory_of_csv_files>`
 
 <br>
 
 <h4>File Structure</h4>
+
 ```
 .
-├── assets.csv
-├── export_data.sh
-├── facilities.csv
-├── migrations.py
-├── transfers.csv
-└── users.csv
+├── data
+│   ├── assets.csv
+│   ├── facilities.csv
+│   ├── transfers.csv
+│   └── users.csv
+└── import_data.sh
 ```
-export_data.sh - a bash script to automate migration process
 
-migrations.py - python module to convert database tables to csv files
-
-users.csv - a csv file containing user information
-
-facilities.csv - a csv file containing LOST facility information
-
-assets.csv - a csv file containing LOST assets
-
-transfers.csv - a csv file containing transfer information
 
 <br>
 

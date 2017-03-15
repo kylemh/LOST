@@ -8,7 +8,8 @@ CREATE TABLE users (
     user_pk         SERIAL PRIMARY KEY, -- SERIAL acting as a unique integer are compared within queries faster than varchar(16)
     role_fk         INTEGER REFERENCES roles(role_pk) DEFAULT 1,
     username        VARCHAR(16) UNIQUE NOT NULL, -- Username size mandated via project specs
-    password        VARCHAR(16) NOT NULL -- Password size mandated via project specs
+    password        VARCHAR(16) NOT NULL, -- Password size mandated via project specs
+    active          BOOLEAN DEFAULT TRUE -- Added as required by HW9
 );
 
 CREATE TABLE facilities (
