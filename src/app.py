@@ -1,12 +1,17 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask.ext.sqlalchemy import SQLAlchemy
 import psycopg2
 import datetime
+
+from flask.ext.heroku import Heroku
 
 from config import DB_NAME, HOST, PORT, APP_SECRET_KEY
 
 
 # Run Server
 app = Flask(__name__)
+heroku = Heroku(app)
+db = SQLAlchemy(app)
 app.secret_key = APP_SECRET_KEY
 
 
