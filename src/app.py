@@ -456,6 +456,7 @@ def add_asset():
 	return render_template('add_asset.html', assets_list=all_assets, facilities_list=all_facilities)
 
 
+# TODO: Implement functionality for asset being set to disposed if moved from original facility
 @app.route('/dispose_asset', methods=['GET', 'POST'])
 def dispose_asset():
 	if session.get('perms') != 2:

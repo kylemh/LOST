@@ -71,11 +71,11 @@ def export_facilities():
 def export_assets():
 	fn = 'assets.csv'
 	header_names = ['asset_tag', 'description', 'facility', 'acquired', 'disposed']
-	query_string = "SELECT a.asset_tag, a.description, f.common_name, MIN(a_a.arrive_dt)::date, a_a.depart_dt::date " \
+	query_string = "SELECT a.asset_tag, a.description, f.fcode, MIN(a_a.arrive_dt)::date, a_a.depart_dt::date " \
 				   "FROM assets as a " \
 				   "JOIN asset_at as a_a ON a.asset_pk = a_a.asset_fk " \
 				   "JOIN facilities as f ON a_a.facility_fk = f.facility_pk " \
-				   "GROUP BY a.asset_tag, a.description, f.common_name, a_a.depart_dt;"
+				   "GROUP BY a.asset_tag, a.description, f.fcode, a_a.depart_dt;"
 
 	create_csv(fn, header_names, query_string)
 	print("\nAssets exported to", fn)
