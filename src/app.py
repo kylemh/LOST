@@ -1,18 +1,22 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 import psycopg2
 import datetime
+import os
 
-from flask.ext.heroku import Heroku
+from flask_heroku import Heroku
 
-from config import DB_NAME, HOST, PORT, APP_SECRET_KEY
+# from config import DB_NAME, HOST, PORT, APP_SECRET_KEY
 
 
 # Run Server
 app = Flask(__name__)
+app.config.from_object(os.environ['APP_SETTINGS'])
 heroku = Heroku(app)
 db = SQLAlchemy(app)
 app.secret_key = APP_SECRET_KEY
+
+# TODO: I have a models.py file... Should I change line 15 at all?
 
 
 # MARK: DATABASE FUNCTIONS
@@ -662,4 +666,4 @@ def failed_query(query):
 
 # Application Deployment
 if __name__ == '__main__':
-	app.run(host='0.0.0.0', port=8080, debug=True)
+	app.run()
