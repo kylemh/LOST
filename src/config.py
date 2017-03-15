@@ -16,7 +16,7 @@ class Config(object):
 	DEBUG = False
 	TESTING = False
 	CSRF_ENABLED = True
-	APP_SECRET_KEY = str(os.urandom(32))
+	SECRET_KEY = str(os.urandom(32))
 	SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
 
 
