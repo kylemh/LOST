@@ -4,7 +4,7 @@
 <br>
 
 <h4>Usage</h4>
-`$ import_data.sh <database_name> <input_directory_of_csv_files>`
+`$ import_data.sh $database_name $input_directory_of_csv_files`
 
 <br>
 
