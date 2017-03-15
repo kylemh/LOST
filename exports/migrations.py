@@ -75,7 +75,7 @@ def export_assets():
 				   "FROM assets as a " \
 				   "JOIN asset_at as a_a ON a.asset_pk = a_a.asset_fk " \
 				   "JOIN facilities as f ON a_a.facility_fk = f.facility_pk " \
-				   "GROUP BY a.asset_tag, a.description, f.common_name, a.disposed;"
+				   "GROUP BY a.asset_tag, a.description, f.common_name, a_a.depart_dt;"
 
 	create_csv(fn, header_names, query_string)
 	print("\nAssets exported to", fn)
