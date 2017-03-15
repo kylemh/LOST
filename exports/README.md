@@ -9,6 +9,7 @@
 <br>
 
 <h4>File Structure</h4>
+
 ```
 .
 ├── assets.csv
@@ -18,6 +19,7 @@
 ├── transfers.csv
 └── users.csv
 ```
+
 export_data.sh - a bash script to automate migration process
 
 migrations.py - python module to convert database tables to csv files
