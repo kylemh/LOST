@@ -4,13 +4,11 @@ import psycopg2
 import datetime
 import os
 
+from config import DB_NAME, HOST, PORT, APP_SECRET_KEY
 from flask_heroku import Heroku
 
 # Run Server
 app = Flask(__name__)
-app.config.from_envvar(os.environ['APP_SETTINGS'])
-heroku = Heroku(app)
-db = SQLAlchemy(app)
 app.secret_key = APP_SECRET_KEY
 
 
