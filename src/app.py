@@ -6,17 +6,13 @@ import os
 
 from flask_heroku import Heroku
 
-# from config import DB_NAME, HOST, PORT, APP_SECRET_KEY
-
 
 # Run Server
 app = Flask(__name__)
-app.config.from_object(os.environ['APP_SETTINGS'])
+app.config.from_envvar(os.environ['APP_SETTINGS'])
 heroku = Heroku(app)
 db = SQLAlchemy(app)
 app.secret_key = APP_SECRET_KEY
-
-# TODO: I have a models.py file... Should I change line 15 at all?
 
 
 # MARK: DATABASE FUNCTIONS

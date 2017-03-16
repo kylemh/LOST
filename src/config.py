@@ -3,21 +3,20 @@ import os
 import pathlib
 
 
-# Global Variables
-basedir = pathlib.Path(os.path.realpath(__file__)).parent.joinpath('lost_config.json')
-with basedir.open() as conf:
-	c = json.load(conf)
-	DB_NAME = c['database']['dbname']
-	HOST = c['database']['dbhost']
-	PORT = c['database']['dbport']
-
-
 class Config(object):
 	DEBUG = False
 	TESTING = False
 	CSRF_ENABLED = True
-	SECRET_KEY = str(os.urandom(32))
-	SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+	APP_SECRET_KEY = str(os.urandom(32))
+	# SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+
+	# Global Variables
+	basedir = pathlib.Path(os.path.realpath(__file__)).parent.joinpath('lost_config.json')
+	with basedir.open() as conf:
+		c = json.load(conf)
+		DB_NAME = c['database']['dbname']
+		HOST = c['database']['dbhost']
+		PORT = c['database']['dbport']
 
 
 class ProductionConfig(Config):
