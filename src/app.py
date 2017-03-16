@@ -1,11 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-from flask_sqlalchemy import SQLAlchemy
 import psycopg2
 import datetime
 import os
 
 from config import DB_NAME, HOST, PORT, APP_SECRET_KEY
-from flask_heroku import Heroku
 
 # Run Server
 app = Flask(__name__)
