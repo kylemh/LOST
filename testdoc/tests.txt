@@ -1,0 +1,42 @@
+Project Setup
+-------------
+
+1) Turn on Virtual Machine
+2) Login to osnapdev with provided credentials
+3) Type: $ pg_ctl -D data start
+4) Use Git to clone my repository to your VM.
+5) Type: $ cd UO_CIS322
+6) Type: $ createdb lost
+7) Type: $ ./preflight lost
+8) Go to 0.0.0.0:8080 in your browser
+
+
+Test 1 - Create User
+--------------------
+ROUTE: /create_user
+
+* Create a Facility Officer
+1) Type a username (16 character max)
+2) Type a password (16 character max)
+3) Click the 'Create User' button at the bottom of the form.
+
+* Create a  Logistics Officer
+1) Type a username (16 character max)
+2) Type a password (16 character max)
+3) Select 'Logistics Officer' as your role.
+4) Click the 'Create User' button at the bottom of the form.
+
+* Attempt to create a duplicate user
+1) Type one of the previous two usernames (16 character max)
+2) Type any password (16 character max)
+3) Click the 'Create User' button at the bottom of the form.
+4) Ensure that an alert pops up saying 'Username already exists.'
+
+* Attempt to create a user without entering data
+1) Click 'Create User'
+2) Ensure that you are told 'Please enter a username and password.'
+
+
+Test 2 - Login User
+-------------------
+ROUTE: /login
