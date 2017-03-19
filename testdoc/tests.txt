@@ -10,33 +10,132 @@ Project Setup
 7) Type: $ ./preflight lost
 8) Go to 0.0.0.0:8080 in your browser
 
+For each test case, navigate to the correct functionality via the Dashboard or directly via page route.
 
 Test 1 - Create User
 --------------------
 ROUTE: /create_user
 
 * Create a Facility Officer
-1) Type a username (16 character max)
-2) Type a password (16 character max)
+1) Type a username (16 character max).
+2) Type a password (16 character max).
 3) Click the 'Create User' button at the bottom of the form.
 
 * Create a  Logistics Officer
-1) Type a username (16 character max)
-2) Type a password (16 character max)
+1) Type a username (16 character max).
+2) Type a password (16 character max).
 3) Select 'Logistics Officer' as your role.
 4) Click the 'Create User' button at the bottom of the form.
 
 * Attempt to create a duplicate user
-1) Type one of the previous two usernames (16 character max)
-2) Type any password (16 character max)
+1) Type one of the previous two usernames (16 character max).
+2) Type any password (16 character max).
 3) Click the 'Create User' button at the bottom of the form.
 4) Ensure that an alert pops up saying 'Username already exists.'
 
 * Attempt to create a user without entering data
-1) Click 'Create User'
+1) Click 'Create User'.
 2) Ensure that you are told 'Please enter a username and password.'
 
 
 Test 2 - Login User
 -------------------
 ROUTE: /login
+
+* Login with any user
+1) Select the username field and type in a created user.
+2) Select the password field and type in that user's password.
+3) Click 'Login' and ensure that the user logs in.
+
+* Login using an unregistered username
+1) Select the username field and type in a nonreal user.
+2) Select the password field and type in any password.
+3) Click 'Login' and ensure that the user DOES NOT login.
+
+
+Test 3 - Add Facilities
+-----------------------
+ROUTE: /add_facility
+
+* Add two facilities with all fields filled
+1) Enter relevant information for every form field.
+2) Click 'Add Facility'
+3) Ensure that the facility now shows up in the facilities table at the top of the view.
+4) Repeat 1-3 one time.
+
+* Add a facility without all info filled in
+1) Enter relevant information into the form field's excepting one or all fields.
+2) Click 'Add Asset'
+3) Ensure that the facility DOES NOT get created (either by verfying the alert or observing that the facility fails to appear in its table).
+
+
+Test 4 - Add Assets
+-------------------
+ROUTE: /add_asset
+
+* Add two assets with all fields filled
+1) Enter relevant information for every form field.
+2) Click 'Add Asset'
+3) Ensure that the asset now shows up in the assets table at the top of the view.
+4) Repeat 1-3 one time.
+
+* Attempt to add an asset without mandatory information
+1) Enter relevant information excepting one or all fields.
+2) Click 'Add Asset'.
+3) Ensure that the asset DOES NOT get created (either by verfying the alert or observing that the asset fails to appear in its table).
+
+
+Test 5 - Dipose Asset and Asset Report
+--------------------------------------
+ROUTE: /dispose_asset + /asset_report
+
+* Dipose of an asset in the database
+1) Enter an asset tag that corresponds with an item on the assets table into the form.
+2) Choose any date, but remember that date.
+3) Click 'Dispose'.
+4) Confirm its disposal status via the disposed column on the table at the top of the view.
+5) Return to Dashboard.
+6) Click on 'Asset Report'.
+7) Search all facilities for assets on the day before you marked the previous asset as disposed.
+8) Confirm that the assets shows up in the results.
+9) Search all facilities for assets on the day after you marked the previous asset as disposed.
+10) Confirm that the asset DOES NOT show up in the results.
+
+
+Test 6 - Transfer Request Process
+---------------------------------
+ROUTE: /transfer_req
+
+* Make and fully approve a transfer request
+1) Access this route as a Logistics Officer.
+2) Choose an option for in every selection in the form (NOTE: Select a destination facility that differs from the correct source facility).
+3) Click 'Submit Request'.
+4) Return to Dashboard and logout.
+5) Login as a Facilities Officer.
+6) Select the request listed on the table.
+7) Click 'Approve'.
+8) Return to Dashboard and logout.
+9) Login as a Logistics Officer.
+10) Select an item awaiting transfer in the requests table.
+11) Select a load date and an unload date (the unload date must be after the load date).
+12) Click 'Authorize Load/Unload'.
+13) Confirm that the request no longer exists within the table.
+14) Click 'Asset Report'.
+15) Search that asset's new facility after it's unload date.
+16) Confirm that the asset appears in the result.
+
+* Attempt to complete a bad transfer request
+1) Access this route as a Logistics Officer.
+2) Choose an option for in every selection in the form.
+    a) Attempt choosing a source facility that is not the asset's actual source facility.
+    b) Attempt choosing a destination facility that macthes the source facility
+3) Click 'Submit Request'.
+4) Ensure that the request cannot be completed.
+5) Once you've proven a bad request cannot be initialized, complete a proper initial request as outlined at the top of Test 6.
+4) Return to Dashboard and logout.
+5) Login as a Facilities Officer.
+6) Select the request listed on the table.
+7) Click 'Reject'.
+8) Return to Dashboard and logout.
+9) Login as a Logistics Officer.
+10) Confirm that no requests are available for view on the table.
