@@ -6,8 +6,8 @@ if [ "$#" -ne 2 ]; then
 	exit;
 fi
 
-database_name = $1
-input_directory = $2
+database_name=$1
+input_directory=$2
 
 python3 import.py database_name input_directory
 
