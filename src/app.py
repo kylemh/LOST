@@ -157,6 +157,7 @@ def logout():
 #
 #     return render_template('create_user.html')
 
+
 @app.route('/rest/activate_user', methods=['POST'])
 def activate_user():
     if request.method == 'POST' and 'arguments' in request.form:
