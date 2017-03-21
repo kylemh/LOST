@@ -717,7 +717,9 @@ def transfer_req():
         flash('You are not a Logistics Officer. You do not have permissions to request transfers!')
         return render_template('dashboard.html')
 
+    request_is_post = False
     if request.method == 'POST':
+        request_is_post = True
         asset_key = request.form['asset']
         src_facility = request.form['src_facility']
         dest_facility = request.form['dest_facility']
@@ -737,13 +739,13 @@ def transfer_req():
 
         if actual_asset_location is None:
             flash('There is either no facilities or assets in the database.')
-            redirect(url_for('dashboard'))
+            return redirect(url_for('dashboard'))
 
         if src_facility != str(actual_asset_location[0][0]):
             flash('The source facility you selected is not where the asset is stored.')
             return redirect(url_for('transfer_req'))
         elif dest_facility == src_facility:
-            flash('Please select a destination facility that differs from the source facility in order to submit request.')
+            flash('Please select different facilities in order to submit a transfer request.')
             return redirect(url_for('transfer_req'))
 
         # Inputs Validated
@@ -765,23 +767,25 @@ def transfer_req():
 
             flash('Request Submitted. Please await Facility Officer approval.')
 
-    # Drop-Down selection population
+    # Query relevant data for dropdown selections
+    # Facilities
     all_facilities_query = "SELECT * FROM facilities;"
+    all_facilities = db_query(all_facilities_query, [])
+
+    if all_facilities is None:
+        flash('You must add facilities to the database before you can create transfer requests.')
+        return redirect(url_for('dashboard'))
+
+    # Assets
     all_assets_query = ("SELECT * FROM assets WHERE asset_pk NOT IN "
                         "(SELECT asset_fk FROM requests "
-                        "WHERE completed='FALSE' AND approved='FALSE')"
+                        "WHERE completed='FALSE' AND approved='FALSE';)"
                         ";")
-
-    all_facilities = db_query(all_facilities_query, [])
     all_assets = db_query(all_assets_query, [])
 
     # Handle empty result query cases
-    if all_assets is None:
+    if request_is_post and all_assets is None:
         flash('You must add assets to the database before you can create transfer requests.')
-        return redirect(url_for('dashboard'))
-
-    if all_facilities is None:
-        flash('You must add facilities and facilities to the database before you can create transfer requests.')
         return redirect(url_for('dashboard'))
 
     return render_template('transfer_req.html', asset_list=all_assets, facility_list=all_facilities)
