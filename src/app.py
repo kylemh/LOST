@@ -172,6 +172,17 @@ def dashboard():
             load_date = request.form.get('load date', None)
             unload_date = request.form.get('unload date', None)
 
+            # Form Completion Check
+            if not selected_request:
+                flash('Please choose a request to edit.')
+                return redirect(url_for('dashboard'))
+            elif selected_request == 'NO REQUESTS':
+                flash('There are no requests to edit.')
+                return redirect(url_for('dashboard'))
+            elif not load_date and not unload_date:
+                flash('Please at least fill in a load date.')
+                return redirect(url_for('dashboard'))
+
             selected_request_query = ("SELECT "
                                       "r.request_pk, r.asset_fk, r.src_fk, r.dest_fk, aa.arrive_dt "
                                       "FROM requests as r "
@@ -179,20 +190,8 @@ def dashboard():
                                       "WHERE request_pk = %s;")
             selected_request_record = db_query(selected_request_query, [selected_request])
 
-            # Nothing selected
-            if not selected_request:
-                flash('Please choose a request to edit.')
-
-            # No requests exists
-            elif selected_request == 'NO REQUESTS':
-                flash('There are no requests to edit.')
-
-            # Neither dates submitted
-            elif not load_date and not unload_date:
-                flash('Please at least fill in a load date.')
-
             # Both load and unload date submitted
-            elif load_date and unload_date:
+            if load_date and unload_date:
                 # Impossible use case
                 if load_date > unload_date:
                     flash(
@@ -444,6 +443,12 @@ def add_facility():
 
     # Update all_facilities after insert, but before template rendering
     all_facilities = db_query("SELECT * FROM facilities;", [])
+
+    # Database doesn't have any facilities yet.
+    if all_facilities is None:
+        all_facilities = [('NO FACILITIES', 'NO FACILITIES', 'NO FACILITIES')]
+
+
     return render_template('add_facility.html', data=all_facilities)
 
 
@@ -466,6 +471,10 @@ def add_asset():
         # Get all current assets and facilities for table/drop-down population
         all_assets = db_query(all_assets_query, [])
         all_facilities = db_query(all_facilities_query, [])
+
+        if all_facilities is None:
+            flash('You must add facilities before you can get asset reports.')
+            return redirect(url_for('dashboard'))
 
         # Handle table when no assets in database
         if all_assets is None:
@@ -511,10 +520,14 @@ def add_asset():
 
                 flash('New asset added!')
 
+    # Get Facilities for dropdown
+    all_facilities = db_query(all_facilities_query, [])
+    if all_facilities is None:
+        flash('You must add facilities before you can get asset reports.')
+        return redirect(url_for('dashboard'))
+
     # Update all_assets after insert, but before template rendering
     all_assets = db_query(all_assets_query, [])
-    all_facilities = db_query(all_facilities_query, [])
-
     # Handle situation of no assets in database
     if all_assets is None:
         all_assets = [('NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES')]
@@ -604,6 +617,9 @@ def asset_report():
     if request.method == 'POST':
         # List of single-tuples of all facilities to populate drop-down
         all_facilities = db_query(all_facilities_query, [])
+        if all_facilities is None:
+            flash('You must add facilities before you can get asset reports.')
+            return redirect(url_for('dashboard'))
 
         # User Input from Form
         facility = request.form.get('facility')
@@ -682,6 +698,9 @@ def asset_report():
 
     # List of single-tuples of all facilities to populate drop-down
     all_facilities = db_query(all_facilities_query, [])
+    if all_facilities is None:
+        flash('You must add facilities to the database before you can get asset reports.')
+        return redirect(url_for('dashboard'))
 
     return render_template('asset_report.html', facilities_list=all_facilities, report=False)
 
@@ -703,25 +722,37 @@ def transfer_req():
         src_facility = request.form['src_facility']
         dest_facility = request.form['dest_facility']
 
+        # Form Completion Validation
+        if asset_key == '':
+            flash('Please select an asset.')
+            return redirect(url_for('transfer_req'))
+        elif src_facility == '' or dest_facility == '':
+            flash('Please select a facility.')
+            return redirect(url_for('transfer_req'))
+
         location_query = ("SELECT asset_at.facility_fk FROM asset_at "
                           "JOIN assets ON asset_at.asset_fk = assets.asset_pk "
                           "WHERE asset_pk = %s;")
         actual_asset_location = db_query(location_query, [asset_key])
 
-        if asset_key == '':
-            flash('Please select an asset. NOTE: The database may not yet contain an asset.')
-        elif src_facility == '' or dest_facility == '':
-            flash('Please select a facility. NOTE: The database may not yet contain a facility.')
-        elif src_facility != str(actual_asset_location[0][0]):
+        if actual_asset_location is None:
+            flash('There is either no facilities or assets in the database.')
+            redirect(url_for('dashboard'))
+
+        if src_facility != str(actual_asset_location[0][0]):
             flash('The source facility you selected is not where the asset is stored.')
+            return redirect(url_for('transfer_req'))
         elif dest_facility == src_facility:
             flash('Please select a destination facility that differs from the source facility in order to submit request.')
+            return redirect(url_for('transfer_req'))
+
+        # Inputs Validated
         else:
-            # Inputs Validated
             request_sql = ("INSERT INTO requests "
                            "(asset_fk, user_fk, src_fk, dest_fk, request_dt, approved, completed) "
                            "VALUES "
                            "(%s, %s, %s, %s, %s, 'False', 'False');")
+
             db_change(
                 request_sql, [
                     asset_key,
@@ -731,10 +762,10 @@ def transfer_req():
                     datetime.datetime.now()
                 ]
             )
+
             flash('Request Submitted. Please await Facility Officer approval.')
 
     # Drop-Down selection population
-
     all_facilities_query = "SELECT * FROM facilities;"
     all_assets_query = ("SELECT * FROM assets WHERE asset_pk NOT IN "
                         "(SELECT asset_fk FROM requests "
@@ -746,10 +777,12 @@ def transfer_req():
 
     # Handle empty result query cases
     if all_assets is None:
-        all_assets = [(None, 'NO ASSETS')]
+        flash('You must add assets to the database before you can create transfer requests.')
+        return redirect(url_for('dashboard'))
 
     if all_facilities is None:
-        all_facilities = [(None, None, 'NO FACILITIES')]
+        flash('You must add facilities and facilities to the database before you can create transfer requests.')
+        return redirect(url_for('dashboard'))
 
     return render_template('transfer_req.html', asset_list=all_assets, facility_list=all_facilities)
 
