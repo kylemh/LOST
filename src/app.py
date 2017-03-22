@@ -3,11 +3,11 @@ import psycopg2
 import datetime
 import json
 
-from config import DB_NAME, HOST, PORT, APP_SECRET_KEY
+from config import DB_NAME, HOST, PORT
 
 # Run Server
 app = Flask(__name__)
-app.secret_key = APP_SECRET_KEY
+app.secret_key = 'secret_key'
 
 
 # MARK: DATABASE FUNCTIONS
