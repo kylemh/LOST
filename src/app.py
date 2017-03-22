@@ -861,7 +861,7 @@ def transfer_req():
     # Assets
     all_assets_query = ("SELECT * FROM assets WHERE asset_pk NOT IN "
                         "(SELECT asset_fk FROM requests "
-                        "WHERE completed='FALSE' AND approved='FALSE';)"
+                        "WHERE completed='FALSE' AND approved='FALSE')"
                         ";")
     all_assets = db_query(all_assets_query, [])
 

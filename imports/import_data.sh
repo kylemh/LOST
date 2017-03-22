@@ -6,9 +6,6 @@ if [ "$#" -ne 2 ]; then
 	exit;
 fi
 
-database_name=$1
-input_directory=$2
-
-python3 import.py database_name input_directory
+python3 import.py $1 $2
 
 echo "\e[1;34m\nData Import Complete\n\e[0m"
