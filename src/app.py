@@ -102,9 +102,14 @@ def login():
             check_for_user = "SELECT * FROM users WHERE username = %s;"
             result = db_query(check_for_user, [username])
 
-            # User DOES NOT exist:
+            # User doesnt exist.
             if result is None:
                 flash('There is no record of this account.')
+                return render_template('login.html')
+
+            # active is false
+            if not result[0][4]:
+                flash('This account has been deactivated')
                 return render_template('login.html')
 
             # User DOES exist:
