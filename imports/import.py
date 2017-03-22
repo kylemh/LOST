@@ -18,8 +18,8 @@ CUR = CONN.cursor()
 
 def main():
 	# Convert users, facilities, assets, and transfers tables to CSV files
-	# import_users()
-	# import_facilities()
+	import_users()
+	import_facilities()
 	import_assets()
 	import_transfers()
 
