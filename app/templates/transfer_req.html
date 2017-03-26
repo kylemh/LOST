@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block title %}Transfer Requests{% endblock %}
+
+{% block head %}
+	{{ super() }}
+{% endblock %}
+
+{% block content %}
+	{% include "authorization_header.html" %}
+
+	{% if session.logged_in %}
+		<h1>TRANSFER REQUESTS</h1>
+		<div class="centered-form">
+			<form action="{{ url_for('transfer_req') }}" method="POST">
+					Asset Tag:
+					<select name="asset" id="asset_select">
+						<option value="" SELECTED>--SELECT--</option>
+						{% for asset in asset_list %}
+							<option value="{{ asset[0] }}">{{ asset[1] }}</option>
+						{% endfor %}
+					</select>
+					<br>
+					Source Facility:
+					<select name="src_facility" id="src_facility_select">
+						<option value="" SELECTED>--SELECT--</option>
+						{% for fac in facility_list %}
+							<option value="{{ fac[0] }}">{{ fac[2] }}</option>
+						{% endfor %}
+					</select>
+					<br>
+					Destination Facility:
+					<select name="dest_facility" id="dest_facility_select">
+						<option value="" SELECTED>--SELECT--</option>
+						{% for fac in facility_list %}
+							<option value="{{ fac[0] }}">{{ fac[2] }}</option>
+						{% endfor %}
+					</select>
+					<br>
+					<br>
+					<input type="submit" value="submit request">
+			</form>
+		</div>
+		<br>
+		<br>
+		<h6><a class="button" href="{{ url_for('dashboard') }}">RETURN TO DASHBOARD</a></h6>
+
+		<!-- TODO: Implement jQuery Dynamic Drop-down Selection Population -->
+	{% endif %}
+{% endblock %}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	{% block head %}
+    <meta charset="utf-8">
+    <title>{% block title %}{% endblock %} | LOST</title>
+    <meta name="Home page for OSNAP LOST Application" content="">
+    <meta name="Kyle Holmberg" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+	<script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='normalize.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='skeleton.css') }}">
+
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/fav.ico') }}">
+	{% endblock %}
+</head>
+
+<body>
+	<div id="flash-box" class="container">
+		{% for message in get_flashed_messages() %}
+    		<div class="flash">{{ message }}</div>
+			<br>
+		{% endfor %}
+	</div>
+
+	<div id="content">
+		{% block content %}{% endblock %}
+	</div>
+
+	<div id="footer">
+		{% block footer %}
+			<p>&copy; Copyright 2017 - <a href="https://github.com/kylemh">Kyle Holmberg</a>.</p>
+		{% endblock %}
+	</div>
+</body>

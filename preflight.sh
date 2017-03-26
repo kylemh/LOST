@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # preflight.sh
-# This script handles the setup that must occur prior to running app.py
+# This script handles the setup that must occur prior to running lost.py
 
 
 if [ "$#" -ne 1 ]; then

@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block title %}Transfer Report{% endblock %}
+
+{% block head %}
+	{{ super() }}
+{% endblock %}
+
+{% block content %}
+	{% include "authorization_header.html" %}
+
+	{% if session.logged_in %}
+		<h1>TRANSFER REPORT</h1>
+
+		<br>
+		<br>
+		<h6><a class="button" href="{{ url_for('dashboard') }}">RETURN TO DASHBOARD</a></h6>
+	{% endif %}
+{% endblock %}

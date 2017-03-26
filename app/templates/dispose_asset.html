@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block title %}Dispose Asset{% endblock %}
+
+{% block head %}
+	{{ super() }}
+{% endblock %}
+
+{% block content %}
+	{%  include "authorization_header.html" %}
+
+	{% if session.logged_in %}
+		<h1>DISPOSE OF ASSET</h1>
+		<h4>Assets Currently In Database</h4>
+
+		{% if assets_list is not defined %}
+			<p>There are currently no assets in the database.</p>
+		{% endif %}
+
+		{% if assets_list is defined %}
+			<table class="u-full-width">
+				<thead>
+					<tr>
+						<th>Asset Tag</th>
+						<th>Asset Description</th>
+						<th>Asset Location</th>
+						<th>Disposal Status</th>
+					</tr>
+				</thead>
+				{% for ast in assets_list %}
+					<tbody>
+						<tr>
+							<td>{{ ast[0] }}</td>
+							<td>{{ ast[1] }}</td>
+							<td>{{ ast[2] }}</td>
+							<td>{{ ast[3] }}</td>
+						</tr>
+					</tbody>
+				{% endfor %}
+			</table>
+		{% endif %}
+		<br>
+		<p>Please follow the guidelines outlined within each text field.</p>
+		<div class="centered-form">
+			<form action="{{ url_for('dispose_asset') }}" method="POST">
+				Asset Tag:
+				<input type="text" name="asset_tag" maxlength="16" placeholder="X001A"><br>
+				Disposal Date:
+				<input type="text" name="date" placeholder="MM/DD/YYYY"><br>
+				<input type="submit" value="dispose"><br>
+			</form>
+		</div>
+		<br>
+		<br>
+		<h6><a class="button" href="{{ url_for('dashboard') }}">RETURN TO DASHBOARD</a></h6>
+	{% endif %}
+{% endblock %}

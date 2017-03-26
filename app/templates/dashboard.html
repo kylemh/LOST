@@ -1,0 +1,120 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block head %}
+	{{ super() }}
+{% endblock %}
+
+{% block content %}
+	{%  include "authorization_header.html" %}
+
+	{% if session.logged_in %}
+		<h1>LOST DASHBOARD</h1>
+		<p>Logistical Operations Service Tracker (LOST)</p>
+		<p>Welcome, {{ user }}</p>
+		<br>
+		<!-- User is Logistics Officer -->
+		{% if session.perms == 2 %}
+			<h3>Transfers Awaiting Unload/Offload</h3>
+			<table class="u-full-width">
+				<thead>
+					<tr>
+						<th>Select</th> <!-- request_pk -->
+						<th>Asset Tag</th>
+						<th>Requester ID</th>
+						<th>Source Facility</th>
+						<th>Destination Facility</th>
+						<th>Load Datetime</th>
+						<th>Unload Datetime</th>
+					</tr>
+				</thead>
+				{% for record in requests %}
+					<tbody>
+						<tr>
+							<td><input form="lo-request" type="radio" name="request_pk" value="{{ record[0] }}"></td>
+							<td>{{ record[1] }}</td>
+							<td>{{ record[2] }}</td>
+							<td>{{ record[3] }}</td>
+							<td>{{ record[4] }}</td>
+							<td>{{ record[5] }}</td>
+							<td>{{ record[6] }}</td>
+						</tr>
+					</tbody>
+				{% endfor %}
+			</table>
+			<br>
+			<div class="centered-form">
+				<form id="lo-request" action="{{ url_for('dashboard') }}" method="POST">
+					Load Date:
+					<input type="date" name="load date" placeholder="MM/DD/YYYY"><br>
+					Unload Date:
+					<input type="date" name="unload date" placeholder="MM/DD/YYYY"><br>
+					<input type="submit" value="authorize load/unload">
+				</form>
+			</div>
+		{% endif %}
+
+		<!-- User is Facility Officer -->
+		{% if session.perms == 3 %}
+			<h3>Transfer Requests Awaiting Approval</h3>
+			<table class="u-full-width">
+				<thead>
+					<tr>
+						<th>Select</th> <!-- request_pk -->
+						<th>Asset Tag</th>
+						<th>Requester ID</th>
+						<th>Source Facility</th>
+						<th>Destination Facility</th>
+					</tr>
+				</thead>
+				{% for record in requests %}
+					<tbody>
+						<tr>
+							<td><input form="fo-request" type="radio" name="request_pk" value="{{ record[0] }}"></td>
+							<td>{{ record[1] }}</td>
+							<td>{{ record[2] }}</td>
+							<td>{{ record[3] }}</td>
+							<td>{{ record[4] }}</td>
+						</tr>
+					</tbody>
+				{% endfor %}
+			</table>
+			<br>
+			<div class="centered-form">
+				<form id="fo-request" action="{{ url_for('dashboard') }}" method="POST">
+					<input type="submit" name="approve" value="approve">
+					<input type="submit" name="reject" value="reject">
+				</form>
+			</div>
+		{% endif %}
+		<br>
+		<br>
+		<br>
+		<h3>Reports</h3>
+		<div class="row">
+			<a class="button one-half column" href="{{ url_for('asset_report') }}">Asset Report</a>
+			<a class="button one-half column" href="{{ url_for('transfer_report') }}">Transfer Report</a>
+		</div>
+		<br>
+		<h3>Database Additions</h3>
+		<div class="row">
+			<a class="button one-half column" href="{{ url_for('add_facility') }}">Add Facility</a>
+			<a class="button one-half column" href="{{ url_for('add_asset') }}">Add Asset</a>
+		</div>
+		<br>
+
+		<!-- User is Logistics Officer -->
+		{% if session.perms == 2 %}
+			<h3>Logistics-Restricted Actions</h3>
+			<div class="row">
+				<a class="button one-half column" href="{{ url_for('dispose_asset') }}">Dispose Asset</a>
+				<a class="button one-half column" href="{{ url_for('transfer_req') }}">Transfer Request</a>
+			</div>
+		{% endif %}
+		<br>
+		<br>
+		<br>
+		<h6><a class="button" href="{{ url_for('logout') }}">LOGOUT</a></h6>
+	{% endif %}
+{% endblock %}
