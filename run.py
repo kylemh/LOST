@@ -1,4 +1,5 @@
-import app
+from app import app
 
 
-app.run(port=8080, debug=True)
+if __name__ == '__main__':
+    app.run(port=8080, debug=True)

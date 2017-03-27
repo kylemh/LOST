@@ -1,12 +1,13 @@
 from flask import Flask, render_template
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config.from_object('config')
 
-# db = SQLAlchemy(app)
+db = SQLAlchemy(app)
 
 from app import views, models
-# from models import db
+from app.models import db
 
 
 # ERROR PAGES
