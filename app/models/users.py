@@ -13,9 +13,10 @@ class User(db.Model):
 
     role = db.relationship('Role')
 
-    def __init__(self, username=None, role='1'):
+    def __init__(self, username=None, password=None, role='1'):
         self.username = username
+        self.password = password
         self.role_fk = role
 
     def __repr__(self):
-        return '<Username %r>' % self.username
+        return '<User %r>' % self.username

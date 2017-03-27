@@ -2,11 +2,15 @@ from flask import redirect, url_for
 from datetime import datetime
 import psycopg2
 
+DB_NAME = 'lost'
+HOST = 'localhost'
+PORT = '8080'
+
 
 # MARK: DATABASE FUNCTIONS
 def db_query(sql, data_list):
     """Returns none or a list of tuples from a SQL query and passed values."""
-    conn = psycopg2.connect(dbname=config.DB_NAME, host=config.HOST, port=config.PORT)
+    conn = psycopg2.connect(dbname=DB_NAME, host=HOST, port=PORT)
     cur = conn.cursor()
     cur.execute(sql, data_list)
 
