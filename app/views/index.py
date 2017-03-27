@@ -1,5 +1,7 @@
 from flask import redirect, url_for
-import app
+
+from app import app
+
 
 @app.route('/')
 @app.route('/index')

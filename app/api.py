@@ -1,6 +1,6 @@
 from flask import request, json
 
-from app import app, helpers
+from app import app
 
 
 @app.route('/rest/activate_user', methods=['POST'])
@@ -32,17 +32,17 @@ def activate_user():
             return error_result
 
         matching_user = "SELECT * FROM users WHERE username = %s"
-        user_does_exist = helpers.db_query(matching_user, [username])
+        user_does_exist = db_query(matching_user, [username])
 
         # If user exists in database, activate user; otherwise, create and activate new user.
         if user_does_exist:
             activate_existing_user = ("UPDATE users SET password = %s, active = TRUE "
                                       "WHERE username = %s")
-            helpers.db_change(activate_existing_user, [password, username])
+            db_change(activate_existing_user, [password, username])
         else:
             create_user = ("INSERT INTO users (user_pk, role_fk, username, password, active) "
                            "VALUES (DEFAULT, %s, %s, %s, TRUE)")
-            helpers.db_change(create_user, [role, username, password])
+            db_change(create_user, [role, username, password])
 
         data = json.dumps({'result': 'OK'})
         return data
@@ -59,17 +59,18 @@ def revoke_user():
             error_result = json.dumps({'result': 'Error: Missing Parameter(s)'})
             return error_result
 
+
         # All parameters present in request.
         username = api_req['username']
 
         matching_user = "SELECT * FROM users WHERE username = %s"
-        user_does_exist = helpers.db_query(matching_user, [username])
+        user_does_exist = db_query(matching_user, [username])
 
         # If user exists in database, deactivate user; otherwise, return "User Not Found" API Error.
         if user_does_exist:
             deactivate_existing_user = ("UPDATE users SET active = FALSE "
                                         "WHERE username = %s")
-            helpers.db_change(deactivate_existing_user, [username])
+            db_change(deactivate_existing_user, [username])
 
             data = json.dumps({'result': 'OK'})
             return data
