@@ -1,0 +1,5 @@
+SECRET_KEY = 'this_little_pig'
+SQLALCHEMY_DATABASE_URI = 'postgresql://root:password@localhost/lost'
+DB_NAME = 'lost'
+HOST = 'localhost'
+PORT = '8080'
