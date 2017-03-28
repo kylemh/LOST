@@ -13,6 +13,3 @@ printf '\e[1;34m\n~~~CREATING USERS TABLE~~~\n\e[0m'
 cd sql
 psql $1 -f create_tables.sql
 cd ..
-
-printf '\e[1;34m~~~COPYING RELEVANT WSGI FILES~~~\n\e[0m'
-cp -R src/* $HOME/wsgi

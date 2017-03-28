@@ -79,6 +79,7 @@ def add_asset():
 
     # Update all_assets after insert, but before template rendering
     all_assets = helpers.db_query(all_assets_query, [])
+
     # Handle situation of no assets in database
     if all_assets is None:
         all_assets = [('NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES', 'NO ENTRIES')]

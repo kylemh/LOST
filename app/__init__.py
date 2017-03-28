@@ -3,12 +3,13 @@ from flask import Flask, render_template
 app = Flask(__name__)
 app.config.from_object('config')
 
-
-from app import views, models
-from app.models import db
+from app import views
 
 
-db.create_all()
+"""Not using an ORM"""
+# from app import views, models
+# from app.models import db
+# db.create_all()
 
 
 # ERROR PAGES
