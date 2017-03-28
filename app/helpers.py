@@ -1,10 +1,10 @@
 from flask import redirect, url_for
-from datetime import datetime
+import datetime
 import psycopg2
 
 DB_NAME = 'lost'
 HOST = 'localhost'
-PORT = '8080'
+PORT = '5432'
 
 
 # MARK: DATABASE FUNCTIONS
@@ -63,10 +63,10 @@ def duplicate_check(sql, data_list):
         return False
 
 
-def validate_date(date):
+def validate_date(submitted_date):
     """Confirms that user entered a date in the MM/DD/YYYY format."""
     try:
-        date = datetime.datetime.strptime(date, '%m/%d/%Y').date()
-        return date
+        submitted_date = datetime.datetime.strptime(submitted_date, '%m/%d/%Y').date()
+        return submitted_date
     except ValueError:
         raise ValueError('Incorrect data format, should be MM/DD/YYYY')
