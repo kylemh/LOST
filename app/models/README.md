@@ -1,0 +1,1 @@
+This project doesn't utilize an ORM, but I wanted to demonstrate that I understand how to create a model in that manner.

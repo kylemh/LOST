@@ -1,16 +1,13 @@
 from flask import redirect, url_for
 import datetime
 import psycopg2
-
-DB_NAME = 'lost'
-HOST = 'localhost'
-PORT = '5432'
+from config import SQLALCHEMY_DATABASE_URI
 
 
 # MARK: DATABASE FUNCTIONS
 def db_query(sql, data_list):
     """Returns none or a list of tuples from a SQL query and passed values."""
-    conn = psycopg2.connect(dbname=DB_NAME, host=HOST, port=PORT)
+    conn = psycopg2.connect(SQLALCHEMY_DATABASE_URI)
     cur = conn.cursor()
     cur.execute(sql, data_list)
 
@@ -35,7 +32,7 @@ def db_query(sql, data_list):
 
 def db_change(sql, data_list):
     """Updates database using passed INSERT or UPDATE SQL command and vars."""
-    conn = psycopg2.connect(dbname=DB_NAME, host=HOST, port=PORT)
+    conn = psycopg2.connect(SQLALCHEMY_DATABASE_URI)
     cur = conn.cursor()
     try:
         cur.execute(sql, data_list)
@@ -51,7 +48,7 @@ def db_change(sql, data_list):
 
 def duplicate_check(sql, data_list):
     """Returns True if a query yields a result and False if not."""
-    conn = psycopg2.connect(dbname=DB_NAME, host=HOST, port=PORT)
+    conn = psycopg2.connect(SQLALCHEMY_DATABASE_URI)
     cur = conn.cursor()
     cur.execute(sql, data_list)
     result = cur.fetchall()

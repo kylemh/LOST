@@ -20,3 +20,10 @@ class Request(db.Model):
     facility = db.relationship('Facility', primaryjoin='Request.dest_fk == Facility.facility_pk')
     facility1 = db.relationship('Facility', primaryjoin='Request.src_fk == Facility.facility_pk')
     user1 = db.relationship('User', primaryjoin='Request.user_fk == User.user_pk')
+
+    def __init__(self, approved=False, completed=False):
+        self.approved = approved
+        self.completed = completed
+
+    def __repr__(self):
+        return '<Request %r>' % self.request_pk
