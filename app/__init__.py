@@ -6,7 +6,7 @@ app.config.from_object('config')
 from app import views
 
 
-"""Not using an ORM"""
+# NOT USING ORM
 # from app import views, models
 # from app.models import db
 # db.create_all()

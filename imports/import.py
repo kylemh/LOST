@@ -71,7 +71,7 @@ def import_facilities():
                 facilities_insert, [
                     record['fcode'],
                     record['common_name'],
-		            record['location']
+                    record['location']
                 ]
             )
             CONN.commit()
