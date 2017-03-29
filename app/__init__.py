@@ -6,12 +6,6 @@ app.config.from_object('config')
 from app import views
 
 
-# NOT USING ORM
-# from app import views, models
-# from app.models import db
-# db.create_all()
-
-
 # ERROR PAGES
 @app.errorhandler(404)
 def page_not_found(e):

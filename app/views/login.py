@@ -34,8 +34,10 @@ def login():
 
             # User DOES exist:
             else:
+                authorized = helpers.authorize(username, password)
+
                 # Password is correct
-                if password == result[0][3]:
+                if authorized:
                     session['username'] = username
                     session['logged_in'] = True
                     session['perms'] = result[0][1]
