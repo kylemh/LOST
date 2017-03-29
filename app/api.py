@@ -18,8 +18,8 @@ def activate_user():
             role = api_req['role']
 
         # Handle errors within CLI arguments.
-        if len(username) > 16 or len(password) > 16:
-            error_result = json.dumps({'result': 'Error: Username or Password Too Long'})
+        if len(username) > 16:
+            error_result = json.dumps({'result': 'Error: Username Too Long'})
             return error_result
 
         # All parameters are valid.
