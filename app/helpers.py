@@ -73,12 +73,12 @@ def validate_date(submitted_date):
 
 # AUTHORIZATION FUNCTIONS
 def _get_hash_for_user(username):
-    password = db_query("SELECT password FROM users WHERE username=%s;", [username])[0][0]
+    password = bytes(db_query("SELECT password FROM users WHERE username=%s;", [username])[0][0])
     return password
 
 
 def _get_salt_for_user(username):
-    salt = db_query("SELECT salt FROM users WHERE username=%s;", [username])[0][0]
+    salt = bytes(db_query("SELECT salt FROM users WHERE username=%s;", [username])[0][0])
     return salt
 
 
@@ -95,7 +95,6 @@ def _check_hash_for_user(username, password):
 
 
 def _recreate_hash(password, salt):
-    print(salt)
     hash_pass = bcrypt.hashpw(password.encode('utf-8'), salt)
     return hash_pass
 

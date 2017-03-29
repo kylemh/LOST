@@ -7,5 +7,4 @@ import app.views.dispose_asset
 import app.views.index
 import app.views.login
 import app.views.logout
-import app.views.transfer_report
 import app.views.transfer_request
