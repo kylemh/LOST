@@ -12,6 +12,3 @@ if is_prod:
 else:
     SECRET_KEY = 'this_little_pig_went_to_the_market'
     SQLALCHEMY_DATABASE_URI = 'postgres://localhost/lost'
-    DB_NAME = 'lost'
-    HOST = 'localhost'
-    PORT = '8080'
