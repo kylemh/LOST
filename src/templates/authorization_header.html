@@ -1,8 +1,0 @@
-{% if not session.logged_in %}
-	<h1 class="alert-warning">AUTHORIZATION FAILURE</h1>
-	<br>
-	<div class="row">
-		<a class="button one-half column" href="{{ url_for('login') }}">LOGIN</a>
-		<a class="button one-half column" href="{{ url_for('create_user') }}">CREATE USER</a>
-	</div>
-{% endif %}
