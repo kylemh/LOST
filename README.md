@@ -9,6 +9,7 @@ This is an inventory tracking Flask web application utilizing a Postgres databas
 
 - [Resources Used](#resources-used)
 - [Install](#install)
+- [Contents](#contents)
 - [Contribute](#contribute)
 - [License](#license)
 
@@ -34,6 +35,39 @@ To install, you must have [Virtual Environments](https://pypi.python.org/pypi/vi
 6. `$ chmod u+x preflight.sh`
 7. `$ ./preflight.sh <db_name>`
 8. `$ python3 run.py`
+
+
+## Contents
+```
+├── Procfile
+├── README.md
+├── app
+│   ├── README.md
+│   ├── __init__.py
+│   ├── api.py
+│   ├── helpers.py
+│   ├── static
+│   ├── templates
+│   └── views
+├── config.py
+├── exports
+│   ├── README.md
+│   ├── assets.csv
+│   ├── export_data.sh
+│   ├── facilities.csv
+│   ├── migrations.py
+│   ├── transfers.csv
+│   └── users.csv
+├── imports
+│   ├── data
+│   └── import.py
+├── preflight.sh
+├── requirements.txt
+├── run.py
+├── runtime.txt
+└── sql
+    └── create_tables.sql
+```  
 
 
 ## Contribute
