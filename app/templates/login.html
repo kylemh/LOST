@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block head %}
+	{{ super() }}
+{% endblock %}
+
+{% block content %}
+	<h1>LOST LOGIN</h1>
+	<p>If you do not have an account, please create one <a href="{{ url_for('create_user') }}">here</a>.</p>
+	<div class="centered-form">
+		<form action="{{ url_for('login') }}" method="POST">
+			Username:
+			<input title="Username" type="text" name="username"><br>
+			Password:
+			<input title="Password" type="password" name="password"><br>
+			<br>
+			<input type="submit" value="login">
+		</form>
+	</div>
+{% endblock %}
