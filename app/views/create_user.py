@@ -11,8 +11,9 @@ def create_user():
         password = request.form.get('password', None)
         role = request.form.get('role', 'Guest')
 
-        if not username or not password or password == '':
+        if not username or username == '' or not password or password == '':
             flash('Please enter a username and password.')
+
         else:
             # Form was completed
             matching_user = "SELECT user_pk FROM users WHERE username = %s;"

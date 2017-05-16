@@ -18,35 +18,34 @@ def login():
         elif password is None:
             flash('Please enter a password.')
             return render_template('login.html')
+
+        # Login form is not blank.
+        check_for_user = "SELECT * FROM users WHERE username = %s;"
+        result = helpers.db_query(check_for_user, [username])
+
+        # User does not exist.
+        if result is None:
+            flash('There is no record of this account.')
+            return render_template('login.html')
+
+        # User is deactivated.
+        if not result[0][4]:
+            flash('This account has been deactivated')
+            return render_template('login.html')
+
+        # User exists:
+        authorized = helpers.authorize(username, password)
+
+        # Password is correct
+        if authorized:
+            session['username'] = username
+            session['logged_in'] = True
+            session['perms'] = result[0][1]
+            session['user_id'] = result[0][0]
+            return redirect('/dashboard')
+
+        # Password is incorrect
         else:
-            check_for_user = "SELECT * FROM users WHERE username = %s;"
-            result = helpers.db_query(check_for_user, [username])
-
-            # User doesnt exist.
-            if result is None:
-                flash('There is no record of this account.')
-                return render_template('login.html')
-
-            # active is false
-            if not result[0][4]:
-                flash('This account has been deactivated')
-                return render_template('login.html')
-
-            # User DOES exist:
-            else:
-                authorized = helpers.authorize(username, password)
-
-                # Password is correct
-                if authorized:
-                    session['username'] = username
-                    session['logged_in'] = True
-                    session['perms'] = result[0][1]
-                    session['user_id'] = result[0][0]
-                    return redirect('/dashboard')
-
-                # Password is incorrect
-                else:
-                    flash('Password is incorrect.')
-                    return render_template('login.html')
+            flash('Password is incorrect.')
 
     return render_template('login.html')
